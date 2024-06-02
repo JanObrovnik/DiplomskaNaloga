@@ -14,9 +14,10 @@ private:
 	void OnButtonDodClicked(wxCommandEvent& evt);
 	void OnButtonIzbClicked(wxCommandEvent& evt);
 	void OnButtonIzbVseClicked(wxCommandEvent& evt);
+	void OnButtonPredVseClicked(wxCommandEvent& evt);
+	void OnButtonSimClicked(wxCommandEvent& evt);
 
 	void OnMouseEvent(wxMouseEvent& evt);
 
-
-	
+	void OnSizeChanged(wxSizeEvent& evt);
 };
