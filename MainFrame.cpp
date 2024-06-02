@@ -372,7 +372,7 @@ void MainFrame::OnButtonPredVseClicked(wxCommandEvent& evt) {
 
 void MainFrame::OnButtonSimClicked(wxCommandEvent& evt) {
 
-	slider->SetValue(690);
+	slider->SetValue(420);
 	
 	Refresh();
 }
@@ -413,11 +413,12 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	int visina_prikaza = 120;
 
 	//- IZRIS DELOVNEGA OBMOÈJA
+	dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+	
 	dc.DrawText("Dodaj", wxPoint(0, 0));
 	dc.DrawText("Izbrisi", wxPoint(0, 80));
 	dc.DrawText("Simuliraj", wxPoint(0, 340));
 
-	dc.SetPen(wxPen(wxColour(0,0,0), 1, wxPENSTYLE_SOLID));
 	dc.DrawRectangle(x_okno, y_okno, sirina, visina);
 
 	int ris_x = x_okno + 10;
