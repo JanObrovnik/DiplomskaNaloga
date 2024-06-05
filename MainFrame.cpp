@@ -267,6 +267,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	wxButton* button_izb_vse = new wxButton(panel, wxID_ANY, "Izbriši vse", wxPoint(0, 160), wxSize(190, -1));
 	wxButton* predlog = new wxButton(panel, wxID_ANY, "Pregled elementov", wxPoint(0, 360), wxSize(190, -1));
 	wxButton* simuliraj = new wxButton(panel, wxID_ANY, "Simuliraj", wxPoint(0, 440), wxSize(190, -1));
+	wxButton* pomozno_okno = new wxButton(panel, wxID_ANY, "Pomozno okno", wxPoint(0, 250), wxSize(190, 75));
 
 	wxArrayString choices;
 	choices.Add("Izoliran valj");
@@ -288,6 +289,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	button_izb_vse->Bind(wxEVT_BUTTON, &MainFrame::OnButtonIzbVseClicked, this);
 	predlog->Bind(wxEVT_BUTTON, &MainFrame::OnButtonPredVseClicked, this);
 	simuliraj->Bind(wxEVT_BUTTON, &MainFrame::OnButtonSimClicked, this);
+	pomozno_okno->Bind(wxEVT_BUTTON, &MainFrame::OnButtonPomClicked, this);
 	choice_dod->Bind(wxEVT_CHOICE, &MainFrame::OnChoicesClicked, this);
 	slider->Bind(wxEVT_SLIDER, &MainFrame::OnSliderChanged, this);
 
@@ -367,6 +369,8 @@ void MainFrame::OnButtonPredVseClicked(wxCommandEvent& evt) {
 	seznam_valjev.push_back({ 300, 200, 1 });
 	seznam_valjev.push_back({ 300, 300, 2 });
 
+	spinCtrl->SetRange(0, seznam_valjev.size());
+
 	Refresh();
 }
 
@@ -375,6 +379,12 @@ void MainFrame::OnButtonSimClicked(wxCommandEvent& evt) {
 	slider->SetValue(420);
 	
 	Refresh();
+}
+
+void MainFrame::OnButtonPomClicked(wxCommandEvent& evt) {
+
+	PomoznoOkno* dodatnoOkno = new PomoznoOkno();
+	dodatnoOkno->Show();
 }
 
 void MainFrame::OnChoicesClicked(wxCommandEvent& evt) {
@@ -555,14 +565,23 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	//-
 }
 
+PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, "title", wxPoint(0,0), wxSize(320,320)) {
 
+	panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
-/*
-dc.DrawRectangle(x, y, deb + 1, vis + 1); // Ohišje
+	wxButton* button = new wxButton(panel, wxID_ANY, "Button", wxPoint(20, 20), wxSize(69, 69));
 
-dc.DrawRectangle(x + deb / 8 * 1 + n * 20, y, deb / 8 + 1, vis + 1); // Bat
-dc.DrawRectangle(x + deb / 8 * 2 + n * 20, y + vis / 5 * 2, deb / 8 * 7 + 1, vis / 5 + 1); // Batnica
-*/
+	button->Bind(wxEVT_BUTTON, &PomoznoOkno::OnButtonClicked, this);
+
+	wxStatusBar* statusBar = CreateStatusBar();
+	statusBar->SetDoubleBuffered(true);
+}
+
+void PomoznoOkno::OnButtonClicked(wxCommandEvent& evt) {
+
+	wxLogStatus("Delaa");
+}
+
 
 
 /*

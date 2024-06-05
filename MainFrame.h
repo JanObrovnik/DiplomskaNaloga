@@ -1,13 +1,13 @@
 #pragma once
 #include <wx/wx.h>
 
-class MainFrame : public wxFrame
-{
+class MainFrame : public wxFrame {
+
 public:
 	MainFrame(const wxString& title);
-
-	void OnPaint(wxPaintEvent& evt);
 private:
+	void OnPaint(wxPaintEvent& evt);
+
 	void OnChoicesClicked(wxCommandEvent& evt);
 	void OnSliderChanged(wxCommandEvent& evt);
 
@@ -16,8 +16,17 @@ private:
 	void OnButtonIzbVseClicked(wxCommandEvent& evt);
 	void OnButtonPredVseClicked(wxCommandEvent& evt);
 	void OnButtonSimClicked(wxCommandEvent& evt);
+	void OnButtonPomClicked(wxCommandEvent& evt);
 
-	void OnMouseEvent(wxMouseEvent& evt);
+	void OnMouseEvent(wxMouseEvent& evt); 
 
 	void OnSizeChanged(wxSizeEvent& evt);
+};
+
+class PomoznoOkno : public wxFrame {
+
+public:
+	PomoznoOkno();
+private:
+	void OnButtonClicked(wxCommandEvent& evt);
 };
