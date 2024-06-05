@@ -251,9 +251,16 @@ int velikost_y = 60;
 
 wxPanel* panel;
 wxChoice* choice_dod;
-wxChoice* choice_izb;
+//wxChoice* choice_izb;
 wxSlider* slider;
 wxSpinCtrl* spinCtrl;
+wxCheckListBox* levaLastnost;
+wxCheckListBox* desnaLastnost;
+wxRadioBox* levaTlak;
+wxRadioBox* desnaTlak;
+wxSpinCtrlDouble* delTlak;
+wxSpinCtrlDouble* okTlak;
+wxSpinCtrlDouble* zacPoz;
 
 
 std::vector<std::vector<int>> seznam_valjev;
@@ -565,24 +572,71 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	//-
 }
 
-PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, "title", wxPoint(0,0), wxSize(320,320)) {
+
+PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, "Nastavitve", wxPoint(0,0), wxSize(420,320)) {
 
 	panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
+	wxSize size = this->GetSize();
 
-	wxButton* button = new wxButton(panel, wxID_ANY, "Button", wxPoint(20, 20), wxSize(69, 69));
+	wxButton* button = new wxButton(panel, wxID_ANY, "Aplly", wxPoint(size.x / 2 - 40, size.y - 64), wxSize(80, 20));
+
+	wxArrayString lastnosti;
+	lastnosti.Add("Batnica");
+	lastnosti.Add("Vzmet");
+	lastnosti.Add("Tlaèno izoliran");
+	levaLastnost = new wxCheckListBox(panel, wxID_ANY, wxPoint(10, 44), wxDefaultSize, lastnosti);
+	desnaLastnost = new wxCheckListBox(panel, wxID_ANY, wxPoint(size.x / 2 + 10, 44), wxDefaultSize, lastnosti);
+
+	wxArrayString tlak;
+	tlak.Add("Delovni tlak");
+	tlak.Add("Okoljski tlak");
+	levaTlak = new wxRadioBox(panel, wxID_ANY, "", wxPoint(10, 124), wxDefaultSize, tlak);
+	desnaTlak = new wxRadioBox(panel, wxID_ANY, "", wxPoint(size.x / 2 + 10, 124), wxDefaultSize, tlak);
+
+	delTlak = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(120, 180), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, 6, .1);
+	okTlak = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(120, 210), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, 1, .1);
+	zacPoz = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(320, 180), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 100, 0, 1);
 
 	button->Bind(wxEVT_BUTTON, &PomoznoOkno::OnButtonClicked, this);
+	panel->Bind(wxEVT_SIZE, &PomoznoOkno::OnSizeChanged, this);
 
-	wxStatusBar* statusBar = CreateStatusBar();
-	statusBar->SetDoubleBuffered(true);
+	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(PomoznoOkno::OnPaint));
 }
 
 void PomoznoOkno::OnButtonClicked(wxCommandEvent& evt) {
 
+	slider->SetValue(69);
+
 	wxLogStatus("Delaa");
 }
 
+void PomoznoOkno::OnSizeChanged(wxSizeEvent& evt) {
 
+	Refresh();
+}
+
+void PomoznoOkno::OnPaint(wxPaintEvent& evt) {
+
+	wxPaintDC dc(this);
+
+	wxSize size = this->GetSize();
+
+	dc.DrawLine(wxPoint(size.x / 2, 0), wxPoint(size.x / 2, 176));
+	dc.DrawLine(wxPoint(0, 24), wxPoint(size.x, 24));
+	dc.DrawLine(wxPoint(0, 176), wxPoint(size.x, 176));
+
+	dc.DrawText("Leva stran valja:", wxPoint(10, 4));
+	dc.DrawText("Lastnosti:", wxPoint(10, 30));
+	dc.DrawText("Zraèni prikljuèek:", wxPoint(10, 110));
+	
+	dc.DrawText("Desna stran valja:", wxPoint(size.x / 2 + 10, 4));
+	dc.DrawText("Lastnosti:", wxPoint(size.x / 2 + 10, 30));
+	dc.DrawText("Zraèni prikljuèek:", wxPoint(size.x / 2 + 10, 110));
+	
+	dc.DrawText("Delovni tlak [bar] = ", wxPoint(10, 180));
+	dc.DrawText("Okoljski tlak [bar] = ", wxPoint(10, 210));
+	dc.DrawText("Zacetna pozicija [%] = ", wxPoint(200, 180));
+}
 
 /*
 povezava za dokumentacijo kontrol

@@ -28,5 +28,9 @@ class PomoznoOkno : public wxFrame {
 public:
 	PomoznoOkno();
 private:
+	void OnPaint(wxPaintEvent& evt);
+
 	void OnButtonClicked(wxCommandEvent& evt);
+
+	void OnSizeChanged(wxSizeEvent& evt);
 };

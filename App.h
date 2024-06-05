@@ -5,4 +5,3 @@ class App : public wxApp
 {
 	bool OnInit();
 };
-
