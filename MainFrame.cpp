@@ -1,6 +1,8 @@
 #include "MainFrame.h"
 #include <wx/wx.h>
 #include <wx/spinctrl.h>
+#include <wx/time.h>
+#include <wx/utils.h>
 #include <stdlib.h>
 #include <time.h>
 #include <vector>
@@ -264,17 +266,19 @@ wxSpinCtrlDouble* zacPoz;
 
 
 std::vector<std::vector<int>> seznam_valjev;
+int oznacitev = -1;
+
 
 MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 
 	panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
-	wxButton* button_dod = new wxButton(panel, wxID_ANY, "Dodaj element", wxPoint(0, 48), wxSize(190, -1));
-	wxButton* button_izb = new wxButton(panel, wxID_ANY, "Izbriši element", wxPoint(0, 128), wxSize(190, -1));
-	wxButton* button_izb_vse = new wxButton(panel, wxID_ANY, "Izbriši vse", wxPoint(0, 160), wxSize(190, -1));
-	wxButton* predlog = new wxButton(panel, wxID_ANY, "Pregled elementov", wxPoint(0, 360), wxSize(190, -1));
-	wxButton* simuliraj = new wxButton(panel, wxID_ANY, "Simuliraj", wxPoint(0, 440), wxSize(190, -1));
-	wxButton* pomozno_okno = new wxButton(panel, wxID_ANY, "Pomozno okno", wxPoint(0, 250), wxSize(190, 75));
+	wxButton* button_dod = new wxButton(panel, wxID_ANY, "Dodaj element", wxPoint(5, 48), wxSize(190, -1));
+	wxButton* button_izb = new wxButton(panel, wxID_ANY, "Izbriši element", wxPoint(5, 128), wxSize(190, -1));
+	wxButton* button_izb_vse = new wxButton(panel, wxID_ANY, "Izbriši vse", wxPoint(5, 160), wxSize(190, -1));
+	wxButton* predlog = new wxButton(panel, wxID_ANY, "Pregled elementov", wxPoint(5, 360), wxSize(190, -1));
+	wxButton* simuliraj = new wxButton(panel, wxID_ANY, "Simuliraj", wxPoint(5, 440), wxSize(190, 36));
+	wxButton* pomozno_okno = new wxButton(panel, wxID_ANY, "Pomozno okno", wxPoint(5, 250), wxSize(190, 75));
 
 	wxArrayString choices;
 	choices.Add("Izoliran valj");
@@ -283,11 +287,11 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	choices.Add("Vakumski prisesek");
 	choices.Add("Pnevmatièno prijemalo");
 
-	choice_dod = new wxChoice(panel, wxID_ANY, wxPoint(0, 20), wxSize(190, -1), choices/*, wxCB_SORT*/);
+	choice_dod = new wxChoice(panel, wxID_ANY, wxPoint(5, 20), wxSize(190, -1), choices/*, wxCB_SORT*/);
 	choice_dod->SetSelection(0);
-	spinCtrl = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(0, 100), wxSize(190, -1), wxSP_ARROW_KEYS|wxSP_WRAP);
+	spinCtrl = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(5, 100), wxSize(190, -1), wxSP_ARROW_KEYS|wxSP_WRAP);
 	spinCtrl->SetRange(0, 0);
-	slider = new wxSlider(panel, wxID_ANY, 0, 0, 1000, wxPoint(0, 400), wxSize(190, -1), wxSL_VALUE_LABEL);
+	slider = new wxSlider(panel, wxID_ANY, 0, 0, 1000, wxPoint(5, 400), wxSize(190, -1), wxSL_VALUE_LABEL);
 
 	panel->Bind(wxEVT_LEFT_DOWN, &MainFrame::OnMouseEvent, this);
 	panel->Bind(wxEVT_SIZE, &MainFrame::OnSizeChanged, this);
@@ -305,6 +309,12 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	wxStatusBar* statusBar = CreateStatusBar();
 	statusBar->SetDoubleBuffered(true); // da ne utripa izpis
 	panel->SetDoubleBuffered(true);
+
+	seznam_valjev.push_back({ 300, 100, 0 });
+	seznam_valjev.push_back({ 300, 200, 1 });
+	seznam_valjev.push_back({ 300, 300, 2 });
+
+	spinCtrl->SetRange(0, seznam_valjev.size());
 }
 
 
@@ -314,11 +324,44 @@ void MainFrame::OnMouseEvent(wxMouseEvent& evt) {
 	wxPoint mousePos = wxGetMousePosition(); // relativno na zaslon
 	mousePos = this->ScreenToClient(mousePos); // pretvori zaslon in client (obratno pa "ClientToScreen")
 
-	dx = round(static_cast<float>(mousePos.x) / 20) * 20;
-	dy = round(static_cast<float>(mousePos.y) / 20) * 20;
+
+	bool je = false;
+	for (int i = 0; i < seznam_valjev.size(); i++) {
+
+		if (seznam_valjev[i][0] < mousePos.x && seznam_valjev[i][0] + 80 > mousePos.x && seznam_valjev[i][1] < mousePos.y && seznam_valjev[i][1] + 50 > mousePos.y) {
+
+			je = true;
+
+			if (i == oznacitev) oznacitev = -1;
+			else {
+
+				oznacitev = i;
+
+				choice_dod->SetSelection(seznam_valjev[i][2]);
+			}
+
+			break;
+		}
+	}
+
+	if (je == false) {
+
+		dx = round(static_cast<float>(mousePos.x) / 10) * 10;
+		dy = round(static_cast<float>(mousePos.y) / 10) * 10;
+
+		if (oznacitev >= 0) {
+			seznam_valjev[oznacitev][0] = dx; 
+			seznam_valjev[oznacitev][1] = dy;
+		}
+
+		oznacitev = -1;
+	}
+
 
 	wxString message = wxString::Format("Mouse Event Detected! (x=%d y=%d)", dx, dy);
 	wxLogStatus(message);
+
+	Refresh();
 }
 
 void MainFrame::OnSizeChanged(wxSizeEvent& evt) {
@@ -383,8 +426,13 @@ void MainFrame::OnButtonPredVseClicked(wxCommandEvent& evt) {
 
 void MainFrame::OnButtonSimClicked(wxCommandEvent& evt) {
 
-	slider->SetValue(420);
-	
+	for (int i = 0; i <= 100; i++) {
+
+		slider->SetValue(i * 10);
+		Refresh();
+		wxMilliSleep(10);
+	}
+	slider->SetValue(0);
 	Refresh();
 }
 
@@ -432,9 +480,9 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	//- IZRIS DELOVNEGA OBMOÈJA
 	dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 	
-	dc.DrawText("Dodaj", wxPoint(0, 0));
-	dc.DrawText("Izbrisi", wxPoint(0, 80));
-	dc.DrawText("Simuliraj", wxPoint(0, 340));
+	dc.DrawText("Dodaj", wxPoint(5, 0));
+	dc.DrawText("Izbrisi", wxPoint(5, 80));
+	dc.DrawText("Simuliraj", wxPoint(5, 340));
 
 	dc.DrawRectangle(x_okno, y_okno, sirina, visina);
 
@@ -499,9 +547,18 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	}
 	//-
 
+
+	//- OZNAÈITEV ELEMENTA
+	if (oznacitev >= 0) {
+
+		dc.SetPen(wxPen(wxColour(153, 153, 255), 1, wxPENSTYLE_LONG_DASH));
+		dc.DrawRectangle(seznam_valjev[oznacitev][0] - 10, seznam_valjev[oznacitev][1] - 10, 100 + 1, 70 + 1);
+		dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+	}
+	//-
 	
+
 	//- IZRIS VALJEV
-	
 	for (int i = 0; i < seznam_valjev.size(); i++) {
 
 		switch (seznam_valjev[i][2]) {
@@ -571,6 +628,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	}
 	//-
 }
+
 
 
 PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, "Nastavitve", wxPoint(0,0), wxSize(420,320)) {
