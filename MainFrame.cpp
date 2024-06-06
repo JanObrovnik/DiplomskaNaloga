@@ -9,7 +9,7 @@
 //#include <algorithm>
 
 
-
+//std::vector<double> izracun(int n, int element, std::vector<int> aa)
 std::vector<double> izracun(int n, int element) {
 	std::vector<double> res;
 	
@@ -266,6 +266,7 @@ wxSpinCtrlDouble* zacPoz;
 
 
 std::vector<std::vector<int>> seznam_valjev;
+// seznam_valjev[x, y, element]
 int oznacitev = -1;
 
 
@@ -349,7 +350,7 @@ void MainFrame::OnMouseEvent(wxMouseEvent& evt) {
 		dx = round(static_cast<float>(mousePos.x) / 10) * 10;
 		dy = round(static_cast<float>(mousePos.y) / 10) * 10;
 
-		if (oznacitev >= 0) {
+		if (oznacitev >= 0 && dx >= 200) {
 			seznam_valjev[oznacitev][0] = dx; 
 			seznam_valjev[oznacitev][1] = dy;
 		}
@@ -438,8 +439,12 @@ void MainFrame::OnButtonSimClicked(wxCommandEvent& evt) {
 
 void MainFrame::OnButtonPomClicked(wxCommandEvent& evt) {
 
-	PomoznoOkno* dodatnoOkno = new PomoznoOkno();
-	dodatnoOkno->Show();
+	if (oznacitev >= 0) {
+
+		PomoznoOkno* dodatnoOkno = new PomoznoOkno();
+		dodatnoOkno->Show();
+	}
+	else wxLogStatus("Izberite element");
 }
 
 void MainFrame::OnChoicesClicked(wxCommandEvent& evt) {
@@ -477,7 +482,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	int visina = visina_panel - y_okno;
 	int visina_prikaza = 120;
 
-	//- IZRIS DELOVNEGA OBMOÈJA
+	//- IZRIS DELOVNEGA OBMOCJA
 	dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 	
 	dc.DrawText("Dodaj", wxPoint(5, 0));
@@ -631,7 +636,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 
 
-PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, "Nastavitve", wxPoint(0,0), wxSize(420,320)) {
+PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve elementa %d", oznacitev + 1), wxPoint(0,0), wxSize(420,320)) {
 
 	panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 	wxSize size = this->GetSize();
