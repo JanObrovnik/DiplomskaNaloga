@@ -31,6 +31,7 @@ private:
 	void OnPaint(wxPaintEvent& evt);
 
 	void OnButtonClicked(wxCommandEvent& evt);
+	void OnNastavitveClicked(wxCommandEvent& evt);
 
 	void OnSizeChanged(wxSizeEvent& evt);
 };
