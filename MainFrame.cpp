@@ -194,6 +194,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	slider = new wxSlider(panel, wxID_ANY, 0, 0, 1000, wxPoint(5, 400), wxSize(190, -1), wxSL_VALUE_LABEL);
 
 	panel->Bind(wxEVT_LEFT_DOWN, &MainFrame::OnMouseEvent, this);
+	panel->Bind(wxEVT_LEFT_DCLICK, &MainFrame::OnDoubleMouseEvent, this);
 	panel->Bind(wxEVT_SIZE, &MainFrame::OnSizeChanged, this);
 	button_dod->Bind(wxEVT_BUTTON, &MainFrame::OnButtonDodClicked, this);
 	button_izb->Bind(wxEVT_BUTTON, &MainFrame::OnButtonIzbClicked, this);
@@ -269,6 +270,21 @@ void MainFrame::OnMouseEvent(wxMouseEvent& evt) {
 	Refresh();
 }
 
+void MainFrame::OnDoubleMouseEvent(wxMouseEvent& evt) {
+
+	wxPoint mousePos = wxGetMousePosition();
+	mousePos = this->ScreenToClient(mousePos);
+
+	if (oznacitev >= 0) {
+		//if (seznam_valjev[oznacitev][0] < mousePos.x && seznam_valjev[oznacitev][0] + 80 > mousePos.x && seznam_valjev[oznacitev][1] < mousePos.y && seznam_valjev[oznacitev][1] + 50 > mousePos.y) {
+		PomoznoOkno* dodatnoOkno = new PomoznoOkno();
+		dodatnoOkno->Show();
+		//}
+	}
+	else wxLogStatus("Kliknite na element");
+	wxLogStatus("DClick");
+}
+
 void MainFrame::OnSizeChanged(wxSizeEvent& evt) {
 
 	Refresh();
@@ -337,20 +353,24 @@ void MainFrame::OnButtonPredVseClicked(wxCommandEvent& evt) {
 	Refresh();
 }
 
+bool sim = false;
+
 void MainFrame::OnButtonSimClicked(wxCommandEvent& evt) {
+	
+	if (sim == false) sim = true;
+	else sim = false;
 
-	for (int i = 0; i <= 100; i++) {
-
-		slider->SetValue(i * 10);
+	int i = slider->GetValue();
+	while (sim && i <= 1000) {
+		slider->SetValue(i);
 		Refresh();
-		wxMilliSleep(10);
+		wxYield();
+		i++;
 	}
-	slider->SetValue(0);
-	Refresh();
 }
 
 void MainFrame::OnButtonPomClicked(wxCommandEvent& evt) {
-
+	
 	if (oznacitev >= 0) {
 
 		PomoznoOkno* dodatnoOkno = new PomoznoOkno();
@@ -539,11 +559,13 @@ PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastav
 	wxSize size = this->GetSize();
 
 	wxButton* button = new wxButton(panel, wxID_ANY, "Aplly", wxPoint(size.x / 2 - 40, size.y - 64), wxSize(80, 20));
+	wxButton* button2 = new wxButton(panel, wxID_ANY, "Try", wxPoint(size.x / 2 - 40, size.y - 86), wxSize(80, 20));
 
 	wxArrayString lastnosti;
 	lastnosti.Add("Batnica");
 	lastnosti.Add("Vzmet");
 	lastnosti.Add("Tlaèno izoliran");
+	lastnosti.Add("Masa");
 	levaLastnost = new wxCheckListBox(panel, wxID_ANY, wxPoint(10, 44), wxDefaultSize, lastnosti);
 	if (seznam_lastnosti[oznacitev][0] > 0) levaLastnost->Check(0);
 	if (seznam_lastnosti[oznacitev][2] > 0) levaLastnost->Check(1);
@@ -569,6 +591,7 @@ PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastav
 	hodBata = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(320, 210), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 1000, seznam_lastnosti[oznacitev][11]);
 
 	button->Bind(wxEVT_BUTTON, &PomoznoOkno::OnButtonClicked, this);
+	//button2->Bind(wxEVT_BUTTON, &MainFrame::OnButtonRefClicked, this);
 	panel->Bind(wxEVT_SIZE, &PomoznoOkno::OnSizeChanged, this);
 	levaLastnost->Bind(wxEVT_CHECKLISTBOX, &PomoznoOkno::OnNastavitveClicked, this);
 	desnaLastnost->Bind(wxEVT_CHECKLISTBOX, &PomoznoOkno::OnNastavitveClicked, this);
@@ -611,6 +634,11 @@ void PomoznoOkno::OnButtonClicked(wxCommandEvent& evt) {
 
 	Refresh(); 
 }
+
+/*void MainFrame::OnButtonRefClicked(wxCommandEvent& evt) {
+
+	Refresh();
+}*/
 
 void PomoznoOkno::OnNastavitveClicked(wxCommandEvent& evt) {
 

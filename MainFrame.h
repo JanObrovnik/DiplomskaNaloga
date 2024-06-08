@@ -5,6 +5,8 @@ class MainFrame : public wxFrame {
 
 public:
 	MainFrame(const wxString& title);
+
+	void OnButtonRefClicked(wxCommandEvent& evt);
 private:
 	void OnPaint(wxPaintEvent& evt);
 
@@ -18,7 +20,8 @@ private:
 	void OnButtonSimClicked(wxCommandEvent& evt);
 	void OnButtonPomClicked(wxCommandEvent& evt);
 
-	void OnMouseEvent(wxMouseEvent& evt); 
+	void OnMouseEvent(wxMouseEvent& evt);
+	void OnDoubleMouseEvent(wxMouseEvent& evt);
 
 	void OnSizeChanged(wxSizeEvent& evt);
 };
