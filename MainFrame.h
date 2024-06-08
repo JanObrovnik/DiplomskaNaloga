@@ -6,7 +6,7 @@ class MainFrame : public wxFrame {
 public:
 	MainFrame(const wxString& title);
 
-	void OnButtonRefClicked(wxCommandEvent& evt);
+	//void OnButtonRefClicked(wxCommandEvent& evt);
 private:
 	void OnPaint(wxPaintEvent& evt);
 
