@@ -23,8 +23,8 @@ std::vector<double> izracun2(int n, int element, std::vector<double> last) {
 	double pdel = last[8] / 10; //- delovni tlak [MPa]
 	double pok = last[9] / 10; //- atmosferski tlak [MPa]
 
-	double Ftr_s = 100; //- Sila staticnega trenja znotraj valja [N]
-	double Ftr_d = 20; //- Sila dinamicnega trenja znotraj valja [N] /////////////////spremenit v koef_tr in izracunat z mase
+	double koef_tr_st = .8; //- Koeficient staticnega trenja [/]
+	double koef_tr_din = .6; //- Koeficient dinamicnega trenja [/]
 
 	double koef_vzm_leva, koef_vzm_desna; //- Koeficient vzmeti [N/mm]
 	if (last[2] < 0) koef_vzm_leva = 0.;
@@ -40,8 +40,13 @@ std::vector<double> izracun2(int n, int element, std::vector<double> last) {
 	double x0 = last[10] / 100 * l; //- zaèetna pozicija bata [mm]
 	double V_0_krmilni = 10000; //- krmilni volumen na zacetni strani [mm^3]
 	double V_1_krmilni = 10000; //- krmilni volumen na koncni strani [mm^3]
-	double m = .6; //- masa batnice in bata [kg]
-	m = m + last[12] + last[13];
+	double m = 1. / 1000; //- masa batnice in bata [t] //////////////////////////// m = 1. / 1000 -> pika zlo pomembna
+	m = m + last[12] / 1000 + last[13] / 1000;
+	m = m * 1000;
+	double Ftr_s = m * g * koef_tr_st; //- Sila staticnega trenja znotraj valja [N]
+	double Ftr_d = m * g * koef_tr_din; //- Sila dinamicnega trenja znotraj valja [N]
+
+	Ftr_s = 100; Ftr_d = 20;
 
 	double A0 = pi * pow(D, 2) / 4; //- površina celega bata [mm^2]
 	double A1_l = pi * pow(d_l, 2) / 4; //- površina batnice [mm^2]
