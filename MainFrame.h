@@ -35,6 +35,7 @@ private:
 
 	void OnButtonClicked(wxCommandEvent& evt);
 	void OnNastavitveClicked(wxCommandEvent& evt);
+	void OnPremerClicked(wxCommandEvent& evt);
 
 	void OnSizeChanged(wxSizeEvent& evt);
 };

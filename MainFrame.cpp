@@ -10,8 +10,9 @@
 
 
 //last[batnica_leva, batnica_desna, vzmer_leva, vzmet_desna, tlak_izo_leva, tlak_izo_desna, zrak_prik_leva, zrak_prik_desna,
-//     delovni_tlak, okoljski_tlak, zacetna_poz, hod_bata]
-std::vector<double> izracun1(int n, int element, std::vector<double> last) {
+//     delovni_tlak, okoljski_tlak, zacetna_poz, hod_bata, masa_leva, masa_desna, batnica_premer_leva, batnica_premer_desna,
+//	   bat_premer]
+std::vector<double> izracun2(int n, int element, std::vector<double> last) {
 
 	std::vector<double> res;
 
@@ -21,7 +22,7 @@ std::vector<double> izracun1(int n, int element, std::vector<double> last) {
 	double g = 9.81 * 1000; //- gravitacijski pospesek [mm/s^2]
 	double pdel = last[8] / 10; //- delovni tlak [MPa]
 	double pok = last[9] / 10; //- atmosferski tlak [MPa]
-	
+
 	double Ftr_s = 100; //- Sila staticnega trenja znotraj valja [N]
 	double Ftr_d = 20; //- Sila dinamicnega trenja znotraj valja [N] /////////////////spremenit v koef_tr in izracunat z mase
 
@@ -31,9 +32,10 @@ std::vector<double> izracun1(int n, int element, std::vector<double> last) {
 	if (last[3] < 0) koef_vzm_desna = 0.;
 	else koef_vzm_desna = 2.4;
 
-	//PODATKI ZA DIFERENÈNI VALJ
-	double D = 40; //- premer bata [mm] ////////////dodatek
-	double d = 20; //- premer batnice [mm] ////////////dodatek
+	//PODATKI ZA VALJ
+	double D = last[16]; //- premer bata [mm]
+	double d_l = last[14]; //- premer leve batnice [mm]
+	double d_d = last[15]; //- premer desne batnice [mm]
 	double l = last[11]; //- hod bata [mm]
 	double x0 = last[10] / 100 * l; //- zaèetna pozicija bata [mm]
 	double V_0_krmilni = 10000; //- krmilni volumen na zacetni strani [mm^3]
@@ -42,14 +44,16 @@ std::vector<double> izracun1(int n, int element, std::vector<double> last) {
 	m = m + last[12] + last[13];
 
 	double A0 = pi * pow(D, 2) / 4; //- površina celega bata [mm^2]
-	double A1 = pi * pow(d, 2) / 4; //- površina batnice [mm^2]
-	double A2 = A0 - A1; //- površina bata brez batnice [mm^2]
+	double A1_l = pi * pow(d_l, 2) / 4; //- površina batnice [mm^2]
+	double A2_l = A0 - A1_l; //- površina bata - batnice [mm^2]
+	double A1_d = pi * pow(d_d, 2) / 4; //- površina batnice [mm^2]
+	double A2_d = A0 - A1_d; //- površina bata - batnice [mm^2]
 
-	double V0, V1;
-	if (last[0] < 0) V0 = x0 * A0 + V_0_krmilni; //- zaèetni volumen na zacetni strani
-	else V0 = x0 * A2 + V_0_krmilni;
-	if (last[1] < 0) V1 = (l - x0) * A0 + V_1_krmilni; //- zaèetni volumen na koncni strani
-	else V1 = (l - x0) * A2 + V_1_krmilni;
+	double V_l, V_d;
+	if (last[0] < 0) V_l = x0 * A0 + V_0_krmilni; //- zaèetni volumen na zacetni strani
+	else V_l = x0 * A2_l + V_0_krmilni;
+	if (last[1] < 0) V_d = (l - x0) * A0 + V_1_krmilni; //- zaèetni volumen na koncni strani
+	else V_d = (l - x0) * A2_d + V_1_krmilni;
 
 	//VSTOPNI PODATKI
 	double p0, p1;
@@ -62,8 +66,8 @@ std::vector<double> izracun1(int n, int element, std::vector<double> last) {
 	double V01, V02, V11, V12;
 	double a = 0, v = 0, dv = 0, x = x0, dx = 0;
 	double ti = .01; //- casovni korak [s]
-	
-	
+
+
 	res.push_back(p0);
 	res.push_back(p1);
 	res.push_back(x0);
@@ -80,8 +84,8 @@ std::vector<double> izracun1(int n, int element, std::vector<double> last) {
 			if (i == 0) { // 1.0
 				p01 = p0;
 				p11 = p1;
-				V01 = V02 = V0;
-				V11 = V12 = V1;
+				V01 = V02 = V_l;
+				V11 = V12 = V_d;
 			}
 
 
@@ -104,10 +108,10 @@ std::vector<double> izracun1(int n, int element, std::vector<double> last) {
 
 			double F0, F0b, F0v, F1, F1b, F1v, dF; // 1.2
 			if (last[0] < 0) { F0 = A0 * p01; F0b = 0; }
-			else { F0 = A2 * p01; F0b = A1 * pok; }
+			else { F0 = A2_l * p01; F0b = A1_l * pok; }
 			F0v = (l - x) * koef_vzm_leva;
 			if (last[1] < 0) { F1 = A0 * p11; F1b = 0; }
-			else { F1 = A2 * p11; F1b = A1 * pok; }
+			else { F1 = A2_d * p11; F1b = A1_d * pok; }
 			F1v = x * koef_vzm_desna;
 
 			dF = F0 + F0b + F0v - F1 - F1b - F1v; // 1.3
@@ -137,9 +141,9 @@ std::vector<double> izracun1(int n, int element, std::vector<double> last) {
 
 
 			if (last[0] < 0) V02 = V02 + A0 * dx; // 3.1
-			else V02 = V02 + A2 * dx;
+			else V02 = V02 + A2_l * dx;
 			if (last[1] < 0) V12 = V12 - A0 * dx;
-			else V12 = V12 - A2 * dx;
+			else V12 = V12 - A2_d * dx;
 		}
 		res[0] = p01;
 		res[1] = p11;
@@ -148,6 +152,10 @@ std::vector<double> izracun1(int n, int element, std::vector<double> last) {
 
 	return res;
 }
+
+
+
+
 
 
 
@@ -214,9 +222,9 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	panel->SetDoubleBuffered(true);
 
 
-	seznam_lastnosti.push_back({ -1, 1, -1, -1, 1, 1, 1, -1, 6, 1, 10, 100, 0, 0 }); // Prikaz elementov
-	seznam_lastnosti.push_back({ -1, 1, -1, -1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0 });
-	seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 350, 0, 6 });
+	seznam_lastnosti.push_back({ 1, 1, -1, -1, 1, 1, 1, -1, 6, 1, 10, 100, 0, 0, 10, 30, 40 }); // Prikaz elementov
+	seznam_lastnosti.push_back({ -1, 1, -1, -1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40 });
+	seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 350, 0, 6, 20, 20, 40 });
 
 	seznam_valjev.push_back({ 300, 100, 0 });
 	seznam_valjev.push_back({ 300, 200, 0 });
@@ -306,7 +314,7 @@ void MainFrame::OnButtonDodClicked(wxCommandEvent& evt) {
 		x = dx;
 		y = dy;
 		seznam_valjev.push_back({ x, y, choice_dod->GetSelection() });
-		seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0 });
+		seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40 });
 		spinCtrl->SetRange(0, seznam_valjev.size());
 	}
 	else wxLogStatus("Izberi lokacijo z levik klikom");
@@ -347,13 +355,13 @@ void MainFrame::OnButtonPredVseClicked(wxCommandEvent& evt) {
 	seznam_valjev.clear();
 	seznam_lastnosti.clear();
 
-	seznam_lastnosti.push_back({ -1, 1, -1, -1, 1, 1, 1, -1, 6, 1, 10, 100, 0, 0 });
-	seznam_lastnosti.push_back({ -1, 1, -1, -1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0 });
-	seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 350, 0, 6 });
+	seznam_lastnosti.push_back({ -1, 1, -1, -1, 1, 1, 1, -1, 6, 1, 10, 100, 0, 0, 20, 20, 40 });
+	seznam_lastnosti.push_back({ -1, 1, -1, -1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40 });
+	seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 350, 0, 6, 20, 20, 40 });
 
-	seznam_valjev.push_back({ 350, 100, 0 });
-	seznam_valjev.push_back({ 350, 200, 0 });
-	seznam_valjev.push_back({ 350, 300, 0 });
+	seznam_valjev.push_back({ 300, 100, 0 });
+	seznam_valjev.push_back({ 300, 200, 0 });
+	seznam_valjev.push_back({ 300, 300, 0 });
 
 	spinCtrl->SetRange(0, seznam_valjev.size());
 
@@ -497,7 +505,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 		switch (seznam_valjev[i][2]) {
 		
 		case 0:
-			res = izracun1(n, seznam_valjev[i][2], seznam_lastnosti[i]);
+			res = izracun2(n, seznam_valjev[i][2], seznam_lastnosti[i]);
 
 			dc.DrawRectangle(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1]), wxSize(deb + 1, vis + 1)); // Ohišje
 
@@ -531,9 +539,11 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 			}
 			if (seznam_lastnosti[i][12] > 0){
 				dc.DrawRoundedRectangle(wxPoint(seznam_valjev[i][0] - deb + deb / 8 * 2 + res[2] * 50 / seznam_lastnosti[i][11] - 40, seznam_valjev[i][1] + 5), wxSize(40 + 1, 40 + 1), 4);
+				dc.DrawText(wxString::Format("%g kg", seznam_lastnosti[i][12]), wxPoint(seznam_valjev[i][0] - deb + deb / 8 * 2 + res[2] * 50 / seznam_lastnosti[i][11] - 40 + 5, seznam_valjev[i][1] + 5 + 13));
 			}
 			if (seznam_lastnosti[i][13] > 0) {
 				dc.DrawRoundedRectangle(wxPoint(seznam_valjev[i][0] + deb + deb / 8 * 1 + res[2] * 50 / seznam_lastnosti[i][11], seznam_valjev[i][1] + 5), wxSize(40 + 1, 40 + 1), 4);
+				dc.DrawText(wxString::Format("%g kg", seznam_lastnosti[i][13]), wxPoint(seznam_valjev[i][0] + deb + deb / 8 * 1 + res[2] * 50 / seznam_lastnosti[i][11] + 5, seznam_valjev[i][1] + 5 + 13));
 			}
 
 			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(seznam_valjev[i][0], seznam_valjev[i][1] - 16)); // Ime
@@ -564,10 +574,13 @@ wxRadioBox* levaTlak;
 wxRadioBox* desnaTlak;
 wxSpinCtrlDouble* levaMasa;
 wxSpinCtrlDouble* desnaMasa;
+wxSpinCtrlDouble* levaBatnica;
+wxSpinCtrlDouble* desnaBatnica;
 wxSpinCtrlDouble* delTlak;
 wxSpinCtrlDouble* okTlak;
 wxSpinCtrl* zacPoz;
 wxSpinCtrl* hodBata;
+wxSpinCtrl* premerBata;
 
 PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve elementov"), wxPoint(0,0), wxSize(420,540)) {
 
@@ -607,12 +620,16 @@ PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastav
 	if (seznam_lastnosti[oznacitev][7] > 0) desnaTlak->SetSelection(0);
 	else desnaTlak->SetSelection(1);
 
-	wxPoint pointLevaMasa = wxPoint(pointLevaTlak.x + 70, pointLevaTlak.y + 56);
+	wxPoint pointLevaMasa = wxPoint(pointLevaTlak.x + 110, pointLevaTlak.y + 56);
 	levaMasa = new wxSpinCtrlDouble(panel, wxID_ANY, "", pointLevaMasa, wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP | wxTE_PROCESS_ENTER, 0, 20, seznam_lastnosti[oznacitev][12], .1);
 	wxPoint pointDesnaMasa = wxPoint(pointLevaMasa.x + size.x / 2 - 10, pointLevaMasa.y);
 	desnaMasa = new wxSpinCtrlDouble(panel, wxID_ANY, "", pointDesnaMasa, wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP | wxTE_PROCESS_ENTER, 0, 20, seznam_lastnosti[oznacitev][13], .1);
+	wxPoint pointLevaBatnica = wxPoint(pointLevaMasa.x, pointLevaMasa.y + 30);
+	levaBatnica = new wxSpinCtrlDouble(panel, wxID_ANY, "", pointLevaBatnica, wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP | wxTE_PROCESS_ENTER, 0, seznam_lastnosti[oznacitev][16], seznam_lastnosti[oznacitev][14], .5);
+	wxPoint pointDesnaBatnica = wxPoint(pointLevaBatnica.x + size.x / 2 - 10, pointLevaBatnica.y);
+	desnaBatnica = new wxSpinCtrlDouble(panel, wxID_ANY, "", pointDesnaBatnica, wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP | wxTE_PROCESS_ENTER, 0, seznam_lastnosti[oznacitev][16], seznam_lastnosti[oznacitev][15], .5);
 
-	wxPoint pointDelTlak = wxPoint(120, 260);
+	wxPoint pointDelTlak = wxPoint(120, 280);
 	delTlak = new wxSpinCtrlDouble(panel, wxID_ANY, "", pointDelTlak, wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, seznam_lastnosti[oznacitev][8], .1);
 	wxPoint pointOkTlak = wxPoint(pointDelTlak.x, pointDelTlak.y + 30);
 	okTlak = new wxSpinCtrlDouble(panel, wxID_ANY, "", pointOkTlak, wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, seznam_lastnosti[oznacitev][9], .1);
@@ -620,9 +637,11 @@ PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastav
 	zacPoz = new wxSpinCtrl(panel, wxID_ANY, "", pointZacPoz, wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP | wxTE_PROCESS_ENTER, 0, 100, seznam_lastnosti[oznacitev][10]);
 	wxPoint pointHodBata = wxPoint(pointDelTlak.x + 200, pointDelTlak.y + 30);
 	hodBata = new wxSpinCtrl(panel, wxID_ANY, "", pointHodBata, wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 1000, seznam_lastnosti[oznacitev][11]);
+	wxPoint pointPremerBata = wxPoint(pointDelTlak.x + 200, pointDelTlak.y + 60);
+	premerBata = new wxSpinCtrl(panel, wxID_ANY, "", pointPremerBata, wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP | wxTE_PROCESS_ENTER, 0, 200, seznam_lastnosti[oznacitev][16]);
 
 	wxButton* button = new wxButton(panel, wxID_ANY, "Aplly", wxPoint(size.x / 2 - 40, size.y - 64), wxSize(80, 20));
-	wxButton* button2 = new wxButton(panel, wxID_ANY, "Try", wxPoint(size.x / 2 - 40, size.y - 86), wxSize(80, 20));
+	//wxButton* button2 = new wxButton(panel, wxID_ANY, "Try", wxPoint(size.x / 2 - 40, size.y - 86), wxSize(80, 20));
 
 
 	button->Bind(wxEVT_BUTTON, &PomoznoOkno::OnButtonClicked, this);
@@ -638,13 +657,20 @@ PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastav
 	desnaMasa->Bind(wxEVT_TEXT_ENTER, &PomoznoOkno::OnNastavitveClicked, this);
 	zacPoz->Bind(wxEVT_SPINCTRL, &PomoznoOkno::OnNastavitveClicked, this);
 	zacPoz->Bind(wxEVT_TEXT_ENTER, &PomoznoOkno::OnNastavitveClicked, this);
+	levaBatnica->Bind(wxEVT_SPINCTRLDOUBLE, &PomoznoOkno::OnPremerClicked, this);
+	levaBatnica->Bind(wxEVT_TEXT_ENTER, &PomoznoOkno::OnPremerClicked, this);
+	desnaBatnica->Bind(wxEVT_SPINCTRLDOUBLE, &PomoznoOkno::OnPremerClicked, this);
+	desnaBatnica->Bind(wxEVT_TEXT_ENTER, &PomoznoOkno::OnPremerClicked, this);
+	premerBata->Bind(wxEVT_SPINCTRL, &PomoznoOkno::OnPremerClicked, this);
+	premerBata->Bind(wxEVT_TEXT_ENTER, &PomoznoOkno::OnPremerClicked, this);
 
 	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(PomoznoOkno::OnPaint));
 
 	panel->SetDoubleBuffered(true);
 }
 //last[batnica_leva, batnica_desna, vzmer_leva, vzmet_desna, tlak_izo_leva, tlak_izo_desna, zrak_prik_leva, zrak_prik_desna,
-//     delovni_tlak, okoljski_tlak, zacetna_poz, hod_bata]
+//     delovni_tlak, okoljski_tlak, zacetna_poz, hod_bata, masa_leva, masa_desna, batnica_premer_leva, batnica_premer_desna,
+//	   bat_premer]
 void PomoznoOkno::OnButtonClicked(wxCommandEvent& evt) {
 
 	if (!(oznacitev < 0)) {
@@ -672,6 +698,9 @@ void PomoznoOkno::OnButtonClicked(wxCommandEvent& evt) {
 		else seznam_lastnosti[oznacitev][12] = 0;
 		if (desnaLastnost->IsChecked(0) == true && desnaLastnost->IsChecked(3)) seznam_lastnosti[oznacitev][13] = desnaMasa->GetValue();
 		else seznam_lastnosti[oznacitev][13] = 0;
+		seznam_lastnosti[oznacitev][14] = levaBatnica->GetValue();
+		seznam_lastnosti[oznacitev][15] = desnaBatnica->GetValue();
+		seznam_lastnosti[oznacitev][16] = premerBata->GetValue();
 	}
 	else wxLogStatus("Izberite element za spremembo nastavitev");
 
@@ -688,6 +717,12 @@ void PomoznoOkno::OnNastavitveClicked(wxCommandEvent& evt) {
 	Refresh();
 }
 
+void PomoznoOkno::OnPremerClicked(wxCommandEvent& evt) {
+
+	levaBatnica->SetRange(0, premerBata->GetValue());
+	desnaBatnica->SetRange(0, premerBata->GetValue());
+}
+
 void PomoznoOkno::OnSizeChanged(wxSizeEvent& evt) {
 
 	Refresh();
@@ -699,24 +734,27 @@ void PomoznoOkno::OnPaint(wxPaintEvent& evt) {
 
 	wxSize size = this->GetSize();
 
-	dc.DrawLine(wxPoint(size.x / 2, 0), wxPoint(size.x / 2, 240));
+	dc.DrawLine(wxPoint(size.x / 2, 0), wxPoint(size.x / 2, 260));
 	dc.DrawLine(wxPoint(0, 24), wxPoint(size.x, 24));
-	dc.DrawLine(wxPoint(0, 240), wxPoint(size.x, 240));
+	dc.DrawLine(wxPoint(0, 260), wxPoint(size.x, 260));
 
 	dc.DrawText("Leva stran valja:", wxPoint(10, 4));
 	dc.DrawText("Lastnosti:", wxPoint(10, 30));
 	dc.DrawText("Zraèni prikljuèek:", wxPoint(10, 130));
 	dc.DrawText("Masa [kg] =", wxPoint(10, 200));
+	dc.DrawText("Batnica [mm] =", wxPoint(10, 230));
 	
 	dc.DrawText("Desna stran valja:", wxPoint(size.x / 2 + 10, 4));
 	dc.DrawText("Lastnosti:", wxPoint(size.x / 2 + 10, 30));
 	dc.DrawText("Zraèni prikljuèek:", wxPoint(size.x / 2 + 10, 130));
 	dc.DrawText("Masa [kg] =", wxPoint(size.x / 2 + 10, 200));
+	dc.DrawText("Batnica [mm] =", wxPoint(size.x / 2 + 10, 230));
 	
-	dc.DrawText("Delovni tlak [bar] = ", wxPoint(10, 260));
-	dc.DrawText("Okoljski tlak [bar] = ", wxPoint(10, 290));
-	dc.DrawText("Zacetna pozicija [%] = ", wxPoint(200, 260));
-	dc.DrawText("Hod bata [mm] = ", wxPoint(200, 290));
+	dc.DrawText("Delovni tlak [bar] = ", wxPoint(10, 280));
+	dc.DrawText("Okoljski tlak [bar] = ", wxPoint(10, 310));
+	dc.DrawText("Zacetna pozicija [%] = ", wxPoint(200, 280));
+	dc.DrawText("Hod bata [mm] = ", wxPoint(200, 310));
+	dc.DrawText("Premer bata [mm] = ", wxPoint(200, 340));
 
 	
 	int deb = 80;
@@ -764,9 +802,11 @@ void PomoznoOkno::OnPaint(wxPaintEvent& evt) {
 	}
 	if (levaLastnost->IsChecked(3) == true && levaLastnost->IsChecked(0) == true && levaMasa->GetValue() > 0) {
 		dc.DrawRoundedRectangle(wxPoint(zamik - deb + deb / 8 * 2 + zacPom - 40, visina_panel - visina_prikaza + 36 + 5), wxSize(40 + 1, 40 + 1), 4);
+		dc.DrawText(wxString::Format("%g kg", levaMasa->GetValue()), wxPoint(zamik - deb + deb / 8 * 2 + zacPom - 40 + 5, visina_panel - visina_prikaza + 36 + 5 + 13));
 	}
 	if (desnaLastnost->IsChecked(3) == true && desnaLastnost->IsChecked(0) == true && desnaMasa->GetValue() > 0) {
 		dc.DrawRoundedRectangle(wxPoint(zamik + deb + deb / 8 * 1 + zacPom, visina_panel - visina_prikaza + 36 + 5), wxSize(40 + 1, 40 + 1), 4);
+		dc.DrawText(wxString::Format("%g kg", desnaMasa->GetValue()), wxPoint(zamik + deb + deb / 8 * 1 + zacPom + 5, visina_panel - visina_prikaza + 36 + 5 + 13));
 	}
 }
 
