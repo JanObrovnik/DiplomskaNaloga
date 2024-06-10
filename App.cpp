@@ -8,7 +8,7 @@ bool App::OnInit() {
 
 	MainFrame* mainFrame = new MainFrame("Pnevmaticni simulator"); // ustvarimo frame z imenom
 
-	mainFrame->SetClientSize(800, 600); // velikost aplikacije
+	mainFrame->SetClientSize(1000, 600); // velikost aplikacije
 	mainFrame->Center(); // centriramo na sredi ekrana
 
 	mainFrame->Show(true); // prikažemo frame
