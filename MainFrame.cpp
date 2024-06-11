@@ -147,6 +147,94 @@ std::vector<double> izracun3(int n, int element, std::vector<double> last, std::
 	return res;
 }
 
+std::vector<double> ventil(int element, std::vector<double> pi, double p_l, double p_d, double p_del, double p_ok) {
+
+	if (p_d > p_l) pi[0] = 0; //////////////// spremenit if() v silo, da lah se vzmet in gumb uopostevas
+	else if (p_l > p_d) pi[0] = 1;
+
+	int poz = static_cast<int> (pi[0]);
+
+	switch (element) {
+
+	case 0: // ventil 3/2:
+
+		switch (poz) {
+
+		case 0: // celica 0 (desna):
+
+			pi[2] = pi[3];
+
+			break;
+
+		case 1: // celica 1 (leva):
+
+			pi[2] = pi[1];
+
+			break;
+
+		default:
+			break;
+		}
+		break;
+
+
+	case 1: // ventil 4/2:
+
+		switch (poz) {
+
+		case 0: // celica 0 (desna):
+
+			pi[2] = pi[1];
+			pi[4] = pi[3];
+
+			break;
+
+		case 1: // celica 1 (leva):
+
+			pi[2] = pi[3];
+			pi[4] = pi[1];
+
+			break;
+
+		default:
+			break;
+		}
+
+		break;
+
+
+	case 2: // ventil 5/2:
+
+		switch (poz) {
+
+		case 0: // celica 0 (desna):
+
+			pi[2] = pi[1];
+			pi[4] = pi[5];
+
+			break;
+
+		case 1: // celica 1 (leva):
+			
+			pi[2] = pi[3];
+			pi[4] = pi[1];
+			
+			break;
+
+		default:
+			break;
+		}
+
+		break;
+
+
+	default:
+		break;
+	}
+
+	return pi;
+}
+
 
 
 int x = 300;
@@ -192,11 +280,12 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	choices.Add("Vakumski prisesek");
 	choices.Add("Pnevmaticno prijemalo");
 	choices.Add("3/2 ventil");
+	choices.Add("4/2 ventil");
 	choices.Add("5/2 ventil");
 
 
 	choice_dod = new wxChoice(panel, wxID_ANY, wxPoint(5, 20), wxSize(190, -1), choices/*, wxCB_SORT*/);
-	choice_dod->SetSelection(3);
+	choice_dod->SetSelection(0);
 	slider = new wxSlider(panel, wxID_ANY, 0, 0, 1000, wxPoint(5, 400), wxSize(190, -1), wxSL_VALUE_LABEL);
 
 	panel->Bind(wxEVT_LEFT_DOWN, &MainFrame::OnMouseEvent, this);
@@ -508,11 +597,11 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 		break;
 
 	case 2:
-
+		deb = 64;
 		dc.DrawRectangle(wxPoint(54, visina_panel - visina_prikaza + 36), wxSize(deb + 1, vis + 1));
-		dc.DrawRectangle(wxPoint(54 + deb / 4 * 3, visina_panel - visina_prikaza + 36 + vis), wxSize(deb / 2 + 1, vis / 5 + 1));
-		dc.DrawRectangle(wxPoint(54 + deb / 4 * 3, visina_panel - visina_prikaza + 36 + vis / 5 * 4), wxSize(deb / 2 + 1, vis / 5 + 1));
-
+		dc.DrawRectangle(wxPoint(54 + deb / 4 * 3, visina_panel - visina_prikaza + 36 + vis / 10), wxSize(deb / 2 + 1, vis / 5 + 1));
+		dc.DrawRectangle(wxPoint(54 + deb / 4 * 3, visina_panel - visina_prikaza + 36 + vis / 10 * 7), wxSize(deb / 2 + 1, vis / 5 + 1));
+		deb = 80;
 		break;
 
 	case 3:
@@ -533,6 +622,25 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 		break;
 
 	case 4:
+
+		dc.DrawRectangle(wxPoint(54, visina_panel - visina_prikaza + 36), wxSize(deb_ven + 1, deb_ven + 1)); // celica 0
+		dc.DrawLine(wxPoint(54 + deb_ven / 3, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven / 3, visina_panel - visina_prikaza + deb_ven + 36));
+		dc.DrawLine(wxPoint(54 + deb_ven / 3, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven / 3 + 6, visina_panel - visina_prikaza + 36 + 6));
+		dc.DrawLine(wxPoint(54 + deb_ven / 3, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven / 3 - 6, visina_panel - visina_prikaza + 36 + 6));
+		dc.DrawLine(wxPoint(54 + deb_ven / 3 * 2, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven / 3 * 2, visina_panel - visina_prikaza + deb_ven + 36));
+		dc.DrawLine(wxPoint(54 + deb_ven / 3 * 2, visina_panel - visina_prikaza + deb_ven + 36), wxPoint(54 + deb_ven / 3 * 2 + 6, visina_panel - visina_prikaza + deb_ven + 36 - 6));
+		dc.DrawLine(wxPoint(54 + deb_ven / 3 * 2, visina_panel - visina_prikaza + deb_ven + 36), wxPoint(54 + deb_ven / 3 * 2 - 6, visina_panel - visina_prikaza + deb_ven + 36 - 6));
+		dc.DrawRectangle(wxPoint(54 + deb_ven, visina_panel - visina_prikaza + 36), wxSize(deb_ven + 1, deb_ven + 1)); // celica 1
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 3, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven + deb_ven / 3 * 2, visina_panel - visina_prikaza + deb_ven + 36));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 3 * 2, visina_panel - visina_prikaza + deb_ven + 36), wxPoint(54 + deb_ven + deb_ven / 3 * 2 + 6, visina_panel - visina_prikaza + deb_ven + 36 - 6));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 3 * 2, visina_panel - visina_prikaza + deb_ven + 36), wxPoint(54 + deb_ven + deb_ven / 3 * 2 - 6, visina_panel - visina_prikaza + deb_ven + 36 - 6));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 3 * 2, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven + deb_ven / 3, visina_panel - visina_prikaza + deb_ven + 36));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 3 * 2, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven + deb_ven / 3 * 2 + 6, visina_panel - visina_prikaza + 36 + 6));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 3 * 2, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven + deb_ven / 3 * 2 - 6, visina_panel - visina_prikaza + 36 + 6));
+
+		break;
+
+	case 5:
 
 		dc.DrawRectangle(wxPoint(54, visina_panel - visina_prikaza + 36), wxSize(deb_ven + 1, deb_ven + 1)); // celica 0
 		dc.DrawLine(wxPoint(54 + deb_ven / 4 * 3, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven / 4 * 3, visina_panel - visina_prikaza + deb_ven + 36));
@@ -686,16 +794,20 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 		case 2:
 
-			dc.DrawRectangle(wxPoint(54, visina_panel - visina_prikaza + 36), wxSize(deb + 1, vis + 1));
-			dc.DrawRectangle(wxPoint(54 + deb / 4 * 3, visina_panel - visina_prikaza + 36 + vis), wxSize(deb / 2 + 1, vis / 5 + 1));
-			dc.DrawRectangle(wxPoint(54 + deb / 4 * 3, visina_panel - visina_prikaza + 36 + vis / 5 * 4), wxSize(deb / 2 + 1, vis / 5 + 1));
+			deb = 64;
+			dc.DrawRectangle(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1]), wxSize(deb + 1, vis + 1));
+			dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb / 4 * 3, seznam_valjev[i][1] + vis / 10), wxSize(deb / 2 + 1, vis / 5 + 1));
+			dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb / 4 * 3, seznam_valjev[i][1] + vis / 10 * 7), wxSize(deb / 2 + 1, vis / 5 + 1));
+			deb = 80;
+
+			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(seznam_valjev[i][0], seznam_valjev[i][1] - 16)); // Ime
 
 			break;
 
 		case 3:
 
-			dc.DrawRectangle(wxPoint(54, visina_panel - visina_prikaza + 36), wxSize(deb_ven + 1, deb_ven + 1));
-			dc.DrawRectangle(wxPoint(54 + deb_ven, visina_panel - visina_prikaza + 36), wxSize(deb_ven + 1, deb_ven + 1));
+			dc.DrawRectangle(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1]), wxSize(deb_ven + 1, deb_ven + 1));
+			dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven, seznam_valjev[i][1] + 36), wxSize(deb_ven + 1, deb_ven + 1));
 
 
 			break;
