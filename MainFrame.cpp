@@ -191,9 +191,12 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	choices.Add("Pnevmaticni valj");
 	choices.Add("Vakumski prisesek");
 	choices.Add("Pnevmaticno prijemalo");
+	choices.Add("3/2 ventil");
+	choices.Add("5/2 ventil");
+
 
 	choice_dod = new wxChoice(panel, wxID_ANY, wxPoint(5, 20), wxSize(190, -1), choices/*, wxCB_SORT*/);
-	choice_dod->SetSelection(0);
+	choice_dod->SetSelection(3);
 	slider = new wxSlider(panel, wxID_ANY, 0, 0, 1000, wxPoint(5, 400), wxSize(190, -1), wxSL_VALUE_LABEL);
 
 	panel->Bind(wxEVT_LEFT_DOWN, &MainFrame::OnMouseEvent, this);
@@ -215,9 +218,9 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	panel->SetDoubleBuffered(true);
 
 
-	seznam_lastnosti.push_back({ 1, 1, -1, -1, 1, 1, 1, -1, 6, 1, 0, 100, 0, 0, 10, 30, 40, 1 }); // Prikaz elementov
-	seznam_lastnosti.push_back({ -1, 1, -1, -1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40, 1 });
-	seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 350, 0, 6, 20, 20, 40, 1 });
+	seznam_lastnosti.push_back({ 1, 1, -1, -1, 1, 1, 1, -1, 6, 1, 0, 100, 0, 0, 10, 30, 40, 1, -1, -1 }); // Prikaz elementov
+	seznam_lastnosti.push_back({ -1, 1, -1, -1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40, 1, -1, -1 });
+	seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 350, 0, 6, 20, 20, 40, 1, -1, -1 });
 
 	res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
 	res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
@@ -309,7 +312,7 @@ void MainFrame::OnButtonDodClicked(wxCommandEvent& evt) {
 		x = dx;
 		y = dy;
 		seznam_valjev.push_back({ x, y, choice_dod->GetSelection() });
-		seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40, 1 });
+		seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40, 1, -1, -1 });
 		res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
 		res = res_reset;
 		graf.clear();
@@ -361,9 +364,9 @@ void MainFrame::OnButtonPredVseClicked(wxCommandEvent& evt) {
 	res.clear();
 	graf.clear();
 
-	seznam_lastnosti.push_back({ 1, 1, -1, -1, 1, 1, 1, -1, 6, 1, 0, 100, 0, 0, 10, 30, 40, 1 });
-	seznam_lastnosti.push_back({ -1, 1, -1, -1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40, 1 });
-	seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 350, 0, 6, 20, 20, 40, 1 });
+	seznam_lastnosti.push_back({ 1, 1, -1, -1, 1, 1, 1, -1, 6, 1, 0, 100, 0, 0, 10, 30, 40, 1, -1, -1 });
+	seznam_lastnosti.push_back({ -1, 1, -1, -1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40, 1, -1, -1 });
+	seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 350, 0, 6, 20, 20, 40, 1, -1, -1 });
 
 	res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
 	res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
@@ -445,6 +448,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 	int deb = 80;
 	int vis = 50;
+	int deb_ven = 48;
 	float n = slider->GetValue();
 
 
@@ -503,6 +507,55 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 		break;
 
+	case 2:
+
+		dc.DrawRectangle(wxPoint(54, visina_panel - visina_prikaza + 36), wxSize(deb + 1, vis + 1));
+		dc.DrawRectangle(wxPoint(54 + deb / 4 * 3, visina_panel - visina_prikaza + 36 + vis), wxSize(deb / 2 + 1, vis / 5 + 1));
+		dc.DrawRectangle(wxPoint(54 + deb / 4 * 3, visina_panel - visina_prikaza + 36 + vis / 5 * 4), wxSize(deb / 2 + 1, vis / 5 + 1));
+
+		break;
+
+	case 3:
+
+		dc.DrawRectangle(wxPoint(54, visina_panel - visina_prikaza + 36), wxSize(deb_ven + 1, deb_ven + 1)); // celica 0
+		dc.DrawLine(wxPoint(54 + deb_ven / 3, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven / 3, visina_panel - visina_prikaza + deb_ven + 36));
+		dc.DrawLine(wxPoint(54 + deb_ven / 3 * 2, visina_panel - visina_prikaza + 36 + deb_ven / 6 * 5), wxPoint(54 + deb_ven / 3 * 2, visina_panel - visina_prikaza + deb_ven + 36));
+		dc.DrawLine(wxPoint(54 + deb_ven / 3 * 2 - 4, visina_panel - visina_prikaza + 36 + deb_ven / 6 * 5), wxPoint(54 + deb_ven / 3 * 2 + 4 + 1, visina_panel - visina_prikaza + 36 + deb_ven / 6 * 5));
+		dc.DrawLine(wxPoint(54 + deb_ven / 3, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven / 3 + 6, visina_panel - visina_prikaza + 36 + 6));
+		dc.DrawLine(wxPoint(54 + deb_ven / 3, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven / 3 - 6, visina_panel - visina_prikaza + 36 + 6));
+		dc.DrawRectangle(wxPoint(54 + deb_ven, visina_panel - visina_prikaza + 36), wxSize(deb_ven + 1, deb_ven + 1)); // celica 1
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 3, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven + deb_ven / 3 * 2, visina_panel - visina_prikaza + deb_ven + 36));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 3, visina_panel - visina_prikaza + 36 + deb_ven / 6 * 5), wxPoint(54 + deb_ven + deb_ven / 3, visina_panel - visina_prikaza + deb_ven + 36));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 3 - 4, visina_panel - visina_prikaza + 36 + deb_ven / 6 * 5), wxPoint(54 + deb_ven + deb_ven / 3 + 4 + 1, visina_panel - visina_prikaza + 36 + deb_ven / 6 * 5));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 3 * 2, visina_panel - visina_prikaza + deb_ven + 36), wxPoint(54 + deb_ven + deb_ven / 3 * 2 + 6, visina_panel - visina_prikaza + deb_ven + 36 - 6));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 3 * 2, visina_panel - visina_prikaza + deb_ven + 36), wxPoint(54 + deb_ven + deb_ven / 3 * 2 - 6, visina_panel - visina_prikaza + deb_ven + 36 - 6));
+
+		break;
+
+	case 4:
+
+		dc.DrawRectangle(wxPoint(54, visina_panel - visina_prikaza + 36), wxSize(deb_ven + 1, deb_ven + 1)); // celica 0
+		dc.DrawLine(wxPoint(54 + deb_ven / 4 * 3, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven / 4 * 3, visina_panel - visina_prikaza + deb_ven + 36));
+		dc.DrawLine(wxPoint(54 + deb_ven / 4, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven / 2, visina_panel - visina_prikaza + deb_ven + 36));
+		dc.DrawLine(wxPoint(54 + deb_ven / 4, visina_panel - visina_prikaza + 36 + deb_ven / 6 * 5), wxPoint(54 + deb_ven / 4, visina_panel - visina_prikaza + deb_ven + 36));
+		dc.DrawLine(wxPoint(54 + deb_ven / 4 - 4, visina_panel - visina_prikaza + 36 + deb_ven / 6 * 5), wxPoint(54 + deb_ven / 4 + 4 + 1, visina_panel - visina_prikaza + 36 + deb_ven / 6 * 5));
+		dc.DrawLine(wxPoint(54 + deb_ven / 4, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven / 4 + 6, visina_panel - visina_prikaza + 36 + 6));
+		dc.DrawLine(wxPoint(54 + deb_ven / 4, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven / 4 - 6, visina_panel - visina_prikaza + 36 + 6));
+		dc.DrawLine(wxPoint(54 + deb_ven / 4 * 3, visina_panel - visina_prikaza + deb_ven + 36), wxPoint(54 + deb_ven / 4 * 3 + 6, visina_panel - visina_prikaza + deb_ven + 36 - 6));
+		dc.DrawLine(wxPoint(54 + deb_ven / 4 * 3, visina_panel - visina_prikaza + deb_ven + 36), wxPoint(54 + deb_ven / 4 * 3 - 6, visina_panel - visina_prikaza + deb_ven + 36 - 6));
+		dc.DrawRectangle(wxPoint(54 + deb_ven, visina_panel - visina_prikaza + 36), wxSize(deb_ven + 1, deb_ven + 1)); // celica 1
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 4, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven + deb_ven / 4, visina_panel - visina_prikaza + deb_ven + 36));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 4 * 3, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven + deb_ven / 2, visina_panel - visina_prikaza + deb_ven + 36));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 4 * 3, visina_panel - visina_prikaza + 36 + deb_ven / 6 * 5), wxPoint(54 + deb_ven + deb_ven / 4 * 3, visina_panel - visina_prikaza + deb_ven + 36));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 4 * 3 - 4, visina_panel - visina_prikaza + 36 + deb_ven / 6 * 5), wxPoint(54 + deb_ven + deb_ven / 4 * 3 + 4 + 1, visina_panel - visina_prikaza + 36 + deb_ven / 6 * 5));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 4, visina_panel - visina_prikaza + deb_ven + 36), wxPoint(54 + deb_ven + deb_ven / 4 + 6, visina_panel - visina_prikaza + deb_ven + 36 - 6));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 4, visina_panel - visina_prikaza + deb_ven + 36), wxPoint(54 + deb_ven + deb_ven / 4 - 6, visina_panel - visina_prikaza + deb_ven + 36 - 6));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 4 * 3, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven + deb_ven / 4 * 3 + 6, visina_panel - visina_prikaza + 36 + 6));
+		dc.DrawLine(wxPoint(54 + deb_ven + deb_ven / 4 * 3, visina_panel - visina_prikaza + 36), wxPoint(54 + deb_ven + deb_ven / 4 * 3 - 6, visina_panel - visina_prikaza + 36 + 6));
+
+		break;
+
+
 	default:
 
 		dc.DrawRectangle(wxPoint(54, visina_panel - visina_prikaza + 36), wxSize(deb + 1, vis + 1));
@@ -531,11 +584,11 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 		switch (seznam_valjev[i][2]) {
 
 		case 0:
-			if (n == 500) {
-
-				res[i][0] = 1;
-				res[i][1] = 6;
-			}
+			
+			if (res[1][2] < 5) { res[1][0] = 6; res[1][1] = 1; }
+			else if (res[1][2] > seznam_lastnosti[1][11] - 5) { res[1][0] = 1; res[1][1] = 6; }
+			if (res[2][2] < 5) { res[2][0] = 6; res[2][1] = 1; }
+			else if (res[2][2] > seznam_lastnosti[2][11] - 5) { res[2][0] = 1; res[2][1] = 6; }
 
 			if (sim == true) res[i] = izracun3(n, seznam_valjev[i][2], seznam_lastnosti[i], res[i]);
 			
@@ -554,6 +607,13 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 			}
 
 			dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb / 8 * 1 + res[i][2] * 50 / seznam_lastnosti[i][11], seznam_valjev[i][1]), wxSize(deb / 8 + 1, vis + 1)); // Bat
+
+			if (seznam_lastnosti[i][18] > 0) {
+				dc.DrawCircle(wxPoint(seznam_valjev[i][0] + deb / 8 * 2 - deb + res[i][2] * 50 / seznam_lastnosti[i][11] + 5, seznam_valjev[i][1] + vis / 5 * 3), 4); // Koncno stikalo
+			}
+			if (seznam_lastnosti[i][19] > 0) {
+				dc.DrawCircle(wxPoint(seznam_valjev[i][0] + deb / 8 * 2 + res[i][2] * 50 / seznam_lastnosti[i][11] + deb / 8 * 7 - 5, seznam_valjev[i][1] + vis / 5 * 3), 4);
+			}
 
 			if (seznam_lastnosti[i][0] > 0) {
 				dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb / 8 * 2 - deb + res[i][2] * 50 / seznam_lastnosti[i][11], seznam_valjev[i][1] + vis / 5 * 2), wxSize(deb / 8 * 7 + 1, vis / 5 + 1)); // Batnica
@@ -618,6 +678,29 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 			break;
 
+		case 1:
+
+
+
+			break;
+
+		case 2:
+
+			dc.DrawRectangle(wxPoint(54, visina_panel - visina_prikaza + 36), wxSize(deb + 1, vis + 1));
+			dc.DrawRectangle(wxPoint(54 + deb / 4 * 3, visina_panel - visina_prikaza + 36 + vis), wxSize(deb / 2 + 1, vis / 5 + 1));
+			dc.DrawRectangle(wxPoint(54 + deb / 4 * 3, visina_panel - visina_prikaza + 36 + vis / 5 * 4), wxSize(deb / 2 + 1, vis / 5 + 1));
+
+			break;
+
+		case 3:
+
+			dc.DrawRectangle(wxPoint(54, visina_panel - visina_prikaza + 36), wxSize(deb_ven + 1, deb_ven + 1));
+			dc.DrawRectangle(wxPoint(54 + deb_ven, visina_panel - visina_prikaza + 36), wxSize(deb_ven + 1, deb_ven + 1));
+
+
+			break;
+
+
 		default:
 
 			dc.DrawRectangle(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1]), wxSize(deb + 1, vis + 1));
@@ -648,7 +731,7 @@ wxSpinCtrl* hodBata;
 wxSpinCtrl* premerBata;
 wxCheckBox* izrisGrafa;
 
-PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve elementov"), wxPoint(0, 0), wxSize(420, 540)) {
+PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, wxString::Format("Zacetno stanje elementa"), wxPoint(0, 0), wxSize(420, 540)) {
 
 	panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 	wxSize size = this->GetSize();
@@ -659,6 +742,7 @@ PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastav
 	lastnosti.Add("Vzmet");
 	lastnosti.Add("Tlaèno izoliran");
 	lastnosti.Add("Masa");
+	lastnosti.Add("Koncno stikalo");
 
 	wxPoint pointLevaLastnost = wxPoint(10, 44);
 	levaLastnost = new wxCheckListBox(panel, wxID_ANY, pointLevaLastnost, wxDefaultSize, lastnosti);
@@ -666,18 +750,21 @@ PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastav
 	if (seznam_lastnosti[oznacitev][2] > 0) levaLastnost->Check(1);
 	if (seznam_lastnosti[oznacitev][4] > 0) levaLastnost->Check(2);
 	if (seznam_lastnosti[oznacitev][12] > 0) levaLastnost->Check(3);
+	if (seznam_lastnosti[oznacitev][18] > 0) levaLastnost->Check(4);
 	wxPoint pointDesnaLastnost = wxPoint(size.x / 2, pointLevaLastnost.y);
 	desnaLastnost = new wxCheckListBox(panel, wxID_ANY, pointDesnaLastnost, wxDefaultSize, lastnosti);
 	if (seznam_lastnosti[oznacitev][1] > 0) desnaLastnost->Check(0);
 	if (seznam_lastnosti[oznacitev][3] > 0) desnaLastnost->Check(1);
 	if (seznam_lastnosti[oznacitev][5] > 0) desnaLastnost->Check(2);
 	if (seznam_lastnosti[oznacitev][13] > 0) desnaLastnost->Check(3);
+	if (seznam_lastnosti[oznacitev][19] > 0) desnaLastnost->Check(4);
+
 
 	wxArrayString tlak;
 	tlak.Add("Delovni tlak");
 	tlak.Add("Okoljski tlak");
 
-	wxPoint pointLevaTlak = wxPoint(pointLevaLastnost.x, pointLevaLastnost.y + 100);
+	wxPoint pointLevaTlak = wxPoint(pointLevaLastnost.x, pointLevaLastnost.y + 110);
 	levaTlak = new wxRadioBox(panel, wxID_ANY, "", pointLevaTlak, wxDefaultSize, tlak);
 	if (seznam_lastnosti[oznacitev][6] > 0) levaTlak->SetSelection(0);
 	else levaTlak->SetSelection(1);
@@ -745,7 +832,7 @@ void PomoznoOkno::OnButtonClicked(wxCommandEvent& evt) {
 		// Za seznam_lastnosti:
 		//last[batnica_leva, batnica_desna, vzmer_leva, vzmet_desna, tlak_izo_leva, tlak_izo_desna, zrak_prik_leva, zrak_prik_desna,
 		//     delovni_tlak, okoljski_tlak, zacetna_poz, hod_bata, masa_leva, masa_desna, batnica_premer_leva, batnica_premer_desna,
-		//	   bat_premer]
+		//	   bat_premer, izris_grafa, koncno_stikalo_leva, koncno_stikalo_desna]
 		if (levaLastnost->IsChecked(0) == true) seznam_lastnosti[oznacitev][0] = 1;
 		else seznam_lastnosti[oznacitev][0] = -1;
 		if (desnaLastnost->IsChecked(0) == true) seznam_lastnosti[oznacitev][1] = 1;
@@ -775,6 +862,10 @@ void PomoznoOkno::OnButtonClicked(wxCommandEvent& evt) {
 		seznam_lastnosti[oznacitev][16] = static_cast<double>(premerBata->GetValue());
 		if (izrisGrafa->IsChecked() == true) seznam_lastnosti[oznacitev][17] = 1;
 		else seznam_lastnosti[oznacitev][17] = -1;
+		if (levaLastnost->IsChecked(4) == true && levaLastnost->IsChecked(0) == true) seznam_lastnosti[oznacitev][18] = 1;
+		else seznam_lastnosti[oznacitev][18] = -1;
+		if (desnaLastnost->IsChecked(4) == true && desnaLastnost->IsChecked(0) == true) seznam_lastnosti[oznacitev][19] = 1;
+		else seznam_lastnosti[oznacitev][19] = -1;
 
 		// Za res:
 		//res[p_l, p_d, x, v, a, V_l, V_d]
@@ -822,21 +913,21 @@ void PomoznoOkno::OnPaint(wxPaintEvent& evt) {
 
 	wxSize size = this->GetSize();
 
-	dc.DrawLine(wxPoint(size.x / 2, 0), wxPoint(size.x / 2, 260));
+	dc.DrawLine(wxPoint(size.x / 2, 0), wxPoint(size.x / 2, 270));
 	dc.DrawLine(wxPoint(0, 24), wxPoint(size.x, 24));
-	dc.DrawLine(wxPoint(0, 260), wxPoint(size.x, 260));
+	dc.DrawLine(wxPoint(0, 270), wxPoint(size.x, 270));
 
 	dc.DrawText("Leva stran valja:", wxPoint(10, 4));
 	dc.DrawText("Lastnosti:", wxPoint(10, 30));
-	dc.DrawText("Zraèni prikljuèek:", wxPoint(10, 130));
-	dc.DrawText("Masa [kg] =", wxPoint(10, 200));
-	dc.DrawText("Batnica [mm] =", wxPoint(10, 230));
+	dc.DrawText("Zraèni prikljuèek:", wxPoint(10, 140));
+	dc.DrawText("Masa [kg] =", wxPoint(10, 210));
+	dc.DrawText("Batnica [mm] =", wxPoint(10, 240));
 
 	dc.DrawText("Desna stran valja:", wxPoint(size.x / 2 + 10, 4));
 	dc.DrawText("Lastnosti:", wxPoint(size.x / 2 + 10, 30));
-	dc.DrawText("Zraèni prikljuèek:", wxPoint(size.x / 2 + 10, 130));
-	dc.DrawText("Masa [kg] =", wxPoint(size.x / 2 + 10, 200));
-	dc.DrawText("Batnica [mm] =", wxPoint(size.x / 2 + 10, 230));
+	dc.DrawText("Zraèni prikljuèek:", wxPoint(size.x / 2 + 10, 140));
+	dc.DrawText("Masa [kg] =", wxPoint(size.x / 2 + 10, 210));
+	dc.DrawText("Batnica [mm] =", wxPoint(size.x / 2 + 10, 240));
 
 	dc.DrawText("Delovni tlak [bar] = ", wxPoint(10, 280));
 	dc.DrawText("Okoljski tlak [bar] = ", wxPoint(10, 310));
@@ -867,6 +958,13 @@ void PomoznoOkno::OnPaint(wxPaintEvent& evt) {
 	if (desnaLastnost->IsChecked(2) == false) {
 		dc.DrawLine(wxPoint(zamik + deb / 8 * 7, visina_panel - visina_prikaza + vis + 36), wxPoint(zamik + deb / 16 * 1 + deb / 8 * 7 + 1, visina_panel - visina_prikaza + vis + 36 - deb / 16 * 1 - 1));
 		dc.DrawLine(wxPoint(zamik + deb / 8 * 1 + deb / 8 * 7, visina_panel - visina_prikaza + vis + 36), wxPoint(zamik + deb / 16 * 1 + deb / 8 * 7 - 1, visina_panel - visina_prikaza + vis + 36 - deb / 16 * 1 - 1));
+	}
+
+	if (levaLastnost->IsChecked(4) == true && levaLastnost->IsChecked(0) == true) {
+		dc.DrawCircle(wxPoint(zamik + deb / 8 * 2 - deb + zacPom + 5, visina_panel - visina_prikaza + 36 + vis / 5 * 3), 4); // Koncno stikalo
+	}
+	if (desnaLastnost->IsChecked(4) == true && desnaLastnost->IsChecked(0) == true) {
+		dc.DrawCircle(wxPoint(zamik + deb / 8 * 2 + zacPom + deb / 8 * 7 - 5, visina_panel - visina_prikaza + 36 + vis / 5 * 3), 4);
 	}
 
 	dc.DrawRectangle(wxPoint(zamik + deb / 8 * 1 + zacPom, visina_panel - visina_prikaza + 36), wxSize(deb / 8 + 1, vis + 1)); // Bat
