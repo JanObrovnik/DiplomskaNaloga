@@ -26,7 +26,7 @@ std::vector<double> izracun3(int n, int element, std::vector<double> last, std::
 	double koef_tr_st = .8; //- Koeficient staticnega trenja [/]
 	double koef_tr_din = .6; //- Koeficient dinamicnega trenja [/]
 
-	double koef_vzm_leva, koef_vzm_desna; //- Koeficient vzmeti [N/mm]
+	double koef_vzm_leva, koef_vzm_desna; //- Koeficient vzmeti [N/mm] ////////////// dodat prednapetje
 	if (last[2] < 0) koef_vzm_leva = 0.;
 	else koef_vzm_leva = 2.4;
 	if (last[3] < 0) koef_vzm_desna = 0.;
@@ -40,7 +40,7 @@ std::vector<double> izracun3(int n, int element, std::vector<double> last, std::
 	double x0 = last[10] / 100 * l; //- zaèetna pozicija bata [mm]
 	double V_0_krmilni = 10000; //- krmilni volumen na zacetni strani [mm^3]
 	double V_1_krmilni = 10000; //- krmilni volumen na koncni strani [mm^3]
-	double m = .8 / 1000; //- masa batnice in bata [t] //////////////////////////// m = 2. / 1000 -> pika zlo pomembna
+	double m = .8 / 1000; //- masa batnice in bata [t] // m = 2. / 1000 -> pika zlo pomembna
 	m = m + last[12] / 1000 + last[13] / 1000;
 
 	double Ftr_s = m * g * koef_tr_st; //- Sila staticnega trenja znotraj valja [N]
@@ -105,7 +105,6 @@ std::vector<double> izracun3(int n, int element, std::vector<double> last, std::
 			}
 			else a = 0;
 		}
-		////////////////////////
 		else if (v > 0) a = (dF - Ftr_d) / m;
 		else if (v < 0) a = (dF + Ftr_d) / m;
 
@@ -147,7 +146,7 @@ std::vector<double> izracun3(int n, int element, std::vector<double> last, std::
 	return res;
 }
 
-std::vector<double> ventil(int element, std::vector<double> pi, double p_l, double p_d, double p_del, double p_ok) {
+std::vector<double> ventil(int element, std::vector<double> pi, double p_l, double p_d, double p_del = 6., double p_ok = 1.) {
 
 	if (p_d > p_l) pi[0] = 0; //////////////// spremenit if() v silo, da lah se vzmet in gumb uopostevas
 	else if (p_l > p_d) pi[0] = 1;
@@ -233,6 +232,26 @@ std::vector<double> ventil(int element, std::vector<double> pi, double p_l, doub
 	}
 
 	return pi;
+}
+
+
+std::vector<double> cevka(std::vector<double> pov) {
+
+	//for (int i = 0; i < pov.size() - 1; i++) {} //////////////// dodat moznost za vec povezav na eni cevi
+	pov[1] = pov[0]; /////////////// mogoc referenca
+
+	return pov;
+}
+
+//st[element_valja, element_ventila]
+std::vector<std::vector<double>> stikalo(std::vector<std::vector<int>> seznam_valjev, std::vector<std::vector<double>> seznam_lastnosti, std::vector<std::vector<double>> res) { //////////////////// pri vseh dat vse not
+
+	for (int i = 0; i < res.size(); i++) {
+
+
+	}
+
+	return res;
 }
 
 
@@ -400,9 +419,23 @@ void MainFrame::OnButtonDodClicked(wxCommandEvent& evt) {
 
 		x = dx;
 		y = dy;
-		seznam_valjev.push_back({ x, y, choice_dod->GetSelection() });
-		seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40, 1, -1, -1 });
-		res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
+
+		if (choice_dod->GetSelection() == 0) {
+			seznam_valjev.push_back({ x, y, choice_dod->GetSelection() });
+			seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40, 1, -1, -1 });
+			res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
+		}
+		else if (choice_dod->GetSelection() >= 3 && choice_dod->GetSelection() <= 5) { //////////// dodat vse razlicne sezname
+			seznam_valjev.push_back({ x, y, choice_dod->GetSelection() });
+			seznam_lastnosti.push_back({ 0, 6., 1., 1., 1., 1. });
+			res_reset.push_back({  });
+		}
+		else {
+			seznam_valjev.push_back({ x, y, choice_dod->GetSelection() });
+			seznam_lastnosti.push_back({  });
+			res_reset.push_back({  });
+		}
+
 		res = res_reset;
 		graf.clear();
 		slider->SetValue(0);
@@ -684,7 +717,22 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	}
 	//-
 
+
 	graf.resize(seznam_valjev.size());
+
+
+	//- VENTILI IN CEVI
+	/*for (int i = 0; i < seznam_valjev.size(); i++) {
+
+		if (seznam_valjev[i][2] >= 3 && seznam_valjev[i][2] <= 5) {
+
+			stikalo();
+			ventil();
+			cevka();
+		}
+	}*/
+	//-
+
 
 	//- IZRIS VALJEV
 	for (int i = 0; i < seznam_valjev.size(); i++) {
@@ -696,11 +744,11 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 			if (res[1][2] < 5) { res[1][0] = 6; res[1][1] = 1; }
 			else if (res[1][2] > seznam_lastnosti[1][11] - 5) { res[1][0] = 1; res[1][1] = 6; }
 			if (res[2][2] < 5) { res[2][0] = 6; res[2][1] = 1; }
-			else if (res[2][2] > seznam_lastnosti[2][11] - 5) { res[2][0] = 1; res[2][1] = 6; }
+			else if (res[2][2] > seznam_lastnosti[2][11] - 5) { res[2][0] = 1; res[2][1] = 1; }
 
 			if (sim == true) res[i] = izracun3(n, seznam_valjev[i][2], seznam_lastnosti[i], res[i]);
 			
-			graf[i].push_back(res[i]);
+			graf[i].push_back(res[i]); /////////////// bat in graf sta nesinhronizirana
 
 
 			dc.DrawRectangle(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1]), wxSize(deb + 1, vis + 1)); // Ohišje
@@ -807,7 +855,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 		case 3:
 
 			dc.DrawRectangle(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1]), wxSize(deb_ven + 1, deb_ven + 1));
-			dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven, seznam_valjev[i][1] + 36), wxSize(deb_ven + 1, deb_ven + 1));
+			dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven, seznam_valjev[i][1]), wxSize(deb_ven + 1, deb_ven + 1));
 
 
 			break;
