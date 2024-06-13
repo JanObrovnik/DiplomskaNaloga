@@ -267,22 +267,24 @@ wxChoice* choice_dod;
 wxSlider* slider;
 //wxSpinCtrl* spinCtrl;
 
+//seznam_valjev[x, y, element]
 std::vector<std::vector<int>> seznam_valjev;
-// seznam_valjev[x, y, element]
-std::vector<std::vector<double>> seznam_lastnosti;
 //last[batnica_leva, batnica_desna, vzmer_leva, vzmet_desna, tlak_izo_leva, tlak_izo_desna, zrak_prik_leva, zrak_prik_desna,
-//     delovni_tlak, okoljski_tlak, zacetna_poz, hod_bata]
+//     delovni_tlak, okoljski_tlak, zacetna_poz, hod_bata, masa_leva, masa_desna, batnica_premer_leva, batnica_premer_desna,
+//	   bat_premer, izris_grafa, koncno_stikalo_leva, koncno_stikalo_desna]
+std::vector<std::vector<double>> seznam_lastnosti;
+//res[p_l, p_d, x, v, a, V_l, V_d]
 std::vector<std::vector<double>> res_reset;
 std::vector<std::vector<double>> res;
-//res[p_l, p_d, x]
-std::vector<std::vector<std::vector<double>>> graf; // za risanje grafa
-
-
-std::vector<std::vector<double*>> vec;
+//graf[res] - za risanje grafa
+std::vector<std::vector<std::vector<double>>> graf;
+//seznam_cevi[naziv_valja, , naziv_ventila,]
+std::vector<std::vector<int>> seznam_cevi;
 
 
 int oznacitev = -1;
 bool sim = false;
+int risCevi = 0;
 
 
 MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
@@ -292,6 +294,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	wxButton* button_dod = new wxButton(panel, wxID_ANY, "Dodaj element", wxPoint(5, 48), wxSize(190, -1));
 	wxButton* button_izb = new wxButton(panel, wxID_ANY, "Izbrisi element", wxPoint(5, 100), wxSize(190, -1));
 	wxButton* button_izb_vse = new wxButton(panel, wxID_ANY, "Izbrisi vse", wxPoint(5, 130), wxSize(190, -1));
+	wxButton* pov_cev = new wxButton(panel, wxID_ANY, "Povezava cevi", wxPoint(5, 160), wxSize(190, -1));
 	wxButton* predlog = new wxButton(panel, wxID_ANY, "Pregled elementov", wxPoint(5, 360), wxSize(190, -1));
 	wxButton* simuliraj = new wxButton(panel, wxID_ANY, "Simuliraj", wxPoint(5, 440), wxSize(190, 36));
 	wxButton* pomozno_okno = new wxButton(panel, wxID_ANY, "Pomozno okno", wxPoint(5, 250), wxSize(190, 75));
@@ -315,6 +318,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	button_dod->Bind(wxEVT_BUTTON, &MainFrame::OnButtonDodClicked, this);
 	button_izb->Bind(wxEVT_BUTTON, &MainFrame::OnButtonIzbClicked, this);
 	button_izb_vse->Bind(wxEVT_BUTTON, &MainFrame::OnButtonIzbVseClicked, this);
+	pov_cev->Bind(wxEVT_BUTTON, &MainFrame::OnCevClicked, this);
 	predlog->Bind(wxEVT_BUTTON, &MainFrame::OnButtonPredVseClicked, this);
 	simuliraj->Bind(wxEVT_BUTTON, &MainFrame::OnButtonSimClicked, this);
 	pomozno_okno->Bind(wxEVT_BUTTON, &MainFrame::OnButtonPomClicked, this);
@@ -347,7 +351,11 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	res_reset.push_back({  });
 	res = res_reset;
 
-	vec.push_back({ &res[1][0], &seznam_lastnosti[3][2] });
+	
+	seznam_cevi.push_back({ 1,0,3,2 });
+	seznam_cevi.push_back({ 1,1,3,4 });
+	seznam_cevi.push_back({ 2,0,3,2 });
+	seznam_cevi.push_back({ 2,1,3,4 });
 }
 
 
@@ -374,6 +382,18 @@ void MainFrame::OnMouseEvent(wxMouseEvent& evt) {
 			}
 
 			break;
+		}
+		else if (risCevi == 1 && seznam_lastnosti[i][4] < 0 && mousePos.x > seznam_valjev[i][0] && mousePos.x < seznam_valjev[i][0] + 10 && mousePos.y > seznam_valjev[i][1] + 50 && mousePos.y < seznam_valjev[i][1] + 60) {
+			risCevi = 2;
+		}
+		else if (risCevi == 1 && seznam_lastnosti[i][5] < 0 && mousePos.x > seznam_valjev[i][0] + 70 && mousePos.x < seznam_valjev[i][0] + 80 && mousePos.y > seznam_valjev[i][1] + 50 && mousePos.y < seznam_valjev[i][1] + 60) {
+			risCevi = 2;
+		}
+		else if (risCevi == 2 && mousePos.x > seznam_valjev[i][0] + 55 && mousePos.x < seznam_valjev[i][0] + 65 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
+			risCevi = 0;
+		}
+		else if (risCevi == 2 && mousePos.x > seznam_valjev[i][0] + 79 && mousePos.x < seznam_valjev[i][0] + 89 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
+			risCevi = 0;
 		}
 	}
 
@@ -483,6 +503,25 @@ void MainFrame::OnButtonIzbVseClicked(wxCommandEvent& evt) {
 	res.clear();
 	graf.clear();
 	slider->SetValue(0);
+
+	Refresh();
+}
+
+void MainFrame::OnCevClicked(wxCommandEvent& evt) {
+	sim = false;
+
+	res = res_reset;
+	graf.clear();
+	slider->SetValue(0);
+
+	if (risCevi == 0) {
+		risCevi = 1;
+		seznam_cevi.push_back({ 0, 0, 0, 0 });
+	}
+	else {
+		risCevi = 0;
+		seznam_cevi.erase(seznam_cevi.begin() + (seznam_cevi.size() - 1));
+	}
 
 	Refresh();
 }
@@ -731,37 +770,24 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	graf.resize(seznam_valjev.size());
 
 
-	//- VENTILI IN CEVI
-	/*for (int i = 0; i < seznam_valjev.size(); i++) {
-
-		if (seznam_valjev[i][2] >= 3 && seznam_valjev[i][2] <= 5) {
-
-			stikalo();
-			ventil();
-			cevka();
-		}
-	}*/
-	//-
-
-
-	//pointer[element_valja, element_ventila]
-	//void cevka(std::vector<std::vector<double*>> pointer) {
-	//vec.push_back({ &res[1][0], &seznam_lastnosti[3][2] });
-
-
-
 	if (res[1][2] < 5) { seznam_lastnosti[3][2] = 6; seznam_lastnosti[3][4] = 1; }
 	else if (res[1][2] > seznam_lastnosti[1][11] - 5) { seznam_lastnosti[3][2] = 1; seznam_lastnosti[3][4] = 6; }
 	
-	std::vector<std::vector<double*>> veccc; ///////////////// svoj vektor izven kode
-	veccc.push_back({ &res[1][0], &seznam_lastnosti[3][2] });
-	veccc.push_back({ &res[1][1], &seznam_lastnosti[3][4] });
-	veccc.push_back({ &res[2][0], &seznam_lastnosti[3][2] });
-	veccc.push_back({ &res[2][1], &seznam_lastnosti[3][4] });
+	std::vector<std::vector<double*>> cev;
 
-	cevka(veccc);
+	int pon = seznam_cevi.size();
+	if (risCevi > 0) pon = pon - 1;
 
-	dc.DrawText(wxString::Format("res_1_0 = %g | %g | %g", seznam_lastnosti[3][2], res[1][0]), wxPoint(300, 20));
+	for (int i = 0; i < pon; i++) {
+
+		cev.push_back({ &res[seznam_cevi[i][0]][seznam_cevi[i][1]], &seznam_lastnosti[seznam_cevi[i][2]][seznam_cevi[i][3]] });
+	}
+
+	cevka(cev);
+
+
+	dc.DrawText(wxString::Format("res_1_0 = %g | %g ", seznam_lastnosti[3][2], res[1][0]), wxPoint(300, 20));
+	dc.DrawText(wxString::Format("res_1_0 = %d ", seznam_cevi.size()), wxPoint(300, 35));
 
 	//- IZRIS VALJEV
 	for (int i = 0; i < seznam_valjev.size(); i++) {
@@ -838,7 +864,6 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 			// Graf:
 			if (seznam_lastnosti[i][17] > 0) {
 				
-
 				dc.SetPen(wxPen(wxColour(204, 204, 204), 1, wxPENSTYLE_SOLID));
 				dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + 240, seznam_valjev[i][1]), wxSize(350 + 1, 80 + 1));
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
@@ -854,6 +879,16 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 						dc.DrawLine(wxPoint(seznam_valjev[i][0] + 240 + graf[i][j - 1][7] - zamik, seznam_valjev[i][1] + 80 - graf[i][j - 1][2] * 80 / seznam_lastnosti[i][11]), wxPoint(seznam_valjev[i][0] + 240 + graf[i][j][7] - zamik, seznam_valjev[i][1] + 80 - graf[i][j][2] * 80 / seznam_lastnosti[i][11]));
 					}
 				}
+			}
+
+			if (risCevi == 1) {
+
+				dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
+				dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
+				if (seznam_lastnosti[i][4] < 0) dc.DrawRectangle(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1] + vis + 1), wxSize(10 + 1, 10 + 1));
+				if (seznam_lastnosti[i][5] < 0) dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb - 10, seznam_valjev[i][1] + vis + 1), wxSize(10 + 1, 10 + 1));
+				dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
+				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 			}
 
 			break;
@@ -938,6 +973,16 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 			dc.DrawLine(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 4 * 3, seznam_valjev[i][1]), wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 4 * 3 - 6, seznam_valjev[i][1] + 6));
 
 			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(seznam_valjev[i][0], seznam_valjev[i][1] - 16));
+
+			if (risCevi == 2) {
+
+				dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
+				dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
+				dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + 7, seznam_valjev[i][1] - 11), wxSize(10 + 1, 10 + 1));
+				dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + 31, seznam_valjev[i][1] - 11), wxSize(10 + 1, 10 + 1));
+				dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
+				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+			}
 
 			break;
 
