@@ -36,8 +36,21 @@ private:
 	void OnPaint(wxPaintEvent& evt);
 
 	void OnButtonClicked(wxCommandEvent& evt);
+	PomoznoOkno(wxPaintEvent& evt);
 	void OnNastavitveClicked(wxCommandEvent& evt);
 	void OnPremerClicked(wxCommandEvent& evt);
+
+	void OnSizeChanged(wxSizeEvent& evt);
+};
+
+class VentilNastavitve : public wxFrame {
+
+public:
+	VentilNastavitve();
+private:
+	void OnPaint(wxPaintEvent& evt);
+
+	void OnNastavitveChanged(wxCommandEvent& evt);
 
 	void OnSizeChanged(wxSizeEvent& evt);
 };

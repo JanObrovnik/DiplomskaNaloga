@@ -437,14 +437,21 @@ void MainFrame::OnMouseEvent(wxMouseEvent& evt) {
 
 void MainFrame::OnDoubleMouseEvent(wxMouseEvent& evt) {
 
-	wxPoint mousePos = wxGetMousePosition();
-	mousePos = this->ScreenToClient(mousePos);
 
 	if (oznacitev >= 0) {
 		sim = false;
 
-		PomoznoOkno* dodatnoOkno = new PomoznoOkno();
-		dodatnoOkno->Show();
+		if (seznam_valjev[oznacitev][2] == 0) {
+		
+			PomoznoOkno* dodatnoOkno = new PomoznoOkno();
+			dodatnoOkno->Show();
+		}
+		else if (seznam_valjev[oznacitev][2] >= 3 && seznam_valjev[oznacitev][2] <= 5) {
+
+			VentilNastavitve* ventNast = new VentilNastavitve();
+			ventNast->Show();
+		}
+		else wxLogStatus("Za ta element ni nastavitev");
 
 		res = res_reset;
 		slider->SetValue(0);
@@ -1333,6 +1340,98 @@ void PomoznoOkno::OnPaint(wxPaintEvent& evt) {
 		dc.DrawRoundedRectangle(wxPoint(zamik + deb + deb / 8 * 1 + zacPom, visina_panel - visina_prikaza + 36 + 5), wxSize(40 + 1, 40 + 1), 4);
 		dc.DrawText(wxString::Format("%g kg", desnaMasa->GetValue()), wxPoint(zamik + deb + deb / 8 * 1 + zacPom + 5, visina_panel - visina_prikaza + 36 + 5 + 13));
 	}
+}
+
+
+
+wxArrayString koncnaStikla;
+wxCheckListBox* levaLastnostVentil;
+wxCheckListBox* desnaLastnostVentil;
+wxChoice* stikLeva;
+wxChoice* stikDesna;
+
+
+VentilNastavitve::VentilNastavitve() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve ventila"), wxPoint(0, 0), wxSize(540, 240)) {
+
+	panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
+	wxSize size = this->GetSize();
+
+
+	wxArrayString lastnosti;
+	lastnosti.Add("Gumb");
+	lastnosti.Add("Vzmet");
+	lastnosti.Add("Tlaèno izoliran");
+	lastnosti.Add("Masa");
+	lastnosti.Add("Koncno stikalo");
+
+	wxPoint pointVentil = wxPoint(10, 10);
+	levaLastnostVentil = new wxCheckListBox(panel, wxID_ANY, pointVentil, wxDefaultSize, lastnosti);
+
+	pointVentil = wxPoint(pointVentil.x + size.x / 3 * 2, pointVentil.y);
+	desnaLastnostVentil = new wxCheckListBox(panel, wxID_ANY, pointVentil, wxDefaultSize, lastnosti);
+
+
+	
+	//koncnaStikla.Add("Pnevmaticni valj");
+
+	pointVentil = wxPoint(pointVentil.x - size.x / 3 * 2, pointVentil.y + 100);
+	stikLeva = new wxChoice(panel, wxID_ANY, pointVentil, wxDefaultSize, koncnaStikla, wxCB_SORT);
+	pointVentil = wxPoint(pointVentil.x + size.x / 3 * 2, pointVentil.y);
+	stikDesna = new wxChoice(panel, wxID_ANY, pointVentil, wxDefaultSize, koncnaStikla, wxCB_SORT);
+
+
+
+	panel->Bind(wxEVT_SIZE, &VentilNastavitve::OnSizeChanged, this);
+
+	stikLeva->Bind(wxEVT_CHOICE, &VentilNastavitve::OnNastavitveChanged, this);
+	stikDesna->Bind(wxEVT_CHOICE, &VentilNastavitve::OnNastavitveChanged, this);
+
+
+
+	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(VentilNastavitve::OnPaint));
+
+	panel->SetDoubleBuffered(true);
+}
+
+void VentilNastavitve::OnSizeChanged(wxSizeEvent& evt) {
+
+	Refresh();
+}
+
+void VentilNastavitve::OnNastavitveChanged(wxCommandEvent& evt) {
+
+	Refresh();
+}
+
+void VentilNastavitve::OnPaint(wxPaintEvent& evt) {
+
+	wxPaintDC dc(this);
+
+	wxSize size = this->GetSize();
+
+
+	//dc.DrawRectangle(wxPoint(size.x / 3, 0), wxSize(size.x / 3, size.y));
+
+	int deb_ven = 48;
+
+	dc.DrawRectangle(wxPoint(size.x / 2 - deb_ven, size.y / 2 - deb_ven / 2), wxSize(deb_ven + 1, deb_ven + 1)); // celica 0
+	dc.DrawLine(wxPoint(size.x / 2 - deb_ven + deb_ven / 4 * 3, size.y / 2 - deb_ven / 2), wxPoint(size.x / 2 - deb_ven + deb_ven / 4 * 3, size.y / 2 - deb_ven / 2 + deb_ven));
+	dc.DrawLine(wxPoint(size.x / 2 - deb_ven + deb_ven / 4, size.y / 2 - deb_ven / 2), wxPoint(size.x / 2 - deb_ven + deb_ven / 2, size.y / 2 - deb_ven / 2 + deb_ven));
+	dc.DrawLine(wxPoint(size.x / 2 - deb_ven + deb_ven / 4, size.y / 2 - deb_ven / 2 + deb_ven / 6 * 5), wxPoint(size.x / 2 - deb_ven + deb_ven / 4, size.y / 2 - deb_ven / 2 + deb_ven));
+	dc.DrawLine(wxPoint(size.x / 2 - deb_ven + deb_ven / 4 - 4, size.y / 2 - deb_ven / 2 + deb_ven / 6 * 5), wxPoint(size.x / 2 - deb_ven + deb_ven / 4 + 4 + 1, size.y / 2 - deb_ven / 2 + deb_ven / 6 * 5));
+	dc.DrawLine(wxPoint(size.x / 2 - deb_ven + deb_ven / 4, size.y / 2 - deb_ven / 2), wxPoint(size.x / 2 - deb_ven + deb_ven / 4 + 6, size.y / 2 - deb_ven / 2 + 6));
+	dc.DrawLine(wxPoint(size.x / 2 - deb_ven + deb_ven / 4, size.y / 2 - deb_ven / 2), wxPoint(size.x / 2 - deb_ven + deb_ven / 4 - 6, size.y / 2 - deb_ven / 2 + 6));
+	dc.DrawLine(wxPoint(size.x / 2 - deb_ven + deb_ven / 4 * 3, size.y / 2 - deb_ven / 2 + deb_ven), wxPoint(size.x / 2 - deb_ven + deb_ven / 4 * 3 + 6, size.y / 2 - deb_ven / 2 + deb_ven - 6));
+	dc.DrawLine(wxPoint(size.x / 2 - deb_ven + deb_ven / 4 * 3, size.y / 2 - deb_ven / 2 + deb_ven), wxPoint(size.x / 2 - deb_ven + deb_ven / 4 * 3 - 6, size.y / 2 - deb_ven / 2 + deb_ven - 6));
+	dc.DrawRectangle(wxPoint(size.x / 2, size.y / 2 - deb_ven / 2), wxSize(deb_ven + 1, deb_ven + 1)); // celica 1
+	dc.DrawLine(wxPoint(size.x / 2 + deb_ven / 4, size.y / 2 - deb_ven / 2), wxPoint(size.x / 2 + deb_ven / 4, size.y / 2 - deb_ven / 2 + deb_ven));
+	dc.DrawLine(wxPoint(size.x / 2 + deb_ven / 4 * 3, size.y / 2 - deb_ven / 2), wxPoint(size.x / 2 + deb_ven / 2, size.y / 2 - deb_ven / 2 + deb_ven));
+	dc.DrawLine(wxPoint(size.x / 2 + deb_ven / 4 * 3, size.y / 2 - deb_ven / 2 + deb_ven / 6 * 5), wxPoint(size.x / 2 + deb_ven / 4 * 3, size.y / 2 - deb_ven / 2 + deb_ven));
+	dc.DrawLine(wxPoint(size.x / 2 + deb_ven / 4 * 3 - 4, size.y / 2 - deb_ven / 2 + deb_ven / 6 * 5), wxPoint(size.x / 2 + deb_ven / 4 * 3 + 4 + 1, size.y / 2 - deb_ven / 2 + deb_ven / 6 * 5));
+	dc.DrawLine(wxPoint(size.x / 2 + deb_ven / 4, size.y / 2 - deb_ven / 2 + deb_ven), wxPoint(size.x / 2 + deb_ven / 4 + 6, size.y / 2 - deb_ven / 2 + deb_ven - 6));
+	dc.DrawLine(wxPoint(size.x / 2 + deb_ven / 4, size.y / 2 - deb_ven / 2 + deb_ven), wxPoint(size.x / 2 + deb_ven / 4 - 6, size.y / 2 - deb_ven / 2 + deb_ven - 6));
+	dc.DrawLine(wxPoint(size.x / 2 + deb_ven / 4 * 3, size.y / 2 - deb_ven / 2), wxPoint(size.x / 2 + deb_ven / 4 * 3 + 6, size.y / 2 - deb_ven / 2 + 6));
+	dc.DrawLine(wxPoint(size.x / 2 + deb_ven / 4 * 3, size.y / 2 - deb_ven / 2), wxPoint(size.x / 2 + deb_ven / 4 * 3 - 6, size.y / 2 - deb_ven / 2 + 6));
 }
 
 /*
