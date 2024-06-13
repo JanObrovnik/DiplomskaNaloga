@@ -17,6 +17,7 @@ private:
 	void OnButtonIzbClicked(wxCommandEvent& evt);
 	void OnButtonIzbVseClicked(wxCommandEvent& evt);
 	void OnCevClicked(wxCommandEvent& evt);
+	void OnCevIzbClicked(wxCommandEvent& evt);
 	void OnButtonPredVseClicked(wxCommandEvent& evt);
 	void OnButtonSimClicked(wxCommandEvent& evt);
 	void OnButtonPomClicked(wxCommandEvent& evt);
