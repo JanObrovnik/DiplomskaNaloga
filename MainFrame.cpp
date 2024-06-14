@@ -350,12 +350,12 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 
 
 	seznam_valjev.push_back({ 300, 500, 5 });
-	seznam_lastnosti.push_back({ 0, 6., 1., 1., 1., 1. });
-	res_reset.push_back({  });
+	seznam_lastnosti.push_back({  });
+	res_reset.push_back({ 0, 6., 1., 1., 1., 1. });
 	res = res_reset;
 
 	
-	seznam_cevi.push_back({1,0,3,2});
+	seznam_cevi.push_back({ 1,0,3,2 });
 	seznam_cevi.push_back({ 1,1,3,4 });
 	seznam_cevi.push_back({ 2,0,3,2 });
 	seznam_cevi.push_back({ 2,1,3,4 });
@@ -387,7 +387,7 @@ void MainFrame::OnMouseEvent(wxMouseEvent& evt) {
 			break;
 		}
 
-		else if (risCevi == 1 && seznam_lastnosti[i][4] < 0 && mousePos.x > seznam_valjev[i][0] && mousePos.x < seznam_valjev[i][0] + 10 && mousePos.y > seznam_valjev[i][1] + 50 && mousePos.y < seznam_valjev[i][1] + 60) {
+		else if (risCevi == 1 && seznam_valjev[i][2] == 0 && seznam_lastnosti[i][4] < 0 && mousePos.x > seznam_valjev[i][0] && mousePos.x < seznam_valjev[i][0] + 10 && mousePos.y > seznam_valjev[i][1] + 50 && mousePos.y < seznam_valjev[i][1] + 60) {
 			bool risi = true;
 			for (int j = 0; j < seznam_cevi.size(); j++) if (seznam_cevi[j][0] == i && seznam_cevi[j][1] == 0) risi = false;
 			
@@ -401,7 +401,7 @@ void MainFrame::OnMouseEvent(wxMouseEvent& evt) {
 
 			break;
 		}
-		else if (risCevi == 1 && seznam_lastnosti[i][5] < 0 && mousePos.x > seznam_valjev[i][0] + 70 && mousePos.x < seznam_valjev[i][0] + 80 && mousePos.y > seznam_valjev[i][1] + 50 && mousePos.y < seznam_valjev[i][1] + 60) {
+		else if (risCevi == 1  && seznam_valjev[i][2] == 0 && seznam_lastnosti[i][5] < 0 && mousePos.x > seznam_valjev[i][0] + 70 && mousePos.x < seznam_valjev[i][0] + 80 && mousePos.y > seznam_valjev[i][1] + 50 && mousePos.y < seznam_valjev[i][1] + 60) {
 			bool risi = true;
 			for (int j = 0; j < seznam_cevi.size(); j++) if (seznam_cevi[j][0] == i && seznam_cevi[j][1] == 1) risi = false;
 
@@ -415,14 +415,14 @@ void MainFrame::OnMouseEvent(wxMouseEvent& evt) {
 
 			break;
 		}
-		else if (risCevi == 2 && mousePos.x > seznam_valjev[i][0] + 55 && mousePos.x < seznam_valjev[i][0] + 65 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
+		else if (risCevi == 2 && seznam_valjev[i][2] == 5 && mousePos.x > seznam_valjev[i][0] + 55 && mousePos.x < seznam_valjev[i][0] + 65 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
 			seznam_cevi[seznam_cevi.size() - 1][2] = i;
 			seznam_cevi[seznam_cevi.size() - 1][3] = 4;
 
 			risCevi = 0;
 			break;
 		}
-		else if (risCevi == 2 && mousePos.x > seznam_valjev[i][0] + 79 && mousePos.x < seznam_valjev[i][0] + 89 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
+		else if (risCevi == 2 && seznam_valjev[i][2] == 5 && mousePos.x > seznam_valjev[i][0] + 79 && mousePos.x < seznam_valjev[i][0] + 89 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
 			seznam_cevi[seznam_cevi.size() - 1][2] = i;
 			seznam_cevi[seznam_cevi.size() - 1][3] = 2;
 
@@ -445,8 +445,8 @@ void MainFrame::OnMouseEvent(wxMouseEvent& evt) {
 	}
 
 
-	wxString message = wxString::Format("Mouse Event Detected! (x=%d y=%d)", dx, dy);
-	wxLogStatus(message);
+	/*wxString message = wxString::Format("Mouse Event Detected! (x=%d y=%d)", dx, dy);
+	wxLogStatus(message);*/
 
 	Refresh();
 }
@@ -503,8 +503,8 @@ void MainFrame::OnButtonDodClicked(wxCommandEvent& evt) {
 		}
 		else if (choice_dod->GetSelection() >= 3 && choice_dod->GetSelection() <= 5) { //////////// dodat vse razlicne sezname
 			seznam_valjev.push_back({ x, y, choice_dod->GetSelection() });
-			seznam_lastnosti.push_back({ 0, 6., 1., 1., 1., 1. });
-			res_reset.push_back({  });
+			seznam_lastnosti.push_back({  });
+			res_reset.push_back({ 0, 6., 1., 1., 1., 1. });
 		}
 		else {
 			seznam_valjev.push_back({ x, y, choice_dod->GetSelection() });
@@ -607,7 +607,12 @@ void MainFrame::OnButtonPredVseClicked(wxCommandEvent& evt) {
 	seznam_valjev.push_back({ 300, 200, 0 });
 	seznam_valjev.push_back({ 300, 300, 0 });
 
-	seznam_cevi.push_back({1,0,3,2});
+	seznam_valjev.push_back({ 300, 500, 5 });
+	seznam_lastnosti.push_back({  });
+	res_reset.push_back({ 0, 6., 1., 1., 1., 1. });
+	res = res_reset;
+
+	seznam_cevi.push_back({ 1,0,3,2 });
 	seznam_cevi.push_back({ 1,1,3,4 });
 	seznam_cevi.push_back({ 2,0,3,2 });
 	seznam_cevi.push_back({ 2,1,3,4 });
@@ -845,8 +850,8 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 		dc.DrawLine(wxPoint(seznam_valjev[seznam_cevi[seznam_cevi.size() - 1][0]][0] + zamik, seznam_valjev[seznam_cevi[seznam_cevi.size() - 1][0]][1] + vis), wxPoint(mousePos.x, mousePos.y));
 	}
 
-	if (res[1][2] < 5) { seznam_lastnosti[3][2] = 6; seznam_lastnosti[3][4] = 1; seznam_lastnosti[3][0] = 0; } ////////////
-	else if (res[1][2] > seznam_lastnosti[1][11] - 5) { seznam_lastnosti[3][2] = 1; seznam_lastnosti[3][4] = 6; seznam_lastnosti[3][0] = 1; } /////////////
+	if (res[1][2] < 5) { res[3][2] = 6; res[3][4] = 1; res[3][0] = 0; } ////////////
+	else if (res[1][2] > seznam_lastnosti[1][11] - 5) { res[3][2] = 1; res[3][4] = 6; res[3][0] = 1; } /////////////
 	
 	std::vector<std::vector<double*>> cev;
 
@@ -855,7 +860,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 	for (int i = 0; i < pon; i++) {
 
-		cev.push_back({ &res[seznam_cevi[i][0]][seznam_cevi[i][1]], &seznam_lastnosti[seznam_cevi[i][2]][seznam_cevi[i][3]] });
+		cev.push_back({ &res[seznam_cevi[i][0]][seznam_cevi[i][1]], &res[seznam_cevi[i][2]][seznam_cevi[i][3]] });
 
 		wxPoint point1(seznam_valjev[seznam_cevi[i][0]][0], seznam_valjev[seznam_cevi[i][0]][1] + vis);
 		if (seznam_cevi[i][1] == 0) point1.x = point1.x + 5;
@@ -871,8 +876,8 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	cevka(cev);
 
 
-	dc.DrawText(wxString::Format("res_1_0 = %g | %g ", seznam_lastnosti[3][2], res[1][0]), wxPoint(300, 20));
-	dc.DrawText(wxString::Format("res_1_0 = %d ", seznam_cevi.size()), wxPoint(300, 35));
+	dc.DrawText(wxString::Format("res = %g | %g ", res[3][2], res[1][0]), wxPoint(300, 20));
+	dc.DrawText(wxString::Format("st. cevi = %d ", seznam_cevi.size()), wxPoint(300, 35));
 
 	//- IZRIS VALJEV
 	for (int i = 0; i < seznam_valjev.size(); i++) {
@@ -1038,7 +1043,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 		case 5:
 			
-			if (seznam_lastnosti[i][0] == 1) zamik = deb_ven;
+			if (res[i][0] == 1) zamik = deb_ven;
 
 			dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + zamik, seznam_valjev[i][1]), wxSize(deb_ven + 1, deb_ven + 1)); // celica 0
 			dc.DrawLine(wxPoint(seznam_valjev[i][0] + deb_ven / 4 * 3 + zamik, seznam_valjev[i][1]), wxPoint(seznam_valjev[i][0] + deb_ven / 4 * 3 + zamik, seznam_valjev[i][1] + deb_ven));
