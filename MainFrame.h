@@ -24,6 +24,7 @@ private:
 
 	void OnMouseEvent(wxMouseEvent& evt);
 	void OnDoubleMouseEvent(wxMouseEvent& evt);
+	void OnMouseMoveEvent(wxMouseEvent& evt);
 
 	void OnSizeChanged(wxSizeEvent& evt);
 };

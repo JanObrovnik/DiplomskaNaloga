@@ -315,6 +315,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 
 	panel->Bind(wxEVT_LEFT_DOWN, &MainFrame::OnMouseEvent, this);
 	panel->Bind(wxEVT_LEFT_DCLICK, &MainFrame::OnDoubleMouseEvent, this);
+	panel->Bind(wxEVT_MOTION, &MainFrame::OnMouseMoveEvent, this);
 	panel->Bind(wxEVT_SIZE, &MainFrame::OnSizeChanged, this);
 	button_dod->Bind(wxEVT_BUTTON, &MainFrame::OnButtonDodClicked, this);
 	button_izb->Bind(wxEVT_BUTTON, &MainFrame::OnButtonIzbClicked, this);
@@ -460,6 +461,11 @@ void MainFrame::OnDoubleMouseEvent(wxMouseEvent& evt) {
 		Refresh();
 	}
 	else wxLogStatus("Kliknite na element");
+}
+
+void MainFrame::OnMouseMoveEvent(wxMouseEvent& evt) {
+
+	if (sim == false) Refresh();
 }
 
 void MainFrame::OnSizeChanged(wxSizeEvent& evt) {
@@ -824,11 +830,18 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	int pon = seznam_cevi.size();
 	if (risCevi > 0) pon = pon - 1;
 
+	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
+	if (risCevi == 2) { 
+		int zamik;
+		if (seznam_cevi[seznam_cevi.size() - 1][1] == 0) zamik = 5;
+		else if (seznam_cevi[seznam_cevi.size() - 1][1] == 1) zamik = deb - 5;
+		dc.DrawLine(wxPoint(seznam_valjev[seznam_cevi[seznam_cevi.size() - 1][0]][0] + zamik, seznam_valjev[seznam_cevi[seznam_cevi.size() - 1][0]][1] + vis), wxPoint(mousePos.x, mousePos.y));
+	}
+
 	for (int i = 0; i < pon; i++) {
 
 		cev.push_back({ &res[seznam_cevi[i][0]][seznam_cevi[i][1]], &seznam_lastnosti[seznam_cevi[i][2]][seznam_cevi[i][3]] });
 
-		//dc.DrawLine(wxPoint(seznam_valjev[seznam_cevi[i][0]][0], seznam_valjev[seznam_cevi[i][0]][1]), wxPoint(seznam_valjev[seznam_cevi[i][2]][0], seznam_valjev[seznam_cevi[i][2]][1]));
 		wxPoint point1(seznam_valjev[seznam_cevi[i][0]][0], seznam_valjev[seznam_cevi[i][0]][1] + vis);
 		if (seznam_cevi[i][1] == 0) point1.x = point1.x + 5;
 		else if (seznam_cevi[i][1] == 1) point1.x = point1.x + deb - 5;
