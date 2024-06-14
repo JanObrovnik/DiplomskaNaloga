@@ -386,18 +386,33 @@ void MainFrame::OnMouseEvent(wxMouseEvent& evt) {
 
 			break;
 		}
+
 		else if (risCevi == 1 && seznam_lastnosti[i][4] < 0 && mousePos.x > seznam_valjev[i][0] && mousePos.x < seznam_valjev[i][0] + 10 && mousePos.y > seznam_valjev[i][1] + 50 && mousePos.y < seznam_valjev[i][1] + 60) {
-			seznam_cevi[seznam_cevi.size() - 1][0] = i;
-			seznam_cevi[seznam_cevi.size() - 1][1] = 0;
+			bool risi = true;
+			for (int j = 0; j < seznam_cevi.size(); j++) if (seznam_cevi[j][0] == i && seznam_cevi[j][1] == 0) risi = false;
 			
-			risCevi = 2;
+			if (risi) {
+				seznam_cevi[seznam_cevi.size() - 1][0] = i;
+				seznam_cevi[seznam_cevi.size() - 1][1] = 0;
+
+				risCevi = 2;
+			}
+			else wxLogStatus("Dovoljena je samo ena povezava na valj.");
+
 			break;
 		}
 		else if (risCevi == 1 && seznam_lastnosti[i][5] < 0 && mousePos.x > seznam_valjev[i][0] + 70 && mousePos.x < seznam_valjev[i][0] + 80 && mousePos.y > seznam_valjev[i][1] + 50 && mousePos.y < seznam_valjev[i][1] + 60) {
-			seznam_cevi[seznam_cevi.size() - 1][0] = i;
-			seznam_cevi[seznam_cevi.size() - 1][1] = 1;
+			bool risi = true;
+			for (int j = 0; j < seznam_cevi.size(); j++) if (seznam_cevi[j][0] == i && seznam_cevi[j][1] == 1) risi = false;
 
-			risCevi = 2;
+			if (risi) {
+				seznam_cevi[seznam_cevi.size() - 1][0] = i;
+				seznam_cevi[seznam_cevi.size() - 1][1] = 1;
+
+				risCevi = 2;
+			}
+			else wxLogStatus("Dovoljena je samo ena povezava na valj.");
+
 			break;
 		}
 		else if (risCevi == 2 && mousePos.x > seznam_valjev[i][0] + 55 && mousePos.x < seznam_valjev[i][0] + 65 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
@@ -822,14 +837,6 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	graf.resize(seznam_valjev.size());
 
 
-	if (res[1][2] < 5) { seznam_lastnosti[3][2] = 6; seznam_lastnosti[3][4] = 1; seznam_lastnosti[3][0] = 0; }
-	else if (res[1][2] > seznam_lastnosti[1][11] - 5) { seznam_lastnosti[3][2] = 1; seznam_lastnosti[3][4] = 6; seznam_lastnosti[3][0] = 1; }
-	
-	std::vector<std::vector<double*>> cev;
-
-	int pon = seznam_cevi.size();
-	if (risCevi > 0) pon = pon - 1;
-
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 	if (risCevi == 2) { 
 		int zamik;
@@ -837,6 +844,14 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 		else if (seznam_cevi[seznam_cevi.size() - 1][1] == 1) zamik = deb - 5;
 		dc.DrawLine(wxPoint(seznam_valjev[seznam_cevi[seznam_cevi.size() - 1][0]][0] + zamik, seznam_valjev[seznam_cevi[seznam_cevi.size() - 1][0]][1] + vis), wxPoint(mousePos.x, mousePos.y));
 	}
+
+	if (res[1][2] < 5) { seznam_lastnosti[3][2] = 6; seznam_lastnosti[3][4] = 1; seznam_lastnosti[3][0] = 0; } ////////////
+	else if (res[1][2] > seznam_lastnosti[1][11] - 5) { seznam_lastnosti[3][2] = 1; seznam_lastnosti[3][4] = 6; seznam_lastnosti[3][0] = 1; } /////////////
+	
+	std::vector<std::vector<double*>> cev;
+
+	int pon = seznam_cevi.size();
+	if (risCevi > 0) pon = pon - 1;
 
 	for (int i = 0; i < pon; i++) {
 
