@@ -51,6 +51,7 @@ public:
 private:
 	void OnPaint(wxPaintEvent& evt);
 
+	void OnApllyClicked(wxCommandEvent& ect);
 	void OnNastavitveChanged(wxCommandEvent& evt);
 
 	void OnSizeChanged(wxSizeEvent& evt);
