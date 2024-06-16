@@ -146,7 +146,7 @@ std::vector<double> izracun3(int n, int element, std::vector<double> last, std::
 	return res;
 }
 
-std::vector<double> ventil(int element, std::vector<double> last, std::vector<double> res, double p_del = 6., double p_ok = 1.) {
+std::vector<double> ventil(std::vector<double> last, std::vector<double> res, double p_del = 6., double p_ok = 1.) {
 	
 	double Flg = 0, Fdg = 0, Flp = 0, Fdp = 0, Flv = 0, Fdv = 0, Fls = 0, Fds = 0;
 	if (last[1] > 0) Flg = 1000;
@@ -162,10 +162,11 @@ std::vector<double> ventil(int element, std::vector<double> last, std::vector<do
 	else if (Flg + Flp + Flv + Fls > Fdg + Fdp + Fdv + Fds) res[0] = 1;
 
 	int poz = static_cast<int> (res[0]);
+	int naziv = static_cast<int> (last[0]);
 
-	switch (element) {
+	switch (naziv) {
 
-	case 0: // ventil 3/2:
+	case 32: // ventil 3/2:
 
 		switch (poz) {
 
@@ -187,7 +188,7 @@ std::vector<double> ventil(int element, std::vector<double> last, std::vector<do
 		break;
 
 
-	case 1: // ventil 4/2:
+	case 42: // ventil 4/2:
 
 		switch (poz) {
 
@@ -212,19 +213,19 @@ std::vector<double> ventil(int element, std::vector<double> last, std::vector<do
 		break;
 
 
-	case 2: // ventil 5/2:
-		wxLogStatus("5/2");
+	case 52: // ventil 5/2:
+
 		switch (poz) {
 
 		case 0: // celica 0 (desna):
-			wxLogStatus("0");
+
 			res[2] = res[1];
 			res[4] = res[5];
 
 			break;
 
 		case 1: // celica 1 (leva):
-			wxLogStatus("1");
+
 			res[2] = res[3];
 			res[4] = res[1];
 			
@@ -316,7 +317,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	choices.Add("Pnevmaticni valj");
 	choices.Add("Vakumski prisesek");
 	choices.Add("Pnevmaticno prijemalo");
-	choices.Add("3/2 ventil");
+	choices.Add("3/2 ventil"); ////////////// skupno v en ventil
 	choices.Add("4/2 ventil");
 	choices.Add("5/2 ventil");
 
@@ -373,6 +374,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	seznam_cevi.push_back({ 2,1,3,4 });
 
 	seznam_stikal.push_back({ 1, 3, 7, 250 });
+	seznam_stikal.push_back({ 1, 3, 8, 0 });
 }
 
 
@@ -501,7 +503,7 @@ void MainFrame::OnDoubleMouseEvent(wxMouseEvent& evt) {
 
 void MainFrame::OnMouseMoveEvent(wxMouseEvent& evt) {
 
-	//if (sim == false) Refresh();
+	if (sim == false) Refresh();
 }
 
 void MainFrame::OnSizeChanged(wxSizeEvent& evt) {
@@ -524,7 +526,7 @@ void MainFrame::OnButtonDodClicked(wxCommandEvent& evt) {
 		}
 		else if (choice_dod->GetSelection() >= 3 && choice_dod->GetSelection() <= 5) { //////////// dodat vse razlicne sezname
 			seznam_valjev.push_back({ x, y, choice_dod->GetSelection() });
-			seznam_lastnosti.push_back({ 52, -1, -1, -1, -1, -1, -1, -1, -1, 250 });
+			seznam_lastnosti.push_back({ 52, -1, -1, -1, -1, -1, -1, -1, -1 });
 			res_reset.push_back({ 0, 6., 1., 1., 1., 1. });
 		}
 		else {
@@ -547,16 +549,19 @@ void MainFrame::OnButtonIzbClicked(wxCommandEvent& evt) { //////////////// clear
 
 	if (oznacitev >= 0) {
 
-		bool brisi = false;
-		for (int i = seznam_cevi.size() - 1; i >= 0; i--) if (seznam_cevi[i][0] == oznacitev || seznam_cevi[i][2] == oznacitev) {
+		for (int i = seznam_cevi.size() - 1; i >= 0; i--) if (seznam_cevi[i][0] == oznacitev || seznam_cevi[i][2] == oznacitev) seznam_cevi.erase(seznam_cevi.begin() + i); // brisanje cevi
 
-			brisi = true;
-			seznam_cevi.erase(seznam_cevi.begin() + i);
-		}
-		
 		for (int i = 0; i < seznam_cevi.size(); i++) {
-			if (seznam_cevi[i][0] > oznacitev) seznam_cevi[i][0] = seznam_cevi[i][0] - 1;
-			if (seznam_cevi[i][2] > oznacitev) seznam_cevi[i][2] = seznam_cevi[i][2] - 1;
+			if (seznam_cevi[i][0] > oznacitev) seznam_cevi[i][0]--;
+			if (seznam_cevi[i][2] > oznacitev) seznam_cevi[i][2]--;
+		}
+
+
+		for (int i = seznam_stikal.size() - 1; i >= 0; i--) if (seznam_stikal[i][0] == oznacitev || seznam_stikal[i][1] == oznacitev) seznam_stikal.erase(seznam_stikal.begin() + i); // brisanje stikal
+
+		for (int i = 0; i < seznam_stikal.size(); i++) {
+			if (seznam_stikal[i][0] > oznacitev) seznam_stikal[i][0]--;
+			if (seznam_stikal[i][1] > oznacitev) seznam_stikal[i][1]--;
 		}
 
 
@@ -578,6 +583,7 @@ void MainFrame::OnButtonIzbClicked(wxCommandEvent& evt) { //////////////// clear
 void MainFrame::OnButtonIzbVseClicked(wxCommandEvent& evt) { //////////////// clear za seznam_stikal
 	sim = false;
 
+	seznam_stikal.clear();
 	seznam_cevi.clear();
 	seznam_valjev.clear();
 	seznam_lastnosti.clear();
@@ -627,6 +633,7 @@ void MainFrame::OnCevIzbClicked(wxCommandEvent& evt) {
 void MainFrame::OnButtonPredVseClicked(wxCommandEvent& evt) { //////////////// clear za seznam_stikal
 	sim = false;
 
+	seznam_stikal.clear();
 	seznam_cevi.clear();
 	seznam_valjev.clear();
 	seznam_lastnosti.clear();
@@ -657,6 +664,7 @@ void MainFrame::OnButtonPredVseClicked(wxCommandEvent& evt) { //////////////// c
 	seznam_cevi.push_back({ 2,1,3,4 });
 
 	seznam_stikal.push_back({ 1, 3, 7, 250 });
+	seznam_stikal.push_back({ 1, 3, 8, 0 });
 
 	res = res_reset;
 
@@ -880,41 +888,32 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	//-
 
 
-	if (seznam_valjev.size() > 0) graf.resize(seznam_valjev.size());
+	if (seznam_valjev.size() > 0) graf.resize(seznam_valjev.size()); // Za pravilno delovanje grafa
 
 
+	//- STIKALO
 	std::vector<std::vector<double*>> stk;
 	std::vector<std::vector<int>> dol;
-	
-	
-	//if (res[1][2] < 5) { /*res[3][2] = 6; res[3][4] = 1; res[3][0] = 0; stk.push_back({ &res[seznam_stikal[0][0]][2], &res[seznam_stikal[0][1]][seznam_stikal[0][2]] });*/ } ////////////
-	//else if (res[1][2] > seznam_lastnosti[1][11] - 5) { /*res[3][2] = 1; res[3][4] = 6; res[3][0] = 1;*/ stk.push_back({ &res[seznam_stikal[0][0]][2], &res[seznam_stikal[0][1]][seznam_stikal[0][2]] }); } /////////////
-	
 
+	for (int i = 0; i < seznam_stikal.size(); i++) {
+		stk.push_back({ &res[seznam_stikal[i][0]][2], &seznam_lastnosti[seznam_stikal[i][1]][seznam_stikal[i][2]] });
+		dol.push_back({ seznam_stikal[i][3] });
+	}
 
-	// seznam_stikal.push_back({ 1, 3, 7, 250 }); // seznam_stikal - dvojni vektor
-	stk.push_back({ &res[1][2], &seznam_lastnosti[3][7] });
-	dol.push_back({ seznam_stikal[0][3], 1 });
-	stk.push_back({ &res[1][2], &seznam_lastnosti[3][8] }); // vec vrstici seznam_stikal
-	dol.push_back({ 0, 0 });
 	stikalo(stk, dol);
+	//-
+
+
+	//- VENTIL
+	for (int i = 0; i < seznam_valjev.size(); i++) if (seznam_valjev[i][2] > 2 && seznam_valjev[i][2] < 6) {
+
+		res[i] = ventil(seznam_lastnosti[i], res[i]);
+	}
+	//-
 
 
 
-
-
-	//if (res[1][2] > seznam_lastnosti[1][11] - 5) seznam_lastnosti[3][7] = 1;
-	//else if (res[1][2] < 5) seznam_lastnosti[3][7] = -1;
-	dc.DrawText(wxString::Format("ventil 1 = %g ", res[3][1]), wxPoint(210, 500));
-	dc.DrawText(wxString::Format("ventil 2 = %g ", res[3][2]), wxPoint(210, 515));
-	res[3] = ventil(2, seznam_lastnosti[3], res[3]);
-	dc.DrawText(wxString::Format("ventil 1 = %g ", res[3][1]), wxPoint(210, 530));
-	dc.DrawText(wxString::Format("ventil 2 = %g ", res[3][2]), wxPoint(210, 545));
-	
-
-
-
-
+	//- CEVI
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 	if (risCevi == 2) { 
 		int zamik;
@@ -922,16 +921,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 		else if (seznam_cevi[seznam_cevi.size() - 1][1] == 1) zamik = deb - 5;
 		dc.DrawLine(wxPoint(seznam_valjev[seznam_cevi[seznam_cevi.size() - 1][0]][0] + zamik, seznam_valjev[seznam_cevi[seznam_cevi.size() - 1][0]][1] + vis), wxPoint(mousePos.x, mousePos.y));
 	}
-	/*
-	if (res.size() >= 4) { /////////////
-		if (res[1][2] < 5) { res[3][2] = 6; res[3][4] = 1; res[3][0] = 0; } ////////////
-		else if (res[1][2] > seznam_lastnosti[1][11] - 5) { res[3][2] = 1; res[3][4] = 6; res[3][0] = 1; } /////////////
-	} ///////////
-	else if (res.size() >= 3) { ///////////////
-		if (res[1][2] < 5) { res[2][2] = 6; res[2][4] = 1; res[2][0] = 0; } ////////////
-		else if (res[1][2] > seznam_lastnosti[1][11] - 5) { res[2][2] = 1; res[2][4] = 6; res[2][0] = 1; } /////////////
-	} /////////////
-	*/
+
 	std::vector<std::vector<double*>> cev;
 
 	int pon = seznam_cevi.size();
@@ -953,22 +943,30 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	}
 
 	cevka(cev);
-	if (seznam_cevi.size() > 0) dc.DrawText(wxString::Format("seznam = %d | %d | %d | %d ", seznam_cevi[0][0], seznam_cevi[0][1], seznam_cevi[0][2], seznam_cevi[0][3]), wxPoint(240, 20));
-	if (seznam_cevi.size() > 1) dc.DrawText(wxString::Format("seznam = %d | %d | %d | %d ", seznam_cevi[1][0], seznam_cevi[1][1], seznam_cevi[1][2], seznam_cevi[1][3]), wxPoint(240, 35));
-	if (seznam_cevi.size() > 2) dc.DrawText(wxString::Format("seznam = %d | %d | %d | %d ", seznam_cevi[2][0], seznam_cevi[2][1], seznam_cevi[2][2], seznam_cevi[2][3]), wxPoint(240, 50));
-	if (seznam_cevi.size() > 3) dc.DrawText(wxString::Format("seznam = %d | %d | %d | %d ", seznam_cevi[3][0], seznam_cevi[3][1], seznam_cevi[3][2], seznam_cevi[3][3]), wxPoint(240, 65));
+	//-
 
-	if (seznam_cevi.size() > 0) dc.DrawText(wxString::Format("seznam = %g | %g ", res[seznam_cevi[0][0]][seznam_cevi[0][1]], res[seznam_cevi[0][2]][seznam_cevi[0][3]]), wxPoint(420, 20));
-	if (seznam_cevi.size() > 1) dc.DrawText(wxString::Format("seznam = %g | %g ", res[seznam_cevi[1][0]][seznam_cevi[1][1]], res[seznam_cevi[1][2]][seznam_cevi[1][3]]), wxPoint(420, 35));
-	if (seznam_cevi.size() > 2) dc.DrawText(wxString::Format("seznam = %g | %g ", res[seznam_cevi[2][0]][seznam_cevi[2][1]], res[seznam_cevi[2][2]][seznam_cevi[2][3]]), wxPoint(420, 50));
-	if (seznam_cevi.size() > 3) dc.DrawText(wxString::Format("seznam = %g | %g ", res[seznam_cevi[3][0]][seznam_cevi[3][1]], res[seznam_cevi[3][2]][seznam_cevi[3][3]]), wxPoint(420, 65));
 
-	/*dc.DrawText(wxString::Format("res = %g | %g ", res[3][2], res[1][0]), wxPoint(300, 20));*/
-	dc.DrawText(wxString::Format("st. cevi = %d ", seznam_cevi.size()), wxPoint(600, 80));
-	dc.DrawText(wxString::Format("valji = %d ", seznam_valjev.size()), wxPoint(600, 20));
-	dc.DrawText(wxString::Format("last. = %d ", seznam_lastnosti.size()), wxPoint(600, 35));
-	dc.DrawText(wxString::Format("res = %d ", res.size()), wxPoint(600, 50));
-	dc.DrawText(wxString::Format("res_reset. = %d ", res_reset.size()), wxPoint(600, 65));
+	//- ADMIN "LOGS"
+	if (true) {
+		if (seznam_cevi.size() > 0) dc.DrawText(wxString::Format("seznam = %d | %d | %d | %d ", seznam_cevi[0][0], seznam_cevi[0][1], seznam_cevi[0][2], seznam_cevi[0][3]), wxPoint(240, 20));
+		if (seznam_cevi.size() > 1) dc.DrawText(wxString::Format("seznam = %d | %d | %d | %d ", seznam_cevi[1][0], seznam_cevi[1][1], seznam_cevi[1][2], seznam_cevi[1][3]), wxPoint(240, 35));
+		if (seznam_cevi.size() > 2) dc.DrawText(wxString::Format("seznam = %d | %d | %d | %d ", seznam_cevi[2][0], seznam_cevi[2][1], seznam_cevi[2][2], seznam_cevi[2][3]), wxPoint(240, 50));
+		if (seznam_cevi.size() > 3) dc.DrawText(wxString::Format("seznam = %d | %d | %d | %d ", seznam_cevi[3][0], seznam_cevi[3][1], seznam_cevi[3][2], seznam_cevi[3][3]), wxPoint(240, 65));
+
+		if (seznam_cevi.size() > 0) dc.DrawText(wxString::Format("seznam = %g | %g ", res[seznam_cevi[0][0]][seznam_cevi[0][1]], res[seznam_cevi[0][2]][seznam_cevi[0][3]]), wxPoint(420, 20));
+		if (seznam_cevi.size() > 1) dc.DrawText(wxString::Format("seznam = %g | %g ", res[seznam_cevi[1][0]][seznam_cevi[1][1]], res[seznam_cevi[1][2]][seznam_cevi[1][3]]), wxPoint(420, 35));
+		if (seznam_cevi.size() > 2) dc.DrawText(wxString::Format("seznam = %g | %g ", res[seznam_cevi[2][0]][seznam_cevi[2][1]], res[seznam_cevi[2][2]][seznam_cevi[2][3]]), wxPoint(420, 50));
+		if (seznam_cevi.size() > 3) dc.DrawText(wxString::Format("seznam = %g | %g ", res[seznam_cevi[3][0]][seznam_cevi[3][1]], res[seznam_cevi[3][2]][seznam_cevi[3][3]]), wxPoint(420, 65));
+
+		dc.DrawText(wxString::Format("stikala = %d ", seznam_stikal.size()), wxPoint(600, 5));
+		dc.DrawText(wxString::Format("valji = %d ", seznam_valjev.size()), wxPoint(600, 20));
+		dc.DrawText(wxString::Format("last. = %d ", seznam_lastnosti.size()), wxPoint(600, 35));
+		dc.DrawText(wxString::Format("res = %d ", res.size()), wxPoint(600, 50));
+		dc.DrawText(wxString::Format("res_reset. = %d ", res_reset.size()), wxPoint(600, 65));
+		dc.DrawText(wxString::Format("st. cevi = %d ", seznam_cevi.size()), wxPoint(600, 80));
+	}
+	//-
+
 
 	//- IZRIS VALJEV
 	for (int i = 0; i < seznam_valjev.size(); i++) {
