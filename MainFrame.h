@@ -40,6 +40,20 @@ private:
 	PomoznoOkno(wxPaintEvent& evt);
 	void OnNastavitveClicked(wxCommandEvent& evt);
 	void OnPremerClicked(wxCommandEvent& evt);
+	void OnStikaloClicked(wxCommandEvent& evt);
+
+	void OnSizeChanged(wxSizeEvent& evt);
+};
+
+class StikaloNastavitev : public wxFrame {
+
+public:
+	StikaloNastavitev();
+private:
+	void OnPaint(wxPaintEvent& evt);
+
+	void OnApllyClicked(wxCommandEvent& evt);
+	void OnSliderChanged(wxCommandEvent& evt);
 
 	void OnSizeChanged(wxSizeEvent& evt);
 };
