@@ -248,14 +248,14 @@ std::vector<double> ventil(std::vector<double> last, std::vector<double> res, do
 //pointer[element_valja, element_ventila]
 void cevka(std::vector<std::vector<double*>> pointer) {
 
-	for (int i = 0; i < pointer.size(); i++) { //////////////// dodat moznost za vec povezav na eni cevi
+	for (int i = 0; i < pointer.size(); i++) {
 
 		*(pointer[i][0]) = *(pointer[i][1]);
 	}
 }
 
 //pointer[element_valja, element_ventila]
-void stikalo(std::vector<std::vector<double*>> pointer, std::vector<std::vector<int>> dol) { //////////////////// pri vseh dat vse not
+void stikalo(std::vector<std::vector<double*>> pointer, std::vector<std::vector<int>> dol) {
 
 	for (int i = 0; i < pointer.size(); i++) {
 
@@ -349,7 +349,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 
 
 	seznam_lastnosti.push_back({ 1, 1, -1, -1, 1, 1, 1, -1, 6, 1, 0, 100, 0, 0, 10, 30, 40, 1, -1, -1 }); // Prikaz elementov
-	seznam_lastnosti.push_back({ -1, 1, -1, -1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40, 1, -1, -1 });
+	seznam_lastnosti.push_back({ -1, 1, -1, -1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40, 1, -1, 1 });
 	seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 350, 0, 6, 20, 20, 40, 1, -1, -1 });
 
 	res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
@@ -895,7 +895,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	std::vector<std::vector<double*>> stk;
 	std::vector<std::vector<int>> dol;
 
-	for (int i = 0; i < seznam_stikal.size(); i++) {
+	for (int i = 0; i < seznam_stikal.size(); i++) if (seznam_stikal[i][1] != -1 && seznam_stikal[i][2] != -1) {
 		stk.push_back({ &res[seznam_stikal[i][0]][2], &seznam_lastnosti[seznam_stikal[i][1]][seznam_stikal[i][2]] });
 		dol.push_back({ seznam_stikal[i][3] });
 	}
@@ -947,7 +947,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 
 	//- ADMIN "LOGS"
-	if (true) {
+	if (false) {
 		if (seznam_cevi.size() > 0) dc.DrawText(wxString::Format("seznam = %d | %d | %d | %d ", seznam_cevi[0][0], seznam_cevi[0][1], seznam_cevi[0][2], seznam_cevi[0][3]), wxPoint(240, 20));
 		if (seznam_cevi.size() > 1) dc.DrawText(wxString::Format("seznam = %d | %d | %d | %d ", seznam_cevi[1][0], seznam_cevi[1][1], seznam_cevi[1][2], seznam_cevi[1][3]), wxPoint(240, 35));
 		if (seznam_cevi.size() > 2) dc.DrawText(wxString::Format("seznam = %d | %d | %d | %d ", seznam_cevi[2][0], seznam_cevi[2][1], seznam_cevi[2][2], seznam_cevi[2][3]), wxPoint(240, 50));
@@ -1041,6 +1041,26 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 			dc.DrawText(wxString::Format("V_d = %g", res[i][6]), wxPoint(seznam_valjev[i][0] + 160, seznam_valjev[i][1] + 48));
 			dc.DrawText(wxString::Format("st: %g", graf[i][graf[i].size() - 1][7]), wxPoint(seznam_valjev[i][0] + 160, seznam_valjev[i][1] + 60));
 
+			// Stikala:
+			for (int j = 0; j < seznam_stikal.size(); j++) if (seznam_stikal[j][0] == i) {
+
+				dc.DrawCircle(wxPoint(seznam_valjev[i][0] + deb / 8 * 2 + deb / 8 * 7 - 5 + seznam_stikal[j][3] * (deb / 8 * 5) / seznam_lastnosti[i][11], seznam_valjev[i][1] + vis / 5 * 3 + 8), 5);
+				dc.DrawCircle(wxPoint(seznam_valjev[i][0] + deb / 8 * 2 + deb / 8 * 7 - 5 + seznam_stikal[j][3] * (deb / 8 * 5) / seznam_lastnosti[i][11], seznam_valjev[i][1] + vis / 5 * 3 + 8), 2);
+				dc.DrawLine(wxPoint(seznam_valjev[i][0] + deb / 8 * 2 + deb / 8 * 7 - 5 + seznam_stikal[j][3] * (deb / 8 * 5) / seznam_lastnosti[i][11], seznam_valjev[i][1] + vis / 5 * 3 + 13),
+							wxPoint(seznam_valjev[i][0] + deb / 8 * 2 + deb / 8 * 7 - 5 + seznam_stikal[j][3] * (deb / 8 * 5) / seznam_lastnosti[i][11], seznam_valjev[i][1] + vis / 5 * 3 + 22));
+			}
+
+			// Cevi
+			if (risCevi == 1) {
+
+				dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
+				dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
+				if (seznam_lastnosti[i][4] < 0) dc.DrawRectangle(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1] + vis + 1), wxSize(10 + 1, 10 + 1));
+				if (seznam_lastnosti[i][5] < 0) dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb - 10, seznam_valjev[i][1] + vis + 1), wxSize(10 + 1, 10 + 1));
+				dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
+				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+			}
+
 
 			// Graf:
 			if (seznam_lastnosti[i][17] > 0) {
@@ -1060,16 +1080,6 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 						dc.DrawLine(wxPoint(seznam_valjev[i][0] + 240 + graf[i][j - 1][7] - zamik, seznam_valjev[i][1] + 80 - graf[i][j - 1][2] * 80 / seznam_lastnosti[i][11]), wxPoint(seznam_valjev[i][0] + 240 + graf[i][j][7] - zamik, seznam_valjev[i][1] + 80 - graf[i][j][2] * 80 / seznam_lastnosti[i][11]));
 					}
 				}
-			}
-
-			if (risCevi == 1) {
-
-				dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
-				dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
-				if (seznam_lastnosti[i][4] < 0) dc.DrawRectangle(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1] + vis + 1), wxSize(10 + 1, 10 + 1));
-				if (seznam_lastnosti[i][5] < 0) dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb - 10, seznam_valjev[i][1] + vis + 1), wxSize(10 + 1, 10 + 1));
-				dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
-				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 			}
 
 			break;
@@ -1372,8 +1382,8 @@ PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, wxString::Format("Zacetn
 	if (seznam_lastnosti[oznacitev][17] > 0) izrisGrafa->SetValue(true);
 	else izrisGrafa->SetValue(false);
 
-	wxButton* button = new wxButton(panel, wxID_ANY, "Aplly", wxPoint(size.x / 2 - 40, size.y - 64), wxSize(80, 20));
-	wxButton* stkNast = new wxButton(panel, wxID_ANY, "Nastavite\n koncnih stikal", wxPoint(size.x / 2 - 40, size.y - 86), wxSize(80, 20));
+	wxButton* button = new wxButton(panel, wxID_ANY, "Aplly", wxPoint(size.x / 2 - 40, size.y - 64), wxSize(80, -1));
+	wxButton* stkNast = new wxButton(panel, wxID_ANY, "Nastavite\n koncnih stikal", wxPoint(size.x / 2 - 60, size.y - 104), wxSize(120, 40));
 
 
 	button->Bind(wxEVT_BUTTON, &PomoznoOkno::OnButtonClicked, this);
@@ -1591,19 +1601,21 @@ int st_Stikal = 0;
 
 wxSlider* stikaloSlider;
 
-StikaloNastavitev::StikaloNastavitev() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve ventila"), wxPoint(0, 0), wxSize(400, 300)) {
+StikaloNastavitev::StikaloNastavitev() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve ventila"), wxPoint(0, 0), wxSize(400, 236)) {
 
 	panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 	wxSize size = this->GetSize();
 
 
-	wxButton* aplly = new wxButton(panel, wxID_ANY, "Aplly", wxPoint(size.x / 2 - 100, 230), wxSize(200, -1));
+	wxButton* stkAplly = new wxButton(panel, wxID_ANY, "Aplly", wxPoint(size.x / 2 - 70 + 2, 170), wxSize(120, -1));
+	wxButton* stkBrisi = new wxButton(panel, wxID_ANY, "Izbrisi stikala", wxPoint(size.x / 2 - 200 + 2, 170), wxSize(120, -1));
+	wxButton* stkZapri = new wxButton(panel, wxID_ANY, "Zapri", wxPoint(size.x / 2 + 60 + 2, 170), wxSize(120, -1));
 
-	stikaloSlider = new wxSlider(panel, wxID_ANY, 0, 0, seznam_lastnosti[oznacitev][11], wxPoint(size.x / 2 - 100, 180), wxSize(200, -1), wxSL_VALUE_LABEL);
+	stikaloSlider = new wxSlider(panel, wxID_ANY, 0, 0, seznam_lastnosti[oznacitev][11], wxPoint(size.x / 2 - 100, 115), wxSize(200, -1), wxSL_VALUE_LABEL);
 
 
 	panel->Bind(wxEVT_SIZE, &StikaloNastavitev::OnSizeChanged, this);
-	aplly->Bind(wxEVT_BUTTON, &StikaloNastavitev::OnApllyClicked, this);
+	stkAplly->Bind(wxEVT_BUTTON, &StikaloNastavitev::OnApllyClicked, this);
 	stikaloSlider->Bind(wxEVT_SLIDER, &StikaloNastavitev::OnSliderChanged, this);
 
 	
@@ -1648,34 +1660,38 @@ void StikaloNastavitev::OnPaint(wxPaintEvent& evt) {
 	int vis = 50;
 
 
-	dc.DrawRectangle(wxPoint(0, 0), wxSize(size.x, size.y / 3 * 2));
+	dc.DrawRectangle(wxPoint(0, 0), wxSize(size.x, size.y / 3 * 1.6));
 
-	int zamik = 0;
+	int zamik = stikaloSlider->GetValue() * (deb / 8 * 5) / seznam_lastnosti[oznacitev][11];
 
-	dc.DrawRectangle(wxPoint(size.x / 2 - deb / 2, size.y / 3 * 1), wxSize(deb + 1, vis + 1)); // Ohišje
-	dc.DrawLine(wxPoint(size.x / 2 - deb / 2, size.y / 3 * 1 + vis), wxPoint(size.x / 2 - deb / 2 + deb / 16 * 1 + 1, size.y / 3 * 1 + vis - deb / 16 * 1 - 1)); // Ventili
-	dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 1, size.y / 3 * 1 + vis), wxPoint(size.x / 2 - deb / 2 + deb / 16 * 1 + 1, size.y / 3 * 1 + vis - deb / 16 * 1 - 1));
-	dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 7, size.y / 3 * 1 + vis), wxPoint(size.x / 2 - deb / 2 + deb / 16 * 1 + deb / 8 * 7 - 1, size.y / 3 * 1 + vis - deb / 16 * 1 - 1));
-	dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 1 + deb / 8 * 7, size.y / 3 * 1 + vis), wxPoint(size.x / 2 - deb / 2 + deb / 16 * 1 + deb / 8 * 7 - 1, size.y / 3 * 1 + vis - deb / 16 * 1 - 1));
-	dc.DrawCircle(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + deb / 8 * 7 - 5, size.y / 3 * 1 + vis / 5 * 3), 4); // Stikalo
-	dc.DrawRectangle(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 1, size.y / 3 * 1), wxSize(deb / 8 + 1, vis + 1)); // Bat
-	dc.DrawRectangle(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2, size.y / 3 * 1 + vis / 5 * 2), wxSize(deb / 8 * 7 + 1, vis / 5 + 1)); // Batnica
-	dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2, size.y / 3 * 1 + vis), wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + (deb - deb / 8 * 2) * 1 / 3, size.y / 3 * 1)); // Vzmet
-	dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + (deb - deb / 8 * 2) * 1 / 3, size.y / 3 * 1), wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + (deb - deb / 8 * 2) * 2 / 3, size.y / 3 * 1 + vis));
-	dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + (deb - deb / 8 * 2) * 2 / 3, size.y / 3 * 1 + vis), wxPoint(size.x / 2 - deb / 2 + deb, size.y / 3 * 1));
-	//dc.DrawText(wxString::Format("Element %d", seznam_valjev.size() + 1), wxPoint(size.x / 2 - deb / 2, size.y / 3 * 2 + 20));
+	dc.DrawRectangle(wxPoint(size.x / 2 - deb / 2, size.y / 6.7 * 1), wxSize(deb + 1, vis + 1)); // Ohišje
+	dc.DrawLine(wxPoint(size.x / 2 - deb / 2, size.y / 6.7 * 1 + vis), wxPoint(size.x / 2 - deb / 2 + 5, size.y / 6.7 * 1 + vis - 5)); // Ventili
+	dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + 5, size.y / 6.7 * 1 + vis - 5), wxPoint(size.x / 2 - deb / 2 + deb / 8 * 1, size.y / 6.7 * 1 + vis));
+	dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 7, size.y / 6.7 * 1 + vis), wxPoint(size.x / 2 - deb / 2 + deb / 8 * 7 + deb / 16, size.y / 6.7 * 1 + vis - deb / 16));
+	dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 7 + deb / 16, size.y / 6.7 * 1 + vis - deb / 16), wxPoint(size.x / 2 - deb / 2 + deb, size.y / 6.7 * 1 + vis));
+	dc.DrawCircle(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + deb / 8 * 7 - 5 + zamik, size.y / 6.7 * 1 + vis / 5 * 3), 4); // Stikalo na batnici
+	dc.DrawRectangle(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 1 + zamik, size.y / 6.7 * 1), wxSize(deb / 8 + 1, vis + 1)); // Bat
+	dc.DrawRectangle(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + zamik, size.y / 6.7 * 1 + vis / 5 * 2), wxSize(deb / 8 * 7 + 1, vis / 5 + 1)); // Batnica
+	dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2, size.y / 6.7 * 1 + vis), wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + (deb - deb / 8 * 2) * 1 / 3, size.y / 6.7 * 1)); // Vzmet
+	dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + (deb - deb / 8 * 2) * 1 / 3, size.y / 6.7 * 1), wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + (deb - deb / 8 * 2) * 2 / 3, size.y / 6.7 * 1 + vis));
+	dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + (deb - deb / 8 * 2) * 2 / 3, size.y / 6.7 * 1 + vis), wxPoint(size.x / 2 - deb / 2 + deb, size.y / 6.7 * 1));
+	dc.DrawText(wxString::Format("Element %d", oznacitev), wxPoint(size.x / 2 - deb / 2, size.y / 6.7 * 1 - 16));
 
-	for (int i = 0; i < seznam_stikal.size(); i++) if (seznam_stikal[i][0] = oznacitev)	{
+	for (int i = 0; i < seznam_stikal.size(); i++) if (seznam_stikal[i][0] == oznacitev) {
 
-		dc.DrawCircle(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + deb / 8 * 7 - 5 + seznam_stikal[i][3] / seznam_lastnosti[i][11] * deb, size.y / 3 * 1 + vis / 5 * 3 + 13), 6);
+		dc.DrawCircle(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + deb / 8 * 7 - 5 + seznam_stikal[i][3] * (deb / 8 * 5) / seznam_lastnosti[oznacitev][11], size.y / 6.7 * 1 + vis / 5 * 3 + 8), 5);
+		dc.DrawCircle(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + deb / 8 * 7 - 5 + seznam_stikal[i][3] * (deb / 8 * 5) / seznam_lastnosti[oznacitev][11], size.y / 6.7 * 1 + vis / 5 * 3 + 8), 2);
+		dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + deb / 8 * 7 - 5 + seznam_stikal[i][3] * (deb / 8 * 5) / seznam_lastnosti[oznacitev][11], size.y / 6.7 * 1 + vis / 5 * 3 + 13), 
+					wxPoint(size.x / 2 - deb / 2 + deb / 8 * 2 + deb / 8 * 7 - 5 + seznam_stikal[i][3] * (deb / 8 * 5) / seznam_lastnosti[oznacitev][11], size.y / 6.7 * 1 + vis / 5 * 3 + 22));
 	}
-
-	dc.DrawText(wxString::Format("oznacitev = %d", oznacitev), wxPoint(10, 10));
-	dc.DrawText(wxString::Format("st. stikal = %d", st_Stikal), wxPoint(10, 25));
-	for (int i = 0; i < seznam_stikal.size(); i++) dc.DrawText(wxString::Format("seznam stikal: %d | %d | %d | %d | %d", seznam_stikal[i][0], seznam_stikal[i][1], seznam_stikal[i][2], seznam_stikal[i][3], seznam_stikal[i][4]), wxPoint(120, 10 + i * 15));
-
+	
+	//- ADMIN "LOGS"
+	if (false) {
+		dc.DrawText(wxString::Format("oznacitev = %d", oznacitev), wxPoint(10, 10));
+		dc.DrawText(wxString::Format("st. stikal = %d", st_Stikal), wxPoint(10, 25));
+		for (int i = 0; i < seznam_stikal.size(); i++) dc.DrawText(wxString::Format("seznam stikal: %d | %d | %d | %d | %d", seznam_stikal[i][0], seznam_stikal[i][1], seznam_stikal[i][2], seznam_stikal[i][3], seznam_stikal[i][4]), wxPoint(120, 10 + i * 15));
+	}
 }
-
 
 
 wxArrayString koncnaStikla;
