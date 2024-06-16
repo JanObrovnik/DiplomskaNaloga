@@ -52,6 +52,7 @@ public:
 private:
 	void OnPaint(wxPaintEvent& evt);
 
+	void OnBrisiClicked(wxCommandEvent& evt);
 	void OnApllyClicked(wxCommandEvent& evt);
 	void OnSliderChanged(wxCommandEvent& evt);
 
