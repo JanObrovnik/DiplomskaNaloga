@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <vector>
+//#include <algorithm>
 
 
 //last[batnica_leva, batnica_desna, vzmer_leva, vzmet_desna, tlak_izo_leva, tlak_izo_desna, zrak_prik_leva, zrak_prik_desna,
@@ -155,8 +156,8 @@ std::vector<double> ventil(std::vector<double> last, std::vector<double> res, do
 	if (last[4] > 0) Fdp = 400;
 	if (last[5] > 0) Flv = 200;
 	if (last[6] > 0) Fdv = 200;
-	if (last[7] > 0) Fls = 2000;
-	if (last[8] > 0) Fds = 2000;
+	if (last[7] > 0) Fls = -2000; //////////// mogoc leps ta minus nardit
+	if (last[8] > 0) Fds = -2000; //////////// mogoc leps ta minus nardit
 
 	if (Flg + Flp + Flv + Fls < Fdg + Fdp + Fdv + Fds) res[0] = 0;
 	else if (Flg + Flp + Flv + Fls > Fdg + Fdp + Fdv + Fds) res[0] = 1;
@@ -259,7 +260,7 @@ void stikalo(std::vector<std::vector<double*>> pointer, std::vector<std::vector<
 
 	for (int i = 0; i < pointer.size(); i++) {
 
-		if (abs(*pointer[i][0] - dol[i][0]) < 5) *(pointer[i][1]) = 1;
+		if (abs(*pointer[i][0] - dol[i][0]) < 10) *(pointer[i][1]) = 1;
 		else *(pointer[i][1]) = -1;
 	}
 }
@@ -373,8 +374,8 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	seznam_cevi.push_back({ 2,0,3,2 });
 	seznam_cevi.push_back({ 2,1,3,4 });
 
-	seznam_stikal.push_back({ 1, 3, 7, 250, 0 });
-	seznam_stikal.push_back({ 1, 3, 8, 0, 1 });
+	seznam_stikal.push_back({ 1, 3, 8, 250, 0 });
+	seznam_stikal.push_back({ 1, 3, 7, 0, 1 });
 }
 
 
@@ -662,8 +663,8 @@ void MainFrame::OnButtonPredVseClicked(wxCommandEvent& evt) {
 	seznam_cevi.push_back({ 2,0,3,2 });
 	seznam_cevi.push_back({ 2,1,3,4 });
 
-	seznam_stikal.push_back({ 1, 3, 7, 250, 0 });
-	seznam_stikal.push_back({ 1, 3, 8, 0, 1 });
+	seznam_stikal.push_back({ 1, 3, 8, 250, 0 });
+	seznam_stikal.push_back({ 1, 3, 7, 0, 1 });
 
 	res = res_reset;
 
@@ -1760,13 +1761,20 @@ VentilNastavitve::VentilNastavitve() : wxFrame(nullptr, wxID_ANY, wxString::Form
 
 	
 	koncnaStikla.Clear();
+	std::sort(seznam_stikal.begin(), seznam_stikal.end());
 	for (int i = 0; i < seznam_stikal.size(); i++) koncnaStikla.Add(wxString::Format("Stikalo %d_%d (%d mm)", seznam_stikal[i][0] + 1, seznam_stikal[i][4], seznam_stikal[i][3]));
 	
 	pointVentil = wxPoint(pointVentil.x - size.x / 3 * 2, pointVentil.y + 100);
 	stikLeva = new wxChoice(panel, wxID_ANY, pointVentil, wxDefaultSize, koncnaStikla/*, wxCB_SORT*/);
+	for (int i = 0; i < seznam_stikal.size(); i++) if (seznam_stikal[i][1] == oznacitev && seznam_stikal[i][2] == 8) stikLeva->SetSelection(i);
+
+	wxButton* brisiLeva = new wxButton(panel, wxID_ANY, "Odstrani", wxPoint(pointVentil.x, pointVentil.y + 25), wxDefaultSize);
+
 	pointVentil = wxPoint(pointVentil.x + size.x / 3 * 2, pointVentil.y);
 	stikDesna = new wxChoice(panel, wxID_ANY, pointVentil, wxDefaultSize, koncnaStikla/*, wxCB_SORT */ );
+	for (int i = 0; i < seznam_stikal.size(); i++) if (seznam_stikal[i][1] == oznacitev && seznam_stikal[i][2] == 7) stikDesna->SetSelection(i);
 
+	wxButton* brisiDesna = new wxButton(panel, wxID_ANY, "Odstrani", wxPoint(pointVentil.x, pointVentil.y + 25), wxDefaultSize);
 
 
 	panel->Bind(wxEVT_SIZE, &VentilNastavitve::OnSizeChanged, this);
@@ -1775,6 +1783,8 @@ VentilNastavitve::VentilNastavitve() : wxFrame(nullptr, wxID_ANY, wxString::Form
 	desnaLastnostVentil->Bind(wxEVT_CHECKLISTBOX, &VentilNastavitve::OnNastavitveChanged, this);
 	stikLeva->Bind(wxEVT_CHOICE, &VentilNastavitve::OnNastavitveChanged, this);
 	stikDesna->Bind(wxEVT_CHOICE, &VentilNastavitve::OnNastavitveChanged, this);
+	brisiLeva->Bind(wxEVT_BUTTON, &VentilNastavitve::OnBrisiLevaChanged, this);
+	brisiDesna->Bind(wxEVT_BUTTON, &VentilNastavitve::OnBrisiDesnaChanged, this);
 
 
 
@@ -1784,9 +1794,7 @@ VentilNastavitve::VentilNastavitve() : wxFrame(nullptr, wxID_ANY, wxString::Form
 }
 
 void VentilNastavitve::OnApllyClicked(wxCommandEvent& evt) {
-
-	//stikLeva->GetSelection();
-
+	
 	if (seznam_valjev[oznacitev][2] > 2) {
 
 		if (levaLastnostVentil->IsChecked(0) == true) seznam_lastnosti[oznacitev][1] = 0;
@@ -1802,9 +1810,17 @@ void VentilNastavitve::OnApllyClicked(wxCommandEvent& evt) {
 		if (desnaLastnostVentil->IsChecked(2) == true) seznam_lastnosti[oznacitev][6] = 1;
 		else seznam_lastnosti[oznacitev][6] = -1;
 
+		for (int i = 0; i < seznam_stikal.size(); i++) if (seznam_stikal[i][1] == oznacitev && seznam_stikal[i][2] == 8) {
+			seznam_stikal[i][1] = -1;
+			seznam_stikal[i][2] = -1;
+		}
 		if (stikLeva->GetSelection() >= 0) {
 			seznam_stikal[stikLeva->GetSelection()][1] = oznacitev;
 			seznam_stikal[stikLeva->GetSelection()][2] = 8;
+		}
+		for (int i = 0; i < seznam_stikal.size(); i++) if (seznam_stikal[i][1] == oznacitev && seznam_stikal[i][2] == 7) {
+			seznam_stikal[i][1] = -1;
+			seznam_stikal[i][2] = -1;
 		}
 		if (stikDesna->GetSelection() >= 0) {
 			seznam_stikal[stikDesna->GetSelection()][1] = oznacitev;
@@ -1812,6 +1828,8 @@ void VentilNastavitve::OnApllyClicked(wxCommandEvent& evt) {
 		}
 	}
 	else wxLogStatus("Izberite ventil za spremembo nastavitev");
+
+	Refresh();
 }
 
 void VentilNastavitve::OnSizeChanged(wxSizeEvent& evt) {
@@ -1824,13 +1842,42 @@ void VentilNastavitve::OnNastavitveChanged(wxCommandEvent& evt) {
 	Refresh();
 }
 
+void VentilNastavitve::OnBrisiLevaChanged(wxCommandEvent& evt) {
+
+	stikLeva->SetSelection(-1);
+
+	for (int i = 0; i < seznam_stikal.size(); i++) if (seznam_stikal[i][1] == oznacitev && seznam_stikal[i][2] == 8) {
+		seznam_stikal[i][1] = -1;
+		seznam_stikal[i][2] = -1;
+	}
+
+	Refresh();
+}
+
+void VentilNastavitve::OnBrisiDesnaChanged(wxCommandEvent& evt) {
+
+	stikDesna->SetSelection(-1);
+
+	for (int i = 0; i < seznam_stikal.size(); i++) if (seznam_stikal[i][1] == oznacitev && seznam_stikal[i][2] == 7) {
+		seznam_stikal[i][1] = -1;
+		seznam_stikal[i][2] = -1;
+	}
+
+	Refresh();
+}
+
+
 void VentilNastavitve::OnPaint(wxPaintEvent& evt) {
 
 	wxPaintDC dc(this);
 
 	wxSize size = this->GetSize();
 
-	dc.DrawText(wxString::Format("izbor = %d", stikLeva->GetSelection()), wxPoint(120, 10));
+	//- ADMIN "LOGS"
+	if (true) {
+		dc.DrawText(wxString::Format("izbor = %d", stikLeva->GetSelection()), wxPoint(120, 10));
+		for (int i = 0; i < seznam_stikal.size(); i++) dc.DrawText(wxString::Format("seznam stikal: %d | %d | %d | %d | %d", seznam_stikal[i][0], seznam_stikal[i][1], seznam_stikal[i][2], seznam_stikal[i][3], seznam_stikal[i][4]), wxPoint(200, 10 + i * 15));
+	}
 
 	int deb_ven = 48;
 

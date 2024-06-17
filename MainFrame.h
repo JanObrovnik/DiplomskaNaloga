@@ -68,6 +68,8 @@ private:
 
 	void OnApllyClicked(wxCommandEvent& ect);
 	void OnNastavitveChanged(wxCommandEvent& evt);
+	void OnBrisiLevaChanged(wxCommandEvent& evt);
+	void OnBrisiDesnaChanged(wxCommandEvent& evt);
 
 	void OnSizeChanged(wxSizeEvent& evt);
 };
