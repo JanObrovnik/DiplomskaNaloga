@@ -333,7 +333,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	choices.Add("Vakumski prisesek");
 	choices.Add("Pnevmaticno prijemalo");
 	choices.Add("-");
-	choices.Add("-");
+	choices.Add("Kompresor");
 	choices.Add("Potni ventil");
 
 
@@ -363,23 +363,29 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	panel->SetDoubleBuffered(true);
 
 
-	seznam_lastnosti.push_back({ 1, 1, -1, -1, 1, 1, 1, -1, 6, 1, 0, 100, 0, 0, 10, 30, 40, 1, -1, -1 }); // Prikaz elementov
+	seznam_valjev.push_back({ 300, 100, 0 }); // Prikaz elementov
+	seznam_valjev.push_back({ 300, 200, 0 });
+	seznam_valjev.push_back({ 300, 300, 0 });
+
+	seznam_lastnosti.push_back({ 1, 1, -1, -1, 1, 1, 1, -1, 6, 1, 0, 100, 0, 0, 10, 30, 40, 1, -1, -1 });
 	seznam_lastnosti.push_back({ -1, 1, -1, -1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40, 1, -1, 1 });
 	seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 350, 0, 6, 20, 20, 40, 1, -1, -1 });
 
 	res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
-	res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
-	res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
+	res_reset.push_back({ 0, 0, 0, 0, 0, 0, 0, 0 });
+	res_reset.push_back({ 0, 0, 0, 0, 0, 0, 0, 0 });
 	res = res_reset;
 
-	seznam_valjev.push_back({ 300, 100, 0 });
-	seznam_valjev.push_back({ 300, 200, 0 });
-	seznam_valjev.push_back({ 300, 300, 0 });
-
-
-	seznam_valjev.push_back({ 300, 500, 5 });
+	
+	seznam_valjev.push_back({ 300, 440, 5 });
 	seznam_lastnosti.push_back({ 52, -1, -1, -1, -1, -1, -1, -1, -1 });
-	res_reset.push_back({ 0, 6., 1., 1., 1., 1. });
+	res_reset.push_back({ 0, 1., 1., 1., 1., 1. });
+	res = res_reset;
+
+
+	seznam_valjev.push_back({ 300, 520, 4 });
+	seznam_lastnosti.push_back({ 6 });
+	res_reset.push_back({ 6. });
 	res = res_reset;
 
 	
@@ -387,6 +393,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	seznam_cevi.push_back({ 1,1,3,4 });
 	seznam_cevi.push_back({ 2,0,3,2 });
 	seznam_cevi.push_back({ 2,1,3,4 });
+	seznam_cevi.push_back({ 3,1,4,0 });
 
 	seznam_stikal.push_back({ 1, 3, 8, 250, 0 });
 	seznam_stikal.push_back({ 1, 3, 7, 0, 1 });
@@ -417,51 +424,138 @@ void MainFrame::OnMouseEvent(wxMouseEvent& evt) {
 
 			break;
 		}
+		else if (risCevi == 1) {
+			if (seznam_valjev[i][2] == 0) {
+				if (seznam_lastnosti[i][4] < 0 && mousePos.x > seznam_valjev[i][0] && mousePos.x < seznam_valjev[i][0] + 10 && mousePos.y > seznam_valjev[i][1] + 50 && mousePos.y < seznam_valjev[i][1] + 60) {
+					bool risi = true;
+					for (int j = 0; j < seznam_cevi.size(); j++) if (seznam_cevi[j][0] == i && seznam_cevi[j][1] == 0) risi = false;
 
-		else if (risCevi == 1 && seznam_valjev[i][2] == 0 && seznam_lastnosti[i][4] < 0 && mousePos.x > seznam_valjev[i][0] && mousePos.x < seznam_valjev[i][0] + 10 && mousePos.y > seznam_valjev[i][1] + 50 && mousePos.y < seznam_valjev[i][1] + 60) {
-			bool risi = true;
-			for (int j = 0; j < seznam_cevi.size(); j++) if (seznam_cevi[j][0] == i && seznam_cevi[j][1] == 0) risi = false;
-			
-			if (risi) {
-				seznam_cevi[seznam_cevi.size() - 1][0] = i;
-				seznam_cevi[seznam_cevi.size() - 1][1] = 0;
+					if (risi) {
+						seznam_cevi[seznam_cevi.size() - 1][0] = i;
+						seznam_cevi[seznam_cevi.size() - 1][1] = 0;
 
-				risCevi = 2;
+						risCevi = 2;
+					}
+					else wxLogStatus("Dovoljena je samo ena povezava na valj.");
+
+					break;
+				}
+				else if (seznam_lastnosti[i][5] < 0 && mousePos.x > seznam_valjev[i][0] + 70 && mousePos.x < seznam_valjev[i][0] + 80 && mousePos.y > seznam_valjev[i][1] + 50 && mousePos.y < seznam_valjev[i][1] + 60) {
+					bool risi = true;
+					for (int j = 0; j < seznam_cevi.size(); j++) if (seznam_cevi[j][0] == i && seznam_cevi[j][1] == 1) risi = false;
+
+					if (risi) {
+						seznam_cevi[seznam_cevi.size() - 1][0] = i;
+						seznam_cevi[seznam_cevi.size() - 1][1] = 1;
+
+						risCevi = 2;
+					}
+					else wxLogStatus("Dovoljena je samo ena povezava na valj.");
+
+					break;
+				}
 			}
-			else wxLogStatus("Dovoljena je samo ena povezava na valj.");
+			else if (seznam_valjev[i][2] == 5) {
+				if (prvaStevka(seznam_lastnosti[i][0]) == 3) {
+					if (mousePos.x > seznam_valjev[i][0] + 48 && mousePos.x < seznam_valjev[i][0] + 96 && mousePos.y > seznam_valjev[i][1] + 48 && mousePos.y < seznam_valjev[i][1] + 58) {
+						bool risi = true;
+						for (int j = 0; j < seznam_cevi.size(); j++) if (seznam_cevi[j][0] == i && seznam_cevi[j][1] == 1) risi = false;
 
-			break;
-		}
-		else if (risCevi == 1  && seznam_valjev[i][2] == 0 && seznam_lastnosti[i][5] < 0 && mousePos.x > seznam_valjev[i][0] + 70 && mousePos.x < seznam_valjev[i][0] + 80 && mousePos.y > seznam_valjev[i][1] + 50 && mousePos.y < seznam_valjev[i][1] + 60) {
-			bool risi = true;
-			for (int j = 0; j < seznam_cevi.size(); j++) if (seznam_cevi[j][0] == i && seznam_cevi[j][1] == 1) risi = false;
+						if (risi) {
+							seznam_cevi[seznam_cevi.size() - 1][0] = i;
+							seznam_cevi[seznam_cevi.size() - 1][1] = 1;
 
-			if (risi) {
-				seznam_cevi[seznam_cevi.size() - 1][0] = i;
-				seznam_cevi[seznam_cevi.size() - 1][1] = 1;
+							risCevi = 2;
+						}
+						else wxLogStatus("Dovoljena je samo ena povezava.");
+					}
+				}
+				else if (prvaStevka(seznam_lastnosti[i][0]) == 4) {
+					if (mousePos.x > seznam_valjev[i][0] + 48 && mousePos.x < seznam_valjev[i][0] + 96 && mousePos.y > seznam_valjev[i][1] + 48 && mousePos.y < seznam_valjev[i][1] + 58) {
+						bool risi = true;
+						for (int j = 0; j < seznam_cevi.size(); j++) if (seznam_cevi[j][0] == i && seznam_cevi[j][1] == 1) risi = false;
 
-				risCevi = 2;
+						if (risi) {
+							seznam_cevi[seznam_cevi.size() - 1][0] = i;
+							seznam_cevi[seznam_cevi.size() - 1][1] = 1;
+
+							risCevi = 2;
+						}
+						else wxLogStatus("Dovoljena je samo ena povezava.");
+					}
+				}
+				else if (prvaStevka(seznam_lastnosti[i][0]) == 5) {
+					if (mousePos.x > seznam_valjev[i][0] + 48 && mousePos.x < seznam_valjev[i][0] + 96 && mousePos.y > seznam_valjev[i][1] + 48 && mousePos.y < seznam_valjev[i][1] + 58) {
+						bool risi = true;
+						for (int j = 0; j < seznam_cevi.size(); j++) if (seznam_cevi[j][0] == i && seznam_cevi[j][1] == 1) risi = false;
+
+						if (risi) {
+							seznam_cevi[seznam_cevi.size() - 1][0] = i;
+							seznam_cevi[seznam_cevi.size() - 1][1] = 1;
+
+							risCevi = 2;
+						}
+						else wxLogStatus("Dovoljena je samo ena povezava.");
+					}
+				}
 			}
-			else wxLogStatus("Dovoljena je samo ena povezava na valj.");
-
-			break;
 		}
-		else if (risCevi == 2 && seznam_valjev[i][2] == 5 && mousePos.x > seznam_valjev[i][0] + 55 && mousePos.x < seznam_valjev[i][0] + 65 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
-			seznam_cevi[seznam_cevi.size() - 1][2] = i;
-			seznam_cevi[seznam_cevi.size() - 1][3] = 4;
+		else if (risCevi == 2) {
+			if (seznam_valjev[i][2] == 5) {
+				if (prvaStevka(seznam_lastnosti[i][0]) == 3) {
+					if (mousePos.x > seznam_valjev[i][0] + 48 && mousePos.x < seznam_valjev[i][0] + 96 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
+						seznam_cevi[seznam_cevi.size() - 1][2] = i;
+						seznam_cevi[seznam_cevi.size() - 1][3] = 2;
 
-			risCevi = 0;
-			break;
-		}
-		else if (risCevi == 2 && seznam_valjev[i][2] == 5 && mousePos.x > seznam_valjev[i][0] + 79 && mousePos.x < seznam_valjev[i][0] + 89 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
-			seznam_cevi[seznam_cevi.size() - 1][2] = i;
-			seznam_cevi[seznam_cevi.size() - 1][3] = 2;
+						risCevi = 0;
+						break;
+					}
+				}
+				else if (prvaStevka(seznam_lastnosti[i][0]) == 4) {
+					if (mousePos.x > seznam_valjev[i][0] + 48 && mousePos.x < seznam_valjev[i][0] + 72 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
+						seznam_cevi[seznam_cevi.size() - 1][2] = i;
+						seznam_cevi[seznam_cevi.size() - 1][3] = 4;
 
-			risCevi = 0;
-			break;
+						risCevi = 0;
+						break;
+					}
+					else if (mousePos.x > seznam_valjev[i][0] + 72 && mousePos.x < seznam_valjev[i][0] + 96 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
+						seznam_cevi[seznam_cevi.size() - 1][2] = i;
+						seznam_cevi[seznam_cevi.size() - 1][3] = 2;
+
+						risCevi = 0;
+						break;
+					}
+				}
+				else if (prvaStevka(seznam_lastnosti[i][0]) == 5) {
+					if (mousePos.x > seznam_valjev[i][0] + 48 && mousePos.x < seznam_valjev[i][0] + 72 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
+						seznam_cevi[seznam_cevi.size() - 1][2] = i;
+						seznam_cevi[seznam_cevi.size() - 1][3] = 4;
+
+						risCevi = 0;
+						break;
+					}
+					else if (mousePos.x > seznam_valjev[i][0] + 72 && mousePos.x < seznam_valjev[i][0] + 96 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
+						seznam_cevi[seznam_cevi.size() - 1][2] = i;
+						seznam_cevi[seznam_cevi.size() - 1][3] = 2;
+
+						risCevi = 0;
+						break;
+					}
+				}
+			}
+			else if (seznam_valjev[i][2] == 4) {
+				if (mousePos.x > seznam_valjev[i][0] && mousePos.x < seznam_valjev[i][0] + 40 && mousePos.y > seznam_valjev[i][1] - 10 && mousePos.y < seznam_valjev[i][1]) {
+					seznam_cevi[seznam_cevi.size() - 1][2] = i;
+					seznam_cevi[seznam_cevi.size() - 1][3] = 0;
+
+					risCevi = 0;
+					break;
+				}
+			}
 		}
 		
-		//////////// gumbi
+		//////////// dodat za gumbe
 		else if (seznam_valjev[i][2] == 5 && seznam_lastnosti[i][1] >= 0 && mousePos.x > seznam_valjev[i][0] - 10 && mousePos.x < seznam_valjev[i][0] && mousePos.y > seznam_valjev[i][1] && mousePos.y < seznam_valjev[i][1] + 48) {
 			seznam_lastnosti[i][1] = 1;
 		}
@@ -494,6 +588,7 @@ void MainFrame::OnDoubleMouseEvent(wxMouseEvent& evt) {
 
 	if (oznacitev >= 0) {
 		sim = false;
+		risCevi = 0;
 
 		if (seznam_valjev[oznacitev][2] == 0) {
 		
@@ -536,10 +631,15 @@ void MainFrame::OnButtonDodClicked(wxCommandEvent& evt) {
 
 		if (choice_dod->GetSelection() == 0) {
 			seznam_valjev.push_back({ x, y, choice_dod->GetSelection() });
-			seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40, 1, -1, -1 });
+			seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40, -1, -1, 1 });
 			res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
 		}
-		else if (choice_dod->GetSelection() >= 3 && choice_dod->GetSelection() <= 5) { //////////// dodat vse razlicne sezname
+		else if (choice_dod->GetSelection() == 4) {
+			seznam_valjev.push_back({ x, y, choice_dod->GetSelection() });
+			seznam_lastnosti.push_back({ 6 });
+			res_reset.push_back({ 6. });
+		}
+		else if (choice_dod->GetSelection() == 5) {
 			seznam_valjev.push_back({ x, y, choice_dod->GetSelection() });
 			seznam_lastnosti.push_back({ 52, -1, -1, -1, -1, -1, -1, -1, -1 });
 			res_reset.push_back({ 0, 6., 1., 1., 1., 1. });
@@ -559,7 +659,7 @@ void MainFrame::OnButtonDodClicked(wxCommandEvent& evt) {
 	Refresh();
 }
 
-void MainFrame::OnButtonIzbClicked(wxCommandEvent& evt) { //////////////// clear za seznam_stikal
+void MainFrame::OnButtonIzbClicked(wxCommandEvent& evt) {
 	sim = false;
 
 	if (oznacitev >= 0) {
@@ -595,7 +695,7 @@ void MainFrame::OnButtonIzbClicked(wxCommandEvent& evt) { //////////////// clear
 	Refresh();
 }
 
-void MainFrame::OnButtonIzbVseClicked(wxCommandEvent& evt) { //////////////// clear za seznam_stikal
+void MainFrame::OnButtonIzbVseClicked(wxCommandEvent& evt) {
 	sim = false;
 
 	seznam_stikal.clear();
@@ -615,6 +715,7 @@ void MainFrame::OnButtonIzbVseClicked(wxCommandEvent& evt) { //////////////// cl
 
 void MainFrame::OnCevClicked(wxCommandEvent& evt) {
 	sim = false;
+	oznacitev = -1;
 
 	res = res_reset;
 	graf.clear();
@@ -634,6 +735,7 @@ void MainFrame::OnCevClicked(wxCommandEvent& evt) {
 
 void MainFrame::OnCevIzbClicked(wxCommandEvent& evt) {
 	sim = false;
+	oznacitev = -1;
 
 	res = res_reset;
 	graf.clear();
@@ -657,26 +759,34 @@ void MainFrame::OnButtonPredVseClicked(wxCommandEvent& evt) {
 	graf.clear();
 	seznam_cevi.clear();
 
-	seznam_lastnosti.push_back({1, 1, -1, -1, 1, 1, 1, -1, 6, 1, 0, 100, 0, 0, 10, 30, 40, 1, -1, -1});
+	seznam_valjev.push_back({ 300, 100, 0 }); // Valji
+	seznam_valjev.push_back({ 300, 200, 0 });
+	seznam_valjev.push_back({ 300, 300, 0 });
+
+	seznam_lastnosti.push_back({ 1, 1, -1, -1, 1, 1, 1, -1, 6, 1, 0, 100, 0, 0, 10, 30, 40, 1, -1, -1 });
 	seznam_lastnosti.push_back({ -1, 1, -1, -1, -1, -1, 1, -1, 6, 1, 0, 250, 0, 0, 20, 20, 40, 1, -1, 1 });
 	seznam_lastnosti.push_back({ -1, 1, -1, 1, -1, -1, 1, -1, 6, 1, 0, 350, 0, 6, 20, 20, 40, 1, -1, -1 });
 
 	res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
-	res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
-	res_reset.push_back({ 6., 1., 0, 0, 0, 0, 0, 0 });
-	
-	seznam_valjev.push_back({ 300, 100, 0 });
-	seznam_valjev.push_back({ 300, 200, 0 });
-	seznam_valjev.push_back({ 300, 300, 0 });
+	res_reset.push_back({ 0, 0, 0, 0, 0, 0, 0, 0 });
+	res_reset.push_back({ 0, 0, 0, 0, 0, 0, 0, 0 });
 
-	seznam_valjev.push_back({ 300, 500, 5 });
+
+	seznam_valjev.push_back({ 300, 440, 5 }); // Ventil
 	seznam_lastnosti.push_back({ 52, -1, -1, -1, -1, -1, -1, -1, -1 });
-	res_reset.push_back({ 0, 6., 1., 1., 1., 1. });
+	res_reset.push_back({ 0, 1., 1., 1., 1., 1. });
+
+
+	seznam_valjev.push_back({ 300, 520, 4 }); // Kompresor
+	seznam_lastnosti.push_back({ 6 });
+	res_reset.push_back({ 6. });
+
 
 	seznam_cevi.push_back({ 1,0,3,2 });
 	seznam_cevi.push_back({ 1,1,3,4 });
 	seznam_cevi.push_back({ 2,0,3,2 });
 	seznam_cevi.push_back({ 2,1,3,4 });
+	seznam_cevi.push_back({ 3,1,4,0 });
 
 	seznam_stikal.push_back({ 1, 3, 8, 250, 0 });
 	seznam_stikal.push_back({ 1, 3, 7, 0, 1 });
@@ -717,11 +827,12 @@ void MainFrame::OnButtonPomClicked(wxCommandEvent& evt) {
 
 	if (oznacitev >= 0) {
 		sim = false;
+		risCevi = 0;
 
 		if (seznam_valjev[oznacitev][2] == 0) {
 
-			PomoznoOkno* dodatnoOkno = new PomoznoOkno();
-			dodatnoOkno->Show();
+			PomoznoOkno* valjNast = new PomoznoOkno();
+			valjNast->Show();
 		}
 		else if (seznam_valjev[oznacitev][2] == 5) {
 
@@ -741,17 +852,14 @@ void MainFrame::OnButtonPomClicked(wxCommandEvent& evt) {
 
 void MainFrame::OnChoicesClicked(wxCommandEvent& evt) {
 
-	wxString naziv_element = wxString::Format("Item %d", choice_dod->GetSelection());
-
-	wxLogStatus(naziv_element);
+	/*wxString naziv_element = wxString::Format("Item %d", choice_dod->GetSelection());
+	wxLogStatus(naziv_element);*/
 
 	Refresh();
 }
 
 void MainFrame::OnSliderChanged(wxCommandEvent& evt) {
 	sim = false;
-
-	wxLogStatus("Slider change event");
 
 	Refresh();
 }
@@ -824,11 +932,23 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 		break;
 
 	case 2:
+
 		deb = 64;
 		dc.DrawRectangle(wxPoint(54, visina_panel - visina_prikaza + 36), wxSize(deb + 1, vis + 1));
 		dc.DrawRectangle(wxPoint(54 + deb / 4 * 3, visina_panel - visina_prikaza + 36 + vis / 10), wxSize(deb / 2 + 1, vis / 5 + 1));
 		dc.DrawRectangle(wxPoint(54 + deb / 4 * 3, visina_panel - visina_prikaza + 36 + vis / 10 * 7), wxSize(deb / 2 + 1, vis / 5 + 1));
 		deb = 80;
+
+		break;
+
+	case 4:
+
+		deb = 40;
+		dc.DrawLine(wxPoint(80, visina_panel - visina_prikaza + 70), wxPoint(80 + deb, visina_panel - visina_prikaza + 70));
+		dc.DrawLine(wxPoint(80 + deb, visina_panel - visina_prikaza + 70), wxPoint(80 + deb / 2, visina_panel - visina_prikaza + 70 - deb / 3 * 2));
+		dc.DrawLine(wxPoint(80 + deb / 2, visina_panel - visina_prikaza + 70 - deb / 3 * 2), wxPoint(80, visina_panel - visina_prikaza + 70));
+		deb = 80;
+
 		break;
 
 	case 5:
@@ -893,7 +1013,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 
 	//- VENTIL
-	for (int i = 0; i < seznam_valjev.size(); i++) if (seznam_valjev[i][2] > 2 && seznam_valjev[i][2] < 6) {
+	for (int i = 0; i < seznam_valjev.size(); i++) if (seznam_valjev[i][2] == 5) {
 
 		res[i] = ventil(seznam_lastnosti[i], res[i]);
 	}
@@ -905,9 +1025,20 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 	if (risCevi == 2) { 
 		int zamik;
-		if (seznam_cevi[seznam_cevi.size() - 1][1] == 0) zamik = 5;
-		else if (seznam_cevi[seznam_cevi.size() - 1][1] == 1) zamik = deb - 5;
-		dc.DrawLine(wxPoint(seznam_valjev[seznam_cevi[seznam_cevi.size() - 1][0]][0] + zamik, seznam_valjev[seznam_cevi[seznam_cevi.size() - 1][0]][1] + vis), wxPoint(mousePos.x, mousePos.y));
+		int zamik_vis = 0;
+		if (seznam_valjev[seznam_cevi[seznam_cevi.size() - 1][0]][2] == 0) {
+			if (seznam_cevi[seznam_cevi.size() - 1][1] == 0) zamik = 5;
+			else if (seznam_cevi[seznam_cevi.size() - 1][1] == 1) zamik = deb - 5;
+			zamik_vis = vis;
+		}
+		else if (seznam_valjev[seznam_cevi[seznam_cevi.size() - 1][0]][2] == 5) {
+			if (prvaStevka(seznam_lastnosti[seznam_cevi[seznam_cevi.size() - 1][0]][0]) == 3) zamik = deb_ven / 3;
+			else if (prvaStevka(seznam_lastnosti[seznam_cevi[seznam_cevi.size() - 1][0]][0]) == 4) zamik = deb_ven / 3;
+			else if (prvaStevka(seznam_lastnosti[seznam_cevi[seznam_cevi.size() - 1][0]][0]) == 5) zamik = deb_ven / 2;
+			zamik += deb_ven;
+			zamik_vis = deb_ven;
+		}
+		dc.DrawLine(wxPoint(seznam_valjev[seznam_cevi[seznam_cevi.size() - 1][0]][0] + zamik, seznam_valjev[seznam_cevi[seznam_cevi.size() - 1][0]][1] + zamik_vis), wxPoint(mousePos.x, mousePos.y));
 	}
 
 	std::vector<std::vector<double*>> cev;
@@ -919,13 +1050,37 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 		cev.push_back({ &res[seznam_cevi[i][0]][seznam_cevi[i][1]], &res[seznam_cevi[i][2]][seznam_cevi[i][3]] });
 
-		wxPoint point1(seznam_valjev[seznam_cevi[i][0]][0], seznam_valjev[seznam_cevi[i][0]][1] + vis);
-		if (seznam_cevi[i][1] == 0) point1.x = point1.x + 5;
-		else if (seznam_cevi[i][1] == 1) point1.x = point1.x + deb - 5;
+		wxPoint point1(seznam_valjev[seznam_cevi[i][0]][0], seznam_valjev[seznam_cevi[i][0]][1]);
+		if (seznam_valjev[seznam_cevi[i][0]][2] == 0) {
+			point1.y = point1.y + vis;
+			if (seznam_cevi[i][1] == 0) point1.x = point1.x + 5;
+			else if (seznam_cevi[i][1] == 1) point1.x = point1.x + deb - 5;
+		}
+		else if (seznam_valjev[seznam_cevi[i][0]][2] == 5) {
+			point1.y = point1.y + deb_ven;
+			if (prvaStevka(seznam_lastnosti[seznam_cevi[i][0]][0]) == 3 || prvaStevka(seznam_lastnosti[seznam_cevi[i][0]][0]) == 4) point1.x = point1.x + deb_ven + deb_ven / 3;
+			else if (prvaStevka(seznam_lastnosti[seznam_cevi[i][0]][0]) == 5) point1.x = point1.x + deb_ven + deb_ven / 2;
+		}
 
-		wxPoint point2(seznam_valjev[seznam_cevi[i][2]][0] + deb_ven, seznam_valjev[seznam_cevi[i][2]][1]);
-		if (seznam_cevi[i][3] == 4) point2.x = point2.x + 12;
-		else if (seznam_cevi[i][3] == 2) point2.x = point2.x + deb_ven - 12;
+		wxPoint point2(seznam_valjev[seznam_cevi[i][2]][0], seznam_valjev[seznam_cevi[i][2]][1]);
+		if (seznam_valjev[seznam_cevi[i][2]][2] == 5) {
+			point2.x = point2.x + deb_ven;
+			if (prvaStevka(seznam_lastnosti[seznam_cevi[i][2]][0]) == 3) {
+				if (seznam_cevi[i][3] == 2) point2.x = point2.x + deb_ven / 3;
+				else if (seznam_cevi[i][3] == 4) { seznam_cevi.erase(seznam_cevi.begin() + i); i--; pon--; }
+			}
+			else if (prvaStevka(seznam_lastnosti[seznam_cevi[i][2]][0]) == 4) {
+				if (seznam_cevi[i][3] == 4) point2.x = point2.x + deb_ven / 3;
+				else if (seznam_cevi[i][3] == 2) point2.x = point2.x + deb_ven / 3 * 2;
+			}
+			else if (prvaStevka(seznam_lastnosti[seznam_cevi[i][2]][0]) == 5) {
+				if (seznam_cevi[i][3] == 4) point2.x = point2.x + deb_ven / 4;
+				else if (seznam_cevi[i][3] == 2) point2.x = point2.x + deb_ven / 4 * 3;
+			}
+		}
+		else if (seznam_valjev[seznam_cevi[i][2]][2] == 4) {
+			point2.x = point2.x + 20;
+		}
 
 		dc.DrawLine(point1, point2);
 	}
@@ -1041,7 +1196,6 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 			// Cevi
 			if (risCevi == 1) {
-
 				dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
 				dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
 				if (seznam_lastnosti[i][4] < 0) dc.DrawRectangle(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1] + vis + 1), wxSize(10 + 1, 10 + 1));
@@ -1091,6 +1245,26 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 			break;
 
+		case 4:
+
+			deb = 40;
+			dc.DrawLine(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1] + deb / 3 * 2), wxPoint(seznam_valjev[i][0] + deb, seznam_valjev[i][1] + deb / 3 * 2));
+			dc.DrawLine(wxPoint(seznam_valjev[i][0] + deb, seznam_valjev[i][1] + deb / 3 * 2), wxPoint(seznam_valjev[i][0] + deb / 2, seznam_valjev[i][1]));
+			dc.DrawLine(wxPoint(seznam_valjev[i][0] + deb / 2, seznam_valjev[i][1]), wxPoint(seznam_valjev[i][0], seznam_valjev[i][1] + deb / 3 * 2));
+			deb = 80;
+
+			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(seznam_valjev[i][0], seznam_valjev[i][1] + 44 / 3 * 2)); // Ime
+
+			if (risCevi == 2) {
+				dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
+				dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
+				dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + 15, seznam_valjev[i][1] - 11), wxSize(10 + 1, 10 + 1));
+				dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
+				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+			}
+
+			break;
+
 		case 5:
 
 			if (res[i][0] == 1) zamik = deb_ven;
@@ -1115,11 +1289,18 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 				dc.DrawLine(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 3 * 2 + zamik, seznam_valjev[i][1] + deb_ven), wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 3 * 2 + 6 + zamik, seznam_valjev[i][1] + deb_ven - 6));
 				dc.DrawLine(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 3 * 2 + zamik, seznam_valjev[i][1] + deb_ven), wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 3 * 2 - 6 + zamik, seznam_valjev[i][1] + deb_ven - 6));
 
-				if (risCevi == 2) { ////////// popravek za 3/2
+				if (risCevi == 1) {
 					dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
 					dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
-					dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + 7, seznam_valjev[i][1] - 11), wxSize(10 + 1, 10 + 1));
-					dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + 31, seznam_valjev[i][1] - 11), wxSize(10 + 1, 10 + 1));
+					dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 3 - 5, seznam_valjev[i][1] + deb_ven), wxSize(10 + 1, 10 + 1));
+					dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
+					dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+				}
+
+				if (risCevi == 2) {
+					dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
+					dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
+					dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 3 - 5, seznam_valjev[i][1] - 11), wxSize(10 + 1, 10 + 1));
 					dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
 					dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 				}
@@ -1140,11 +1321,19 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 				dc.DrawLine(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 3 * 2 + zamik, seznam_valjev[i][1]), wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 3 * 2 + 6 + zamik, seznam_valjev[i][1] + 6));
 				dc.DrawLine(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 3 * 2 + zamik, seznam_valjev[i][1]), wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 3 * 2 - 6 + zamik, seznam_valjev[i][1] + 6));
 
-				if (risCevi == 2) { ////////// popravek za 4/2
+				if (risCevi == 1) {
 					dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
 					dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
-					dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + 7, seznam_valjev[i][1] - 11), wxSize(10 + 1, 10 + 1));
-					dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + 31, seznam_valjev[i][1] - 11), wxSize(10 + 1, 10 + 1));
+					dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 3 - 5, seznam_valjev[i][1] + deb_ven), wxSize(10 + 1, 10 + 1));
+					dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
+					dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+				}
+
+				if (risCevi == 2) {
+					dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
+					dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
+					dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 3 - 5, seznam_valjev[i][1] - 11), wxSize(10 + 1, 10 + 1));
+					dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 3 * 2 - 5, seznam_valjev[i][1] - 11), wxSize(10 + 1, 10 + 1));
 					dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
 					dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 				}
@@ -1169,11 +1358,19 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 				dc.DrawLine(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 4 * 3 + zamik, seznam_valjev[i][1]), wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 4 * 3 + 6 + zamik, seznam_valjev[i][1] + 6));
 				dc.DrawLine(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 4 * 3 + zamik, seznam_valjev[i][1]), wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 4 * 3 - 6 + zamik, seznam_valjev[i][1] + 6));
 
+				if (risCevi == 1) {
+					dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
+					dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
+					dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 2 - 5, seznam_valjev[i][1] + deb_ven), wxSize(10 + 1, 10 + 1));
+					dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
+					dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+				}
+
 				if (risCevi == 2) {
 					dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
 					dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
-					dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + 7, seznam_valjev[i][1] - 11), wxSize(10 + 1, 10 + 1));
-					dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + 31, seznam_valjev[i][1] - 11), wxSize(10 + 1, 10 + 1));
+					dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 4 - 5, seznam_valjev[i][1] - 11), wxSize(10 + 1, 10 + 1));
+					dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + deb_ven + deb_ven / 4 * 3 - 5, seznam_valjev[i][1] - 11), wxSize(10 + 1, 10 + 1));
 					dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
 					dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 				}
@@ -1745,7 +1942,7 @@ VentilNastavitve::VentilNastavitve() : wxFrame(nullptr, wxID_ANY, wxString::Form
 	panel->SetDoubleBuffered(true);
 }
 
-void VentilNastavitve::OnApllyClicked(wxCommandEvent& evt) {
+void VentilNastavitve::OnApllyClicked(wxCommandEvent& evt) { ////////////// Ne dela, ce je samo eno stikalo na ventilu
 	
 	if (seznam_valjev[oznacitev][2] == 5) {
 
