@@ -8,4 +8,4 @@
 
 # Prikaz programa
 
-![output](../../../Slike/Prikaz.png)
+![alt text](https://github.com/JanObrovnik/DiplomskaNaloga/blob/main/Slike/Prikaz.png?raw=true)
