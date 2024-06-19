@@ -344,6 +344,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	panel->Bind(wxEVT_LEFT_DOWN, &MainFrame::OnMouseEvent, this);
 	panel->Bind(wxEVT_LEFT_DCLICK, &MainFrame::OnDoubleMouseEvent, this);
 	panel->Bind(wxEVT_MOTION, &MainFrame::OnMouseMoveEvent, this);
+	panel->Bind(wxEVT_LEFT_UP, &MainFrame::OnMouseUpEvent, this);
 	panel->Bind(wxEVT_SIZE, &MainFrame::OnSizeChanged, this);
 	button_dod->Bind(wxEVT_BUTTON, &MainFrame::OnButtonDodClicked, this);
 	button_izb->Bind(wxEVT_BUTTON, &MainFrame::OnButtonIzbClicked, this);
@@ -553,12 +554,13 @@ void MainFrame::OnMouseEvent(wxMouseEvent& evt) {
 			}
 		}
 		
-		//////////// dodat za gumbe
-		else if (seznam_valjev[i][2] == 5 && seznam_lastnosti[i][1] >= 0 && mousePos.x > seznam_valjev[i][0] - 10 && mousePos.x < seznam_valjev[i][0] && mousePos.y > seznam_valjev[i][1] && mousePos.y < seznam_valjev[i][1] + 48) {
-			seznam_lastnosti[i][1] = 1;
-		}
-		else if (seznam_valjev[i][2] == 5 && seznam_lastnosti[i][2] >= 0 && mousePos.x > seznam_valjev[i][0] + 96 && mousePos.x < seznam_valjev[i][0] + 106 && mousePos.y > seznam_valjev[i][1] && mousePos.y < seznam_valjev[i][1] + 48) {
-
+		else if (seznam_valjev[i][2] == 5) { // gumbi
+			if (seznam_lastnosti[i][1] >= 0 && mousePos.x > seznam_valjev[i][0] - 16 && mousePos.x < seznam_valjev[i][0] + 48 && mousePos.y > seznam_valjev[i][1] && mousePos.y < seznam_valjev[i][1] + 48) {
+				seznam_lastnosti[i][1] = 1;
+			}
+			else if (seznam_lastnosti[i][2] >= 0 && mousePos.x > seznam_valjev[i][0] + 96 && mousePos.x < seznam_valjev[i][0] + 160 && mousePos.y > seznam_valjev[i][1] && mousePos.y < seznam_valjev[i][1] + 48) {
+				seznam_lastnosti[i][2] = 1;
+			}
 		}
 	}
 
@@ -612,6 +614,16 @@ void MainFrame::OnDoubleMouseEvent(wxMouseEvent& evt) {
 void MainFrame::OnMouseMoveEvent(wxMouseEvent& evt) {
 
 	if (sim == false) Refresh();
+}
+
+void MainFrame::OnMouseUpEvent(wxMouseEvent& evt) {
+
+	for (int i = 0; i < seznam_valjev.size(); i++) if (seznam_valjev[i][2] == 5) {
+		if (seznam_lastnosti[i][1] == 1) seznam_lastnosti[i][1] = 0;
+		else if (seznam_lastnosti[i][2] == 1) seznam_lastnosti[i][2] = 0;
+	}
+
+	Refresh();
 }
 
 void MainFrame::OnSizeChanged(wxSizeEvent& evt) {
@@ -1277,16 +1289,16 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 		case 5:
 
 			//- ADMIN "LOGS"
-			if (false) {
-				dc.DrawText(wxString::Format("Element %g", seznam_lastnosti[i][0]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 12));
-				dc.DrawText(wxString::Format("Element %g", seznam_lastnosti[i][1]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 24));
-				dc.DrawText(wxString::Format("Element %g", seznam_lastnosti[i][2]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 36));
-				dc.DrawText(wxString::Format("Element %g", seznam_lastnosti[i][3]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 48));
-				dc.DrawText(wxString::Format("Element %g", seznam_lastnosti[i][4]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 60));
-				dc.DrawText(wxString::Format("Element %g", seznam_lastnosti[i][5]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 72));
-				dc.DrawText(wxString::Format("Element %g", seznam_lastnosti[i][6]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 84));
-				dc.DrawText(wxString::Format("Element %g", seznam_lastnosti[i][7]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 96));
-				dc.DrawText(wxString::Format("Element %g", seznam_lastnosti[i][8]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 108));
+			if (true) {
+				dc.DrawText(wxString::Format("Naziv: %g", seznam_lastnosti[i][0]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 12));
+				dc.DrawText(wxString::Format("Gumb L: %g", seznam_lastnosti[i][1]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 24));
+				dc.DrawText(wxString::Format("Gumb D: %g", seznam_lastnosti[i][2]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 36));
+				dc.DrawText(wxString::Format("Pnev L: %g", seznam_lastnosti[i][3]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 48));
+				dc.DrawText(wxString::Format("Pnev D: %g", seznam_lastnosti[i][4]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 60));
+				dc.DrawText(wxString::Format("Vzme L: %g", seznam_lastnosti[i][5]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 72));
+				dc.DrawText(wxString::Format("Vzme D: %g", seznam_lastnosti[i][6]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 84));
+				dc.DrawText(wxString::Format("Stik L: %g", seznam_lastnosti[i][7]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 96));
+				dc.DrawText(wxString::Format("Stik D: %g", seznam_lastnosti[i][8]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 108));
 			}
 
 			if (res[i][0] == 1) zamik = deb_ven;
@@ -1398,11 +1410,11 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 				}
 			}
 
-			if (seznam_lastnosti[i][1] > 0) {
+			if (seznam_lastnosti[i][1] >= 0) {
 				dc.DrawRectangle(wxPoint(seznam_valjev[i][0] - deb_ven / 4 + zamik, seznam_valjev[i][1] + 5), wxSize(deb_ven / 4 + 1, deb_ven / 6 + 1));
 				dc.DrawLine(wxPoint(seznam_valjev[i][0] - deb_ven / 4 + zamik, seznam_valjev[i][1] + 6 - 4), wxPoint(seznam_valjev[i][0] - deb_ven / 4 + zamik, seznam_valjev[i][1] + deb_ven / 6 + 9));
 			}
-			if (seznam_lastnosti[i][2] > 0) {
+			if (seznam_lastnosti[i][2] >= 0) {
 				dc.DrawRectangle(wxPoint(seznam_valjev[i][0] + 2 * deb_ven + zamik, seznam_valjev[i][1] + 5), wxSize(deb_ven / 4 + 1, deb_ven / 6 + 1));
 				dc.DrawLine(wxPoint(seznam_valjev[i][0] + 2 * deb_ven + deb_ven / 4 + zamik, seznam_valjev[i][1] + 6 - 4), wxPoint(seznam_valjev[i][0] + 2 * deb_ven + deb_ven / 4 + zamik, seznam_valjev[i][1] + deb_ven / 6 + 9));
 			}
