@@ -152,8 +152,8 @@ std::vector<double> ventil(std::vector<double> last, std::vector<double> res, do
 	double Flg = 0, Fdg = 0, Flp = 0, Fdp = 0, Flv = 0, Fdv = 0, Fls = 0, Fds = 0;
 	if (last[1] > 0) Flg = 1000;
 	if (last[2] > 0) Fdg = 1000;
-	if (res[6] > 0) Flp = 500;
-	if (res[7] > 0) Fdp = 500;
+	if (res[6] > 0) Flp = res[6] * 100;
+	if (res[7] > 0) Fdp = res[7] * 100;
 	if (last[5] > 0) Flv = 250;
 	if (last[6] > 0) Fdv = 250;
 	if (last[7] > 0) Fls = -2000; //////////// mogoc leps ta minus nardit
@@ -895,9 +895,6 @@ void MainFrame::OnButtonPomClicked(wxCommandEvent& evt) {
 
 void MainFrame::OnChoicesClicked(wxCommandEvent& evt) {
 
-	/*wxString naziv_element = wxString::Format("Item %d", choice_dod->GetSelection());
-	wxLogStatus(naziv_element);*/
-
 	Refresh();
 }
 
@@ -1345,15 +1342,23 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 			//- ADMIN "LOGS"
 			if (true) {
-				dc.DrawText(wxString::Format("Naziv: %g", seznam_lastnosti[i][0]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 12));
-				dc.DrawText(wxString::Format("Gumb L: %g", seznam_lastnosti[i][1]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 24));
-				dc.DrawText(wxString::Format("Gumb D: %g", seznam_lastnosti[i][2]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 36));
-				dc.DrawText(wxString::Format("Pnev L: %g", seznam_lastnosti[i][3]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 48));
-				dc.DrawText(wxString::Format("Pnev D: %g", seznam_lastnosti[i][4]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 60));
-				dc.DrawText(wxString::Format("Vzme L: %g", seznam_lastnosti[i][5]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 72));
-				dc.DrawText(wxString::Format("Vzme D: %g", seznam_lastnosti[i][6]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 84));
-				dc.DrawText(wxString::Format("Stik L: %g", seznam_lastnosti[i][7]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 96));
-				dc.DrawText(wxString::Format("Stik D: %g", seznam_lastnosti[i][8]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 108));
+				dc.DrawText(wxString::Format("Naziv: %g", seznam_lastnosti[i][0]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1]));
+				dc.DrawText(wxString::Format("Gumb L: %g", seznam_lastnosti[i][1]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 12));
+				dc.DrawText(wxString::Format("Gumb D: %g", seznam_lastnosti[i][2]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 24));
+				dc.DrawText(wxString::Format("Pnev L: %g", seznam_lastnosti[i][3]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 36));
+				dc.DrawText(wxString::Format("Pnev D: %g", seznam_lastnosti[i][4]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 48));
+				dc.DrawText(wxString::Format("Vzme L: %g", seznam_lastnosti[i][5]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 60));
+				dc.DrawText(wxString::Format("Vzme D: %g", seznam_lastnosti[i][6]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 72));
+				dc.DrawText(wxString::Format("Stik L: %g", seznam_lastnosti[i][7]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 84));
+				dc.DrawText(wxString::Format("Stik D: %g", seznam_lastnosti[i][8]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 96));
+				dc.DrawText(wxString::Format("res: %g", res[i][0]), wxPoint(seznam_valjev[i][0] + 200, seznam_valjev[i][1]));
+				dc.DrawText(wxString::Format("res: %g", res[i][1]), wxPoint(seznam_valjev[i][0] + 200, seznam_valjev[i][1] + 12));
+				dc.DrawText(wxString::Format("res: %g", res[i][2]), wxPoint(seznam_valjev[i][0] + 200, seznam_valjev[i][1] + 24));
+				dc.DrawText(wxString::Format("res: %g", res[i][3]), wxPoint(seznam_valjev[i][0] + 200, seznam_valjev[i][1] + 36));
+				dc.DrawText(wxString::Format("res: %g", res[i][4]), wxPoint(seznam_valjev[i][0] + 200, seznam_valjev[i][1] + 48));
+				dc.DrawText(wxString::Format("res: %g", res[i][5]), wxPoint(seznam_valjev[i][0] + 200, seznam_valjev[i][1] + 60));
+				dc.DrawText(wxString::Format("res: %g", res[i][6]), wxPoint(seznam_valjev[i][0] + 200, seznam_valjev[i][1] + 72));
+				dc.DrawText(wxString::Format("res: %g", res[i][7]), wxPoint(seznam_valjev[i][0] + 200, seznam_valjev[i][1] + 84));
 			}
 
 			if (res[i][0] == 1) zamik = deb_ven;
@@ -2064,6 +2069,7 @@ void VentilNastavitve::OnApllyClicked(wxCommandEvent& evt) {
 		if (stikLeva->GetSelection() >= 0) {
 			seznam_stikal[stikLeva->GetSelection()][1] = oznacitev;
 			seznam_stikal[stikLeva->GetSelection()][2] = 8;
+			for (int i = 0; i < seznam_cevi.size(); i++) if (seznam_cevi[i][1] == 6) seznam_cevi.erase(seznam_cevi.begin() + i);
 		}
 		for (int i = 0; i < seznam_stikal.size(); i++) if (seznam_stikal[i][1] == oznacitev && seznam_stikal[i][2] == 7) {
 			seznam_stikal[i][1] = -1;
@@ -2072,6 +2078,7 @@ void VentilNastavitve::OnApllyClicked(wxCommandEvent& evt) {
 		if (stikDesna->GetSelection() >= 0) {
 			seznam_stikal[stikDesna->GetSelection()][1] = oznacitev;
 			seznam_stikal[stikDesna->GetSelection()][2] = 7;
+			for (int i = 0; i < seznam_cevi.size(); i++) if (seznam_cevi[i][1] == 7) seznam_cevi.erase(seznam_cevi.begin() + i);
 		}
 
 		if (nazivVentila->GetSelection() == 0) seznam_lastnosti[oznacitev][0] = 32;
