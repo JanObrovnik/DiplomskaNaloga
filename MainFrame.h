@@ -21,6 +21,8 @@ private:
 	void OnButtonPredVseClicked(wxCommandEvent& evt);
 	void OnButtonSimClicked(wxCommandEvent& evt);
 	void OnButtonPomClicked(wxCommandEvent& evt);
+	void OnShraniClicked(wxCommandEvent& evt);
+	void OnNaloziClicked(wxCommandEvent& evt);
 
 	void OnMouseEvent(wxMouseEvent& evt);
 	void OnDoubleMouseEvent(wxMouseEvent& evt);

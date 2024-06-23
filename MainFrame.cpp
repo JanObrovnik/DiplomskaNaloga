@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <vector>
+#include <fstream>
 //#include <algorithm>
 
 
@@ -287,6 +288,7 @@ int dx = x;
 int dy = y;
 int velikost_x = 120;
 int velikost_y = 60;
+short st_elementov = 0;
 
 wxPanel* panel;
 wxChoice* choice_dod;
@@ -327,6 +329,8 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	wxButton* predlog = new wxButton(panel, wxID_ANY, "Pregled elementov", wxPoint(5, 360), wxSize(190, -1));
 	wxButton* simuliraj = new wxButton(panel, wxID_ANY, "Simuliraj", wxPoint(5, 440), wxSize(190, 36));
 	wxButton* pomozno_okno = new wxButton(panel, wxID_ANY, "Nastavitve elementa", wxPoint(5, 250), wxSize(190, -1));
+	wxButton* shrani = new wxButton(panel, wxID_ANY, "Shrani", wxPoint(5, 300), wxSize(190, -1));
+	wxButton* nalozi = new wxButton(panel, wxID_ANY, "Nalozi", wxPoint(5, 330), wxSize(190, -1));
 
 	wxArrayString choices;
 	choices.Add("Pnevmaticni valj");
@@ -335,6 +339,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	choices.Add("-");
 	choices.Add("Kompresor");
 	choices.Add("Potni ventil");
+	st_elementov = choices.size();
 
 
 	choice_dod = new wxChoice(panel, wxID_ANY, wxPoint(5, 20), wxSize(190, -1), choices/*, wxCB_SORT*/);
@@ -354,6 +359,8 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	predlog->Bind(wxEVT_BUTTON, &MainFrame::OnButtonPredVseClicked, this);
 	simuliraj->Bind(wxEVT_BUTTON, &MainFrame::OnButtonSimClicked, this);
 	pomozno_okno->Bind(wxEVT_BUTTON, &MainFrame::OnButtonPomClicked, this);
+	shrani->Bind(wxEVT_BUTTON, &MainFrame::OnShraniClicked, this);
+	nalozi->Bind(wxEVT_BUTTON, &MainFrame::OnNaloziClicked, this);
 	choice_dod->Bind(wxEVT_CHOICE, &MainFrame::OnChoicesClicked, this);
 	slider->Bind(wxEVT_SLIDER, &MainFrame::OnSliderChanged, this);
 
@@ -893,6 +900,88 @@ void MainFrame::OnButtonPomClicked(wxCommandEvent& evt) {
 	else wxLogStatus("Kliknite na element");
 }
 
+void MainFrame::OnShraniClicked(wxCommandEvent& evt) {
+
+	sim = false;
+	risCevi = 0;
+	res = res_reset;
+	slider->SetValue(0);
+	graf.clear();
+
+	Refresh();
+
+
+	std::ofstream shrani;
+	shrani.open("Shranjen_Primer_V0.txt", std::ios::out);
+
+	if (shrani.is_open()) {
+
+		shrani << "Zapis zacetnih podatkov simulacije" << std::endl;
+		shrani << __DATE__ << ", " << __TIME__ << std::endl << std::endl;
+
+		for (int i = 0; i < st_elementov; i++) {
+
+			short st = 0;
+			for (int j = 0; j < seznam_valjev.size(); j++) if (seznam_valjev[j][2] == i) st++;
+
+			shrani << "element: " << i << std::endl;
+			shrani << "stevilo elementov: " << st << std::endl;
+
+			for (int j = 0; j < seznam_valjev.size(); j++) if (seznam_valjev[j][2] == i) {
+				
+				shrani << seznam_valjev[j].size() << ": ";
+				for (int k = 0; k < seznam_valjev[j].size(); k++) shrani << seznam_valjev[j][k] << " ";
+				shrani << std::endl;
+
+				shrani << seznam_lastnosti[j].size() << ": ";
+				for (int k = 0; k < seznam_lastnosti[j].size(); k++) shrani << seznam_lastnosti[j][k] << " ";
+				shrani << std::endl;
+
+				shrani << res[j].size() << ": ";
+				for (int k = 0; k < res[j].size(); k++) shrani << res[j][k] << " ";
+				shrani << std::endl << std::endl;
+			}
+			shrani << std::endl;
+		}
+
+		shrani.close();
+	}
+
+
+	shrani.open("Shranjen_Primer_V1.txt", std::ios::out);
+
+	if (shrani.is_open()) {
+
+		shrani << "Zapis zacetnih podatkov simulacije" << std::endl;
+		shrani << __DATE__ << ", " << __TIME__ << std::endl << std::endl;
+
+
+		shrani << "stevilo elementov: " << seznam_valjev.size() << std::endl;
+
+		for (int i = 0; i < seznam_valjev.size(); i++) {
+
+			shrani << seznam_valjev[i].size() << ": ";
+			for (int j = 0; j < seznam_valjev[i].size(); j++) shrani << seznam_valjev[i][j] << " ";
+			shrani << std::endl;
+
+			shrani << seznam_lastnosti[i].size() << ": ";
+			for (int j = 0; j < seznam_lastnosti[i].size(); j++) shrani << seznam_lastnosti[i][j] << " ";
+			shrani << std::endl;
+
+			shrani << res[i].size() << ": ";
+			for (int j = 0; j < res[i].size(); j++) shrani << res[i][j] << " ";
+			shrani << std::endl << std::endl;
+		}
+		shrani << std::endl;
+
+		shrani.close();
+	}
+}
+
+void MainFrame::OnNaloziClicked(wxCommandEvent& evt) { /////////////////
+
+}
+
 void MainFrame::OnChoicesClicked(wxCommandEvent& evt) {
 
 	Refresh();
@@ -903,6 +992,7 @@ void MainFrame::OnSliderChanged(wxCommandEvent& evt) {
 
 	Refresh();
 }
+
 
 void MainFrame::OnPaint(wxPaintEvent& event) {
 
@@ -1341,7 +1431,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 		case 5:
 
 			//- ADMIN "LOGS"
-			if (true) {
+			if (false) {
 				dc.DrawText(wxString::Format("Naziv: %g", seznam_lastnosti[i][0]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1]));
 				dc.DrawText(wxString::Format("Gumb L: %g", seznam_lastnosti[i][1]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 12));
 				dc.DrawText(wxString::Format("Gumb D: %g", seznam_lastnosti[i][2]), wxPoint(seznam_valjev[i][0] + 120, seznam_valjev[i][1] + 24));
