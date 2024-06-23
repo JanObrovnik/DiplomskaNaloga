@@ -900,7 +900,7 @@ void MainFrame::OnButtonPomClicked(wxCommandEvent& evt) {
 	else wxLogStatus("Kliknite na element");
 }
 
-void MainFrame::OnShraniClicked(wxCommandEvent& evt) {
+void MainFrame::OnShraniClicked(wxCommandEvent& evt) { /////////////// dodat za cevi in stikala
 
 	sim = false;
 	risCevi = 0;
@@ -912,42 +912,6 @@ void MainFrame::OnShraniClicked(wxCommandEvent& evt) {
 
 
 	std::ofstream shrani;
-	shrani.open("Shranjen_Primer_V0.txt", std::ios::out);
-
-	if (shrani.is_open()) {
-
-		shrani << "Zapis zacetnih podatkov simulacije" << std::endl;
-		shrani << __DATE__ << ", " << __TIME__ << std::endl << std::endl;
-
-		for (int i = 0; i < st_elementov; i++) {
-
-			short st = 0;
-			for (int j = 0; j < seznam_valjev.size(); j++) if (seznam_valjev[j][2] == i) st++;
-
-			shrani << "element: " << i << std::endl;
-			shrani << "stevilo elementov: " << st << std::endl;
-
-			for (int j = 0; j < seznam_valjev.size(); j++) if (seznam_valjev[j][2] == i) {
-				
-				shrani << seznam_valjev[j].size() << ": ";
-				for (int k = 0; k < seznam_valjev[j].size(); k++) shrani << seznam_valjev[j][k] << " ";
-				shrani << std::endl;
-
-				shrani << seznam_lastnosti[j].size() << ": ";
-				for (int k = 0; k < seznam_lastnosti[j].size(); k++) shrani << seznam_lastnosti[j][k] << " ";
-				shrani << std::endl;
-
-				shrani << res[j].size() << ": ";
-				for (int k = 0; k < res[j].size(); k++) shrani << res[j][k] << " ";
-				shrani << std::endl << std::endl;
-			}
-			shrani << std::endl;
-		}
-
-		shrani.close();
-	}
-
-
 	shrani.open("Shranjen_Primer_V1.txt", std::ios::out);
 
 	if (shrani.is_open()) {
@@ -978,8 +942,65 @@ void MainFrame::OnShraniClicked(wxCommandEvent& evt) {
 	}
 }
 
-void MainFrame::OnNaloziClicked(wxCommandEvent& evt) { /////////////////
+void MainFrame::OnNaloziClicked(wxCommandEvent& evt) {
 
+	std::ifstream nalozi;
+	nalozi.open("Shranjen_Primer_V1.txt", std::ios::in);
+
+	if (nalozi.is_open()) {
+
+		sim = false;
+
+		seznam_stikal.clear();
+		seznam_cevi.clear();
+		seznam_valjev.clear();
+		seznam_lastnosti.clear();
+		res_reset.clear();
+		res = res_reset;
+		graf.clear();
+
+		slider->SetValue(0);
+
+		oznacitev = -1;
+
+		Refresh();
+
+
+		std::string bes;
+		char ch;
+		int st;
+
+		nalozi >> bes >> bes >> bes >> bes;
+		nalozi >> bes >> bes >> bes >> bes;
+		nalozi >> bes >> bes;
+		nalozi >> st;
+
+		seznam_valjev.resize(st);
+		seznam_lastnosti.resize(st);
+		res_reset.resize(st);
+		
+		for (int i = 0; i < st; i++) {
+
+			int pon;
+
+			nalozi >> pon >> ch;
+			for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznam_valjev[i].push_back(a); }
+
+			nalozi >> pon >> ch;
+			for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznam_lastnosti[i].push_back(a); }
+
+			nalozi >> pon >> ch;
+			for (int j = 0; j < pon; j++) { double a; nalozi >> a; res_reset[i].push_back(a); }
+		}
+		wxLogStatus(wxString(ch));
+
+
+		res = res_reset;
+	}
+	else wxLogStatus("Datoteka ni najdena");
+
+
+	Refresh();
 }
 
 void MainFrame::OnChoicesClicked(wxCommandEvent& evt) {
@@ -1279,7 +1300,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 			if (sim == true) res[i] = izracun3(n, seznam_valjev[i][2], seznam_lastnosti[i], res[i]);
 
-			graf[i].push_back(res[i]); /////////////// bat in graf sta nesinhronizirana
+			graf[i].push_back(res[i]); /////////////// bat in graf sta nesinhronizirana ////////////////// zaradi Refresh(); ko je sim == false, se ustvarijo praznine nekje v Graf
 
 
 			dc.DrawRectangle(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1]), wxSize(deb + 1, vis + 1)); // Ohišje
