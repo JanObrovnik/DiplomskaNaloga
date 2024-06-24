@@ -920,7 +920,7 @@ void MainFrame::OnShraniClicked(wxCommandEvent& evt) { /////////////// dodat za 
 		shrani << __DATE__ << ", " << __TIME__ << std::endl << std::endl;
 
 
-		shrani << "stevilo elementov: " << seznam_valjev.size() << std::endl;
+		shrani << "Stevilo elementov: " << seznam_valjev.size() << std::endl;
 
 		for (int i = 0; i < seznam_valjev.size(); i++) {
 
@@ -937,6 +937,28 @@ void MainFrame::OnShraniClicked(wxCommandEvent& evt) { /////////////// dodat za 
 			shrani << std::endl << std::endl;
 		}
 		shrani << std::endl;
+
+
+		shrani << "Stevilo cevi: " << seznam_cevi.size() << std::endl;
+
+		for (int i = 0; i < seznam_cevi.size(); i++) {
+
+			shrani << seznam_cevi[i].size() << ": ";
+			for (int j = 0; j < seznam_cevi[i].size(); j++) shrani << seznam_cevi[i][j] << " ";
+			shrani << std::endl;
+		}
+		shrani << std::endl << std::endl;
+
+
+		shrani << "Stevilo stikal: " << seznam_stikal.size() << std::endl;
+
+		for (int i = 0; i < seznam_stikal.size(); i++) {
+
+			shrani << seznam_stikal[i].size() << ": ";
+			for (int j = 0; j < seznam_stikal[i].size(); j++) shrani << seznam_stikal[i][j] << " ";
+			shrani << std::endl;
+		}
+		shrani << std::endl << std::endl;
 
 		shrani.close();
 	}
@@ -992,7 +1014,34 @@ void MainFrame::OnNaloziClicked(wxCommandEvent& evt) {
 			nalozi >> pon >> ch;
 			for (int j = 0; j < pon; j++) { double a; nalozi >> a; res_reset[i].push_back(a); }
 		}
-		wxLogStatus(wxString(ch));
+
+
+		nalozi >> bes >> bes;
+		nalozi >> st;
+
+		seznam_cevi.resize(st);
+
+		for (int i = 0; i < st; i++) {
+
+			int pon;
+
+			nalozi >> pon >> ch;
+			for (int j = 0; j < pon; j++) { int a; nalozi >> a; seznam_cevi[i].push_back(a); }
+		}
+
+
+		nalozi >> bes >> bes;
+		nalozi >> st;
+
+		seznam_stikal.resize(st);
+
+		for (int i = 0; i < st; i++) {
+
+			int pon;
+
+			nalozi >> pon >> ch;
+			for (int j = 0; j < pon; j++) { int a; nalozi >> a; seznam_stikal[i].push_back(a); }
+		}
 
 
 		res = res_reset;
