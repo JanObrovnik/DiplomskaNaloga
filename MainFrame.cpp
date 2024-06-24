@@ -633,6 +633,11 @@ void MainFrame::OnDoubleMouseEvent(wxMouseEvent& evt) {
 			PomoznoOkno* dodatnoOkno = new PomoznoOkno();
 			dodatnoOkno->Show();
 		}
+		else if (seznam_valjev[oznacitev][2] == 4) {
+
+			KompresorNastavitve* kompNast = new KompresorNastavitve();
+			kompNast->Show();
+		}
 		else if (seznam_valjev[oznacitev][2] == 5) {
 
 			VentilNastavitve* ventNast = new VentilNastavitve();
@@ -883,6 +888,11 @@ void MainFrame::OnButtonPomClicked(wxCommandEvent& evt) {
 
 			PomoznoOkno* valjNast = new PomoznoOkno();
 			valjNast->Show();
+		}
+		else if (seznam_valjev[oznacitev][2] == 4) {
+
+			KompresorNastavitve* kompNast = new KompresorNastavitve();
+			kompNast->Show();
 		}
 		else if (seznam_valjev[oznacitev][2] == 5) {
 
@@ -2398,6 +2408,55 @@ void VentilNastavitve::OnPaint(wxPaintEvent& evt) {
 		dc.DrawCircle(wxPoint(size.x / 2 + deb_ven + 12, size.y / 2), 2);
 		desnaLastnostVentil->Check(1, false);
 	}
+}
+
+
+wxSpinCtrlDouble* kompresorTlak;
+
+KompresorNastavitve::KompresorNastavitve() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve ventila"), wxPoint(0, 0), wxSize(300, 200)) {
+
+	panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
+
+	kompresorTlak = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(90, 10), wxSize(120, -1), wxSP_ARROW_KEYS | wxSP_WRAP | wxTE_PROCESS_ENTER, 0, 20, seznam_lastnosti[oznacitev][0], .01);
+
+	wxButton* aplly = new wxButton(panel, wxID_ANY, "Aplly", wxPoint(90, 110), wxSize(120, 40));
+
+
+	kompresorTlak->Bind(wxEVT_SPINCTRLDOUBLE, &KompresorNastavitve::OnNastavitveChanged, this);
+	kompresorTlak->Bind(wxEVT_TEXT_ENTER, &KompresorNastavitve::OnNastavitveChanged, this); ///////////////// mal cudn zazna
+	aplly->Bind(wxEVT_BUTTON, &KompresorNastavitve::OnApllyClicked, this);
+
+	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(KompresorNastavitve::OnPaint));
+}
+
+void KompresorNastavitve::OnApllyClicked(wxCommandEvent& evt) {
+
+	if (oznacitev >= 0) {
+
+		seznam_lastnosti[oznacitev][0] = kompresorTlak->GetValue();
+		res_reset[oznacitev][0] = kompresorTlak->GetValue();
+
+		res = res_reset;
+
+		Refresh();
+	}
+	else wxLogStatus("Oznacite Kompresor za dolocitev tlaka");
+}
+
+void KompresorNastavitve::OnNastavitveChanged(wxCommandEvent& evt) {
+
+	Refresh();
+}
+
+
+void KompresorNastavitve::OnPaint(wxPaintEvent& evt) {
+
+	wxPaintDC dc(this);
+
+	dc.DrawLine(wxPoint(130, 90), wxPoint(170, 90));
+	dc.DrawLine(wxPoint(170, 90), wxPoint(150, 90 - 40 * 2 / 3));
+	dc.DrawLine(wxPoint(150, 90 - 40 * 2 / 3), wxPoint(130, 90));
+	dc.DrawText(wxString::Format("p = %g", kompresorTlak->GetValue()), wxPoint(170, 65));
 }
 
 /*

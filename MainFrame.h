@@ -76,3 +76,14 @@ private:
 
 	void OnSizeChanged(wxSizeEvent& evt);
 };
+
+class KompresorNastavitve : public wxFrame {
+
+public:
+	KompresorNastavitve();
+private:
+	void OnPaint(wxPaintEvent& evt);
+
+	void OnNastavitveChanged(wxCommandEvent& evt);
+	void OnApllyClicked(wxCommandEvent& evt);
+};
