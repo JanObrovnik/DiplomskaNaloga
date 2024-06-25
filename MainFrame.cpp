@@ -28,7 +28,7 @@ std::vector<double> izracun3(int n, int element, std::vector<double> last, std::
 	double koef_tr_st = .8; //- Koeficient staticnega trenja [/]
 	double koef_tr_din = .6; //- Koeficient dinamicnega trenja [/]
 
-	double koef_vzm_leva, koef_vzm_desna; //- Koeficient vzmeti [N/mm] ////////////// dodat prednapetje
+	double koef_vzm_leva, koef_vzm_desna; //- Koeficient vzmeti [N/mm]
 	if (last[2] < 0) koef_vzm_leva = 0.;
 	else koef_vzm_leva = 2.4;
 	if (last[3] < 0) koef_vzm_desna = 0.;
@@ -91,9 +91,11 @@ std::vector<double> izracun3(int n, int element, std::vector<double> last, std::
 		F0 = A_l * p_l;
 		F0b = (A0 - A_l) * pok;
 		F0v = (l - x) * koef_vzm_leva;
+		if (koef_vzm_leva > 0) F0v = F0v + 60;
 		F1 = A_d * p_d;
 		F1b = (A0 - A_d) * pok;
 		F1v = x * koef_vzm_desna;
+		if (koef_vzm_desna > 0) F1v = F1v + 60;
 
 		dF = F0 + F0b + F0v - F1 - F1b - F1v;
 
@@ -326,25 +328,25 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	wxButton* button_izb_vse = new wxButton(panel, wxID_ANY, "Izbrisi vse", wxPoint(5, 130), wxSize(190, -1));
 	wxButton* pov_cev = new wxButton(panel, wxID_ANY, "Povezava cevi", wxPoint(5, 160), wxSize(190, -1));
 	wxButton* cev_izb = new wxButton(panel, wxID_ANY, "Izbrisi cevi", wxPoint(5, 190), wxSize(190, -1));
-	wxButton* predlog = new wxButton(panel, wxID_ANY, "Pregled elementov", wxPoint(5, 360), wxSize(190, -1));
-	wxButton* simuliraj = new wxButton(panel, wxID_ANY, "Simuliraj", wxPoint(5, 440), wxSize(190, 36));
-	wxButton* pomozno_okno = new wxButton(panel, wxID_ANY, "Nastavitve elementa", wxPoint(5, 250), wxSize(190, -1));
-	wxButton* shrani = new wxButton(panel, wxID_ANY, "Shrani", wxPoint(5, 300), wxSize(190, -1));
-	wxButton* nalozi = new wxButton(panel, wxID_ANY, "Nalozi", wxPoint(5, 330), wxSize(190, -1));
+	wxButton* predlog = new wxButton(panel, wxID_ANY, "Pregled elementov", wxPoint(5, 355), wxSize(190, -1));
+	wxButton* simuliraj = new wxButton(panel, wxID_ANY, "Simuliraj", wxPoint(5, 420), wxSize(190, 56));
+	wxButton* pomozno_okno = new wxButton(panel, wxID_ANY, "Nastavitve elementa", wxPoint(5, 240), wxSize(190, -1));
+	wxButton* shrani = new wxButton(panel, wxID_ANY, "Shrani", wxPoint(5, 270), wxSize(190, -1));
+	wxButton* nalozi = new wxButton(panel, wxID_ANY, "Nalozi", wxPoint(5, 300), wxSize(190, -1));
 
 	wxArrayString choices;
 	choices.Add("Pnevmaticni valj");
 	choices.Add("Vakumski prisesek");
 	choices.Add("Pnevmaticno prijemalo");
 	choices.Add("-");
-	choices.Add("Kompresor");
+	choices.Add("Idealni kompresor");
 	choices.Add("Potni ventil");
 	st_elementov = choices.size();
 
 
 	choice_dod = new wxChoice(panel, wxID_ANY, wxPoint(5, 20), wxSize(190, -1), choices/*, wxCB_SORT*/);
 	choice_dod->SetSelection(0);
-	slider = new wxSlider(panel, wxID_ANY, 0, 0, 1000, wxPoint(5, 400), wxSize(190, -1), wxSL_VALUE_LABEL);
+	slider = new wxSlider(panel, wxID_ANY, 0, 0, 1000, wxPoint(5, 380), wxSize(190, -1), wxSL_VALUE_LABEL);
 
 	panel->Bind(wxEVT_LEFT_DOWN, &MainFrame::OnMouseEvent, this);
 	panel->Bind(wxEVT_LEFT_DCLICK, &MainFrame::OnDoubleMouseEvent, this);
@@ -854,7 +856,7 @@ void MainFrame::OnButtonPredVseClicked(wxCommandEvent& evt) {
 
 void MainFrame::OnButtonSimClicked(wxCommandEvent& evt) {
 
-	if (slider->GetValue() >= 1000) {
+	if (slider->GetValue() >= 1000 || slider->GetValue() == 0) {
 		slider->SetValue(0);
 		res = res_reset;
 		graf.clear();
@@ -910,7 +912,7 @@ void MainFrame::OnButtonPomClicked(wxCommandEvent& evt) {
 	else wxLogStatus("Kliknite na element");
 }
 
-void MainFrame::OnShraniClicked(wxCommandEvent& evt) { /////////////// dodat za cevi in stikala
+void MainFrame::OnShraniClicked(wxCommandEvent& evt) {
 
 	sim = false;
 	risCevi = 0;
@@ -1360,7 +1362,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 			if (sim == true) res[i] = izracun3(n, seznam_valjev[i][2], seznam_lastnosti[i], res[i]);
 
 			graf[i].push_back(res[i]); /////////////// bat in graf sta nesinhronizirana ////////////////// zaradi Refresh(); ko je sim == false, se ustvarijo praznine nekje v Graf
-
+			
 
 			dc.DrawRectangle(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1]), wxSize(deb + 1, vis + 1)); // Ohišje
 
@@ -1752,7 +1754,7 @@ PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, wxString::Format("Zacetn
 	lastnosti.Add("Vzmet");
 	lastnosti.Add("Tlaèno izoliran");
 	lastnosti.Add("Masa");
-	lastnosti.Add("Koncno stikalo"); /////////////// mogoc je mal cundo
+	lastnosti.Add("Koncno stikalo");
 
 	wxPoint pointLevaLastnost = wxPoint(10, 44);
 	levaLastnost = new wxCheckListBox(panel, wxID_ANY, pointLevaLastnost, wxDefaultSize, lastnosti);
@@ -2423,7 +2425,7 @@ KompresorNastavitve::KompresorNastavitve() : wxFrame(nullptr, wxID_ANY, wxString
 
 
 	kompresorTlak->Bind(wxEVT_SPINCTRLDOUBLE, &KompresorNastavitve::OnNastavitveChanged, this);
-	kompresorTlak->Bind(wxEVT_TEXT_ENTER, &KompresorNastavitve::OnNastavitveChanged, this); ///////////////// mal cudn zazna
+	kompresorTlak->Bind(wxEVT_TEXT_ENTER, &KompresorNastavitve::OnNastavitveChanged, this);
 	aplly->Bind(wxEVT_BUTTON, &KompresorNastavitve::OnApllyClicked, this);
 
 	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(KompresorNastavitve::OnPaint));
