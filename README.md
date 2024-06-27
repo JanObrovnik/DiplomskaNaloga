@@ -2,6 +2,10 @@
 
  Odprtokodni program za simuliranje pnevmatičnih sistemov.
 
+# Naložitev programa
+
+ Program se nahaja v stisnjeni datoteki: Program.zip. Prenesite stisnjeno .zip datoteko in jo ekstrahirajte. Program.exe poženite znotraj novo ustvarjene mape.
+
 # C++ Source koda
 
 [MainFrame.cpp](MainFrame.cpp)
