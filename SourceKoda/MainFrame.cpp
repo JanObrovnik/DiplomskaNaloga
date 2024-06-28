@@ -371,7 +371,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	wxStatusBar* statusBar = CreateStatusBar();
 	statusBar->SetDoubleBuffered(true); // da ne utripa izpis
 	panel->SetDoubleBuffered(true);
-
+	wxLogStatus("2");
 
 	seznam_valjev.push_back({ 320, 50, 0 }); // Prikaz elementov
 	seznam_valjev.push_back({ 320, 150, 0 });
@@ -2461,8 +2461,3 @@ void KompresorNastavitve::OnPaint(wxPaintEvent& evt) {
 	dc.DrawText(wxString::Format("p = %g", kompresorTlak->GetValue()), wxPoint(170, 65));
 }
 
-/*
-povezava za dokumentacijo kontrol
-https://docs.wxwidgets.org/3.0/group__group__class__ctrl.html
-
-*/
