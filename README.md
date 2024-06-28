@@ -8,7 +8,7 @@
 
 # C++ Source koda
 
-[SourceKoda/](SourceKoda/)
+[SourceKoda](SourceKoda/)
 
 # Prikaz programa
 
