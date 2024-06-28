@@ -8,7 +8,7 @@
 
 # C++ Source koda
 
-[SourceKoda/MainFrame.cpp](MainFrame.cpp)
+[SourceKoda/](SourceKoda/)
 
 # Prikaz programa
 
