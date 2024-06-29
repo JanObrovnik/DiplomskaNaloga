@@ -371,7 +371,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	wxStatusBar* statusBar = CreateStatusBar();
 	statusBar->SetDoubleBuffered(true); // da ne utripa izpis
 	panel->SetDoubleBuffered(true);
-	wxLogStatus("2");
+	
 
 	seznam_valjev.push_back({ 320, 50, 0 }); // Prikaz elementov
 	seznam_valjev.push_back({ 320, 150, 0 });
@@ -413,7 +413,7 @@ void MainFrame::OnMouseEvent(wxMouseEvent& evt) {
 
 	wxPoint mousePos = wxGetMousePosition(); // relativno na zaslon
 	mousePos = this->ScreenToClient(mousePos); // pretvori zaslon in client (obratno pa "ClientToScreen")
-
+	
 
 	bool je = false;
 	for (int i = 0; i < seznam_valjev.size(); i++) {

@@ -19,25 +19,37 @@ std::vector<std::vector<double>> seznamResitev;
 
 std::vector<std::vector<int>> seznamPovezav;
 
+wxChoice* choiceDod;
+
+
 OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
-
-	wxSize size = panel->GetSize();
 	
+	wxArrayString choices;
+	choices.Add("Pnevmaticni valj");
+	choices.Add("Vakumski prisesek");
+	choices.Add("Pnevmaticno prijemalo");
+	choices.Add("-");
+	choices.Add("Idealni kompresor");
+	choices.Add("Potni ventil");
+
+	choiceDod = new wxChoice(panel, wxID_ANY, wxPoint(5, 0), wxSize(190, -1), choices/*, wxCB_SORT*/);
 
 
+	panel->Bind(wxEVT_MOTION, &OknoSim::RefreshEvent, this);
 	panel->Bind(wxEVT_LEFT_DOWN, &OknoSim::OnMouseDownEvent, this);
 	panel->Bind(wxEVT_LEFT_UP, &OknoSim::OnMouseUpEvent, this);
 	panel->Bind(wxEVT_LEFT_DCLICK, &OknoSim::OnMouseDoubleEvent, this);
-
+	
 	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(OknoSim::OnPaint));
 
+	panel->SetDoubleBuffered(true);
 
 
-	seznamElementov.push_back({ 20,20,0 });
-	seznamElementov.push_back({ 180,540,1 });
-	seznamElementov.push_back({ 280,320,2 });
+	seznamElementov.push_back({ 220,20,0 });
+	seznamElementov.push_back({ 380,540,1 });
+	seznamElementov.push_back({ 480,320,2 });
 
 	seznamPovezav.push_back({ 0,0,1,0,0 });
 	seznamPovezav.push_back({ 0,1,2,0,0 });
@@ -45,26 +57,58 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 }
 
 
+void OknoSim::RefreshEvent(wxMouseEvent& evt) {
+
+	Refresh();
+}
+
 void OknoSim::OnMouseDownEvent(wxMouseEvent& evt) {
 
-	wxLogStatus("0");
+	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
+
+	if (mousePos.x < 200 && mousePos.y < 120 && choiceDod->GetSelection() >= 0) drzanje = true;
+
+
+	Refresh();
 }
 
 void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 
-	wxLogStatus("1");
+	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
+
+	if (drzanje && mousePos.x > 200) {
+
+		seznamElementov.push_back({ mousePos.x,mousePos.y,choiceDod->GetSelection() });
+	}
+	drzanje = false;
+
+	
+	Refresh();
 }
 
 void OknoSim::OnMouseDoubleEvent(wxMouseEvent& evt) {
 
-	wxLogStatus("2");
+	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
+
+	seznamElementov.push_back({ mousePos.x,mousePos.y,1 });
+
+	
+	Refresh();
 }
 
 
 void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 	wxPaintDC dc(this);
-	wxSize size = this->GetSize();
+	wxSize velikostOkna = this->GetSize();
+
+	//- IZRIS OKNA
+	dc.DrawRectangle(wxPoint(0, 30), wxSize(201, 120));
+	dc.DrawRectangle(wxPoint(200, 0), wxSize(velikostOkna.x - 200, velikostOkna.y));
+
+
+	//- IZRIS RISANJA POVEZAV
+
 
 	//- IZRIS POVEZAV
 	for (int i = 0; i < seznamPovezav.size(); i++) {
@@ -181,6 +225,15 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 		}
+	}
+
+
+	//- IZRIS DRZANJA ELEMENTA
+	if (drzanje) {
+
+		wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
+
+		dc.DrawRectangle(mousePos, wxSize(80, 50));
 	}
 
 	//- IZRIS ELEMENTOV
