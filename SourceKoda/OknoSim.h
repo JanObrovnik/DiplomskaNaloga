@@ -8,7 +8,9 @@ public:
 private:
 	void OnPaint(wxPaintEvent& evt);
 
-	void OnMouseEvent(wxMouseEvent& evt);
+	void OnMouseDownEvent(wxMouseEvent& evt);
+	void OnMouseUpEvent(wxMouseEvent& evt);
+	void OnMouseDoubleEvent(wxMouseEvent& evt);
 
 };
 
