@@ -27,14 +27,14 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 	
 	wxArrayString choices;
-	choices.Add("Pnevmaticni valj");
-	choices.Add("Vakumski prisesek");
-	choices.Add("Pnevmaticno prijemalo");
-	choices.Add("-");
-	choices.Add("Idealni kompresor");
-	choices.Add("Potni ventil");
+	choices.Add("Mikroprocesor");
+	choices.Add("Elektricna Crpalka");
+	choices.Add("Tlacna Posoda");
+	choices.Add("Prijemalo");
+	choices.Add("Prisesek");
 
 	choiceDod = new wxChoice(panel, wxID_ANY, wxPoint(5, 0), wxSize(190, -1), choices/*, wxCB_SORT*/);
+	choiceDod->SetSelection(0);
 
 
 	panel->Bind(wxEVT_MOTION, &OknoSim::RefreshEvent, this);
@@ -66,7 +66,7 @@ void OknoSim::OnMouseDownEvent(wxMouseEvent& evt) {
 
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 
-	if (mousePos.x < 200 && mousePos.y < 120 && choiceDod->GetSelection() >= 0) drzanje = true;
+	if (mousePos.x < 200 && mousePos.y < 240) drzanje = true;
 
 
 	Refresh();
@@ -78,7 +78,7 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 
 	if (drzanje && mousePos.x > 200) {
 
-		seznamElementov.push_back({ mousePos.x,mousePos.y,choiceDod->GetSelection() });
+		seznamElementov.push_back({ mousePos.x/10*10,mousePos.y/10*10,choiceDod->GetSelection() });
 	}
 	drzanje = false;
 
@@ -90,7 +90,7 @@ void OknoSim::OnMouseDoubleEvent(wxMouseEvent& evt) {
 
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 
-	seznamElementov.push_back({ mousePos.x,mousePos.y,1 });
+	seznamElementov.push_back({ mousePos.x/10*10,mousePos.y/10*10,choiceDod->GetSelection() });
 
 	
 	Refresh();
@@ -101,13 +101,97 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 	wxPaintDC dc(this);
 	wxSize velikostOkna = this->GetSize();
+	
 
 	//- IZRIS OKNA
-	dc.DrawRectangle(wxPoint(0, 30), wxSize(201, 120));
-	dc.DrawRectangle(wxPoint(200, 0), wxSize(velikostOkna.x - 200, velikostOkna.y));
+	int sirinaOrodja = 200;
+	int visinaOrodja = 240;
 
+	dc.DrawRectangle(wxPoint(0, 30), wxSize(sirinaOrodja + 1, visinaOrodja));
+	dc.DrawRectangle(wxPoint(sirinaOrodja, 0), wxSize(velikostOkna.x - sirinaOrodja, velikostOkna.y));
 
-	//- IZRIS RISANJA POVEZAV
+	
+	//- IZRIS PRIKAZA ELEMENTA
+	wxPoint predogled(10, 40);
+
+	if (drzanje) { 
+		predogled = this->ScreenToClient(wxGetMousePosition()); 
+		predogled.x = predogled.x / 10 * 10;
+		predogled.y = predogled.y / 10 * 10;
+	}
+	else if (choiceDod->GetSelection() == 0) { predogled.x = sirinaOrodja / 2 - 50; }
+	else if (choiceDod->GetSelection() == 1) { predogled.x = sirinaOrodja / 2 - 20; predogled.y += 34; }
+	else if (choiceDod->GetSelection() == 2) { predogled.x = sirinaOrodja / 2 - 60; }
+	else if (choiceDod->GetSelection() == 3) { predogled.x = sirinaOrodja / 2 - 45; }
+	else if (choiceDod->GetSelection() == 4) { predogled.x = sirinaOrodja / 2 - 40; predogled.y += 20; }
+		
+	
+	if (choiceDod->GetSelection() == 0) {
+		dc.DrawRectangle(predogled, wxSize(100, 140));
+		dc.DrawText("0", wxPoint(predogled.x + 88, predogled.y + 5));
+		dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 10), wxPoint(predogled.x + 110, predogled.y + 10));
+		dc.DrawText("1", wxPoint(predogled.x + 88, predogled.y + 20));
+		dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 25), wxPoint(predogled.x + 110, predogled.y + 25));
+		dc.DrawText("2", wxPoint(predogled.x + 88, predogled.y + 35));
+		dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 40), wxPoint(predogled.x + 110, predogled.y + 40));
+		dc.DrawText("3", wxPoint(predogled.x + 88, predogled.y + 50));
+		dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 55), wxPoint(predogled.x + 110, predogled.y + 55));
+		dc.DrawText("4", wxPoint(predogled.x + 88, predogled.y + 65));
+		dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 70), wxPoint(predogled.x + 110, predogled.y + 70));
+		dc.DrawText("5", wxPoint(predogled.x + 88, predogled.y + 80));
+		dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 85), wxPoint(predogled.x + 110, predogled.y + 85));
+		dc.DrawText("6", wxPoint(predogled.x + 88, predogled.y + 95));
+		dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 100), wxPoint(predogled.x + 110, predogled.y + 100));
+		dc.DrawText("7", wxPoint(predogled.x + 88, predogled.y + 110));
+		dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 115), wxPoint(predogled.x + 110, predogled.y + 115));
+	}
+	else if (choiceDod->GetSelection() == 1) {
+		wxPoint* t1 = new wxPoint(predogled.x, predogled.y);
+		wxPoint* t2 = new wxPoint(predogled.x + 40, predogled.y);
+		wxPoint* t3 = new wxPoint(predogled.x + 20, predogled.y - 34);
+
+		wxPointList* tocke = new wxPointList();
+		tocke->Append(t1);
+		tocke->Append(t2);
+		tocke->Append(t3);
+
+		dc.DrawPolygon(tocke);
+
+		dc.DrawLine(wxPoint(predogled.x + 10, predogled.y + 10), wxPoint(predogled.x + 10, predogled.y));
+	}
+	else if (choiceDod->GetSelection() == 2) {
+		dc.DrawRoundedRectangle(wxPoint(predogled.x, predogled.y), wxSize(120, 200), 6);
+		dc.DrawRectangle(wxPoint(predogled.x + 10, predogled.y + 199), wxSize(100, 21));
+		dc.DrawLine(wxPoint(predogled.x - 10, predogled.y + 20), wxPoint(predogled.x + 10, predogled.y + 20));
+
+		dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
+		dc.DrawLine(wxPoint(predogled.x - 10, predogled.y + 180), wxPoint(predogled.x + 10, predogled.y + 180));
+		dc.DrawLine(wxPoint(predogled.x + 110, predogled.y + 180), wxPoint(predogled.x + 130, predogled.y + 180));
+		dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+	}
+	else if (choiceDod->GetSelection() == 3) {
+		dc.DrawRectangle(wxPoint(predogled.x, predogled.y), wxSize(65, 50));
+		dc.DrawRectangle(wxPoint(predogled.x + 40, predogled.y), wxSize(50, 10));
+		dc.DrawRectangle(wxPoint(predogled.x + 40, predogled.y + 40), wxSize(50, 10));
+	}
+	else if (choiceDod->GetSelection() == 4) {
+		wxPoint* t1 = new wxPoint(predogled.x, predogled.y);
+		wxPoint* t2 = new wxPoint(predogled.x + 80, predogled.y);
+		wxPoint* t3 = new wxPoint(predogled.x + 70, predogled.y - 10);
+		wxPoint* t4 = new wxPoint(predogled.x + 10, predogled.y - 10);
+
+		wxPointList* tocke = new wxPointList();
+		tocke->Append(t1);
+		tocke->Append(t2);
+		tocke->Append(t3);
+		tocke->Append(t4);
+
+		dc.DrawPolygon(tocke);
+
+		dc.DrawLine(wxPoint(predogled.x + 40, predogled.y - 10), wxPoint(predogled.x + 40, predogled.y - 20));
+	}
+
+	//- IZRIS RISANJA POVEZAV /////////////
 
 
 	//- IZRIS POVEZAV
@@ -228,14 +312,6 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	}
 
 
-	//- IZRIS DRZANJA ELEMENTA
-	if (drzanje) {
-
-		wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
-
-		dc.DrawRectangle(mousePos, wxSize(80, 50));
-	}
-
 	//- IZRIS ELEMENTOV
 	for (int i = 0; i < seznamElementov.size(); i++) {
 		std::vector<int> xy = seznamElementov[i];
@@ -268,12 +344,22 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 		case 1:
 
-			dc.DrawLine(wxPoint(xy[0], xy[1]), wxPoint(xy[0] + 40, xy[1]));
-			dc.DrawLine(wxPoint(xy[0] + 40, xy[1]), wxPoint(xy[0] + 20, xy[1] - 34));
-			dc.DrawLine(wxPoint(xy[0] + 20, xy[1] - 34), wxPoint(xy[0], xy[1]));
-			dc.DrawLine(wxPoint(xy[0] + 10, xy[1] + 10), wxPoint(xy[0] + 10, xy[1]));
+			if (true) {
+				wxPoint* t1 = new wxPoint(xy[0], xy[1]);
+				wxPoint* t2 = new wxPoint(xy[0] + 40, xy[1]);
+				wxPoint* t3 = new wxPoint(xy[0] + 20, xy[1] - 34);
 
-			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1] - 50));
+				wxPointList* tocke = new wxPointList();
+				tocke->Append(t1);
+				tocke->Append(t2);
+				tocke->Append(t3);
+
+				dc.DrawPolygon(tocke);
+
+				dc.DrawLine(wxPoint(xy[0] + 10, xy[1] + 10), wxPoint(xy[0] + 10, xy[1]));
+
+				dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1] - 50));
+			}
 
 			break;
 
@@ -295,13 +381,34 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 		case 3:
 
+			dc.DrawRectangle(wxPoint(xy[0], xy[1]), wxSize(65, 50));
+			dc.DrawRectangle(wxPoint(xy[0] + 40, xy[1]), wxSize(50, 10));
+			dc.DrawRectangle(wxPoint(xy[0] + 40, xy[1] + 40), wxSize(50, 10));
 
+			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1] - 16));
 
 			break;
 
 		case 4:
 
+			if (true) {
+				wxPoint* t1 = new wxPoint(xy[0], xy[1]);
+				wxPoint* t2 = new wxPoint(xy[0] + 80, xy[1]);
+				wxPoint* t3 = new wxPoint(xy[0] + 70, xy[1] - 10);
+				wxPoint* t4 = new wxPoint(xy[0] + 10, xy[1] - 10);
 
+				wxPointList* tocke = new wxPointList();
+				tocke->Append(t1);
+				tocke->Append(t2);
+				tocke->Append(t3);
+				tocke->Append(t4);
+
+				dc.DrawPolygon(tocke);
+
+				dc.DrawLine(wxPoint(xy[0] + 40, xy[1] - 10), wxPoint(xy[0] + 40, xy[1] - 20));
+
+				dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1]));
+			}
 
 			break;
 
@@ -310,6 +417,8 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 			dc.DrawRectangle(wxPoint(xy[0], xy[1]), wxSize(80, 50));
 			dc.DrawText("Neznan \nelement", wxPoint(xy[0] + 18, xy[1] + 10));
+
+			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1] - 16));
 
 			break;
 		}
