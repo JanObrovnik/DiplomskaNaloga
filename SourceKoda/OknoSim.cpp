@@ -64,8 +64,8 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamPovezav.push_back({ 0,0,1,0,0 });
 	seznamPovezav.push_back({ 0,1,2,0,0 });
 	seznamPovezav.push_back({ 1,1,2,1,1 });
-	seznamPovezav.push_back({ 2,2,3,0,1 });
-	seznamPovezav.push_back({ 2,2,4,0,1 });
+	seznamPovezav.push_back({ 2,2,3,1,1 });
+	seznamPovezav.push_back({ 2,2,4,1,1 });
 }
 
 
@@ -91,49 +91,116 @@ void OknoSim::OnMouseDownEvent(wxMouseEvent& evt) {
 	else if (mousePos.x > 200) {
 
 		for (int i = 0; i < seznamElementov.size(); i++) {
+			int vrst = seznamPovezav[seznamPovezav.size() - 1][4];
 
-			if (seznamElementov[i][2] == 0 && mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 100 && mousePos.y > seznamElementov[i][1] && mousePos.y < seznamElementov[i][1] + 140) { 
-				if (izbranElement == i) izbranElement = -1;
-				else {
-					izbranElement = i;
-					drzanjeElementa = true;
+			if (seznamElementov[i][2] == 0) {
+				if (drzanjePovezav > 0) {
+					if (mousePos.x > seznamElementov[i][0] + 100 && mousePos.x < seznamElementov[i][0] + 115 && mousePos.y > seznamElementov[i][1] + 5 && mousePos.y < seznamElementov[i][1] + 15) { 
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 0; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; }
+					else if (mousePos.x > seznamElementov[i][0] + 100 && mousePos.x < seznamElementov[i][0] + 115 && mousePos.y > seznamElementov[i][1] + 20 && mousePos.y < seznamElementov[i][1] + 30) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 1; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; }
+					else if (mousePos.x > seznamElementov[i][0] + 100 && mousePos.x < seznamElementov[i][0] + 115 && mousePos.y > seznamElementov[i][1] + 35 && mousePos.y < seznamElementov[i][1] + 45) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 2; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++;	}
+					else if (mousePos.x > seznamElementov[i][0] + 100 && mousePos.x < seznamElementov[i][0] + 115 && mousePos.y > seznamElementov[i][1] + 50 && mousePos.y < seznamElementov[i][1] + 60) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 3; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; }
+					else if (mousePos.x > seznamElementov[i][0] + 100 && mousePos.x < seznamElementov[i][0] + 115 && mousePos.y > seznamElementov[i][1] + 65 && mousePos.y < seznamElementov[i][1] + 75) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 4; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; }
+					else if (mousePos.x > seznamElementov[i][0] + 100 && mousePos.x < seznamElementov[i][0] + 115 && mousePos.y > seznamElementov[i][1] + 80 && mousePos.y < seznamElementov[i][1] + 90) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 5; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; }
+					else if (mousePos.x > seznamElementov[i][0] + 100 && mousePos.x < seznamElementov[i][0] + 115 && mousePos.y > seznamElementov[i][1] + 95 && mousePos.y < seznamElementov[i][1] + 105) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 6; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; }
+					else if (mousePos.x > seznamElementov[i][0] + 100 && mousePos.x < seznamElementov[i][0] + 115 && mousePos.y > seznamElementov[i][1] + 110 && mousePos.y < seznamElementov[i][1] + 120) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 7; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; }
+					else if (mousePos.x > seznamElementov[i][0] + 100 && mousePos.x < seznamElementov[i][0] + 115 && mousePos.y > seznamElementov[i][1] + 125 && mousePos.y < seznamElementov[i][1] + 135) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 8; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; }
+				}
+				else if (mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 100 && mousePos.y > seznamElementov[i][1] && mousePos.y < seznamElementov[i][1] + 140) {
+					if (izbranElement == i) izbranElement = -1;
+					else {
+						izbranElement = i;
+						drzanjeElementa = true;
+					}
 				}
 			}
-			else if (seznamElementov[i][2] == 1 && mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 40 && mousePos.y > seznamElementov[i][1] - 34 && mousePos.y < seznamElementov[i][1]) { 
-				if (izbranElement == i) izbranElement = -1;		
-				else {
-					izbranElement = i;
-					drzanjeElementa = true;
+			else if (seznamElementov[i][2] == 1) { 
+				if (drzanjePovezav > 0) {
+					if (mousePos.x > seznamElementov[i][0] + 5 && mousePos.x < seznamElementov[i][0] + 15 && mousePos.y > seznamElementov[i][1] + 5 && mousePos.y < seznamElementov[i][1] + 15) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 0; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; }
+					else if (mousePos.x > seznamElementov[i][0] + 15 && mousePos.x < seznamElementov[i][0] + 25 && mousePos.y > seznamElementov[i][1] - 39 && mousePos.y < seznamElementov[i][1] - 29) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 1; seznamPovezav[seznamPovezav.size() - 1][4] = 1; drzanjePovezav++; }
+				}
+				else if (mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 40 && mousePos.y > seznamElementov[i][1] - 34 && mousePos.y < seznamElementov[i][1]) {
+					if (izbranElement == i) izbranElement = -1;
+					else {
+						izbranElement = i;
+						drzanjeElementa = true;
+					}
 				}
 			}
-			else if (seznamElementov[i][2] == 2 && mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 120 && mousePos.y > seznamElementov[i][1] && mousePos.y < seznamElementov[i][1] + 200) {
-				if (izbranElement == i) izbranElement = -1;
-				else {
-					izbranElement = i;
-					drzanjeElementa = true;
+			else if (seznamElementov[i][2] == 2) {
+				if (drzanjePovezav > 0) {
+					if (mousePos.x > seznamElementov[i][0] - 15 && mousePos.x < seznamElementov[i][0] - 5 && mousePos.y > seznamElementov[i][1] + 15 && mousePos.y < seznamElementov[i][1] + 25) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 0; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; }
+					else if (mousePos.x > seznamElementov[i][0] - 15 && mousePos.x < seznamElementov[i][0] - 5 && mousePos.y > seznamElementov[i][1] + 175 && mousePos.y < seznamElementov[i][1] + 185) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 1; seznamPovezav[seznamPovezav.size() - 1][4] = 1; drzanjePovezav++; }
+					else if (mousePos.x > seznamElementov[i][0] + 115 && mousePos.x < seznamElementov[i][0] + 125 && mousePos.y > seznamElementov[i][1] + 175 && mousePos.y < seznamElementov[i][1] + 185) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 2; seznamPovezav[seznamPovezav.size() - 1][4] = 1; drzanjePovezav++; }
+				}
+				else if (mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 120 && mousePos.y > seznamElementov[i][1] && mousePos.y < seznamElementov[i][1] + 200) {
+					if (izbranElement == i) izbranElement = -1;
+					else {
+						izbranElement = i;
+						drzanjeElementa = true;
+					}
 				}
 			}
-			else if (seznamElementov[i][2] == 3 && mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 90 && mousePos.y > seznamElementov[i][1] && mousePos.y < seznamElementov[i][1] + 50) { 
-				if (izbranElement == i) izbranElement = -1;			
-				else {
-					izbranElement = i;
-					drzanjeElementa = true;
+			else if (seznamElementov[i][2] == 3) { 
+				if (drzanjePovezav > 0) {
+					if (mousePos.x > seznamElementov[i][0] - 15 && mousePos.x < seznamElementov[i][0] - 5 && mousePos.y > seznamElementov[i][1] + 5 && mousePos.y < seznamElementov[i][1] + 15) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 0; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; }
+					else if (mousePos.x > seznamElementov[i][0] - 15 && mousePos.x < seznamElementov[i][0] - 5 && mousePos.y > seznamElementov[i][1] + 35 && mousePos.y < seznamElementov[i][1] + 45) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 1; seznamPovezav[seznamPovezav.size() - 1][4] = 1; drzanjePovezav++; }
+				}
+				else if (mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 90 && mousePos.y > seznamElementov[i][1] && mousePos.y < seznamElementov[i][1] + 50) {
+					if (izbranElement == i) izbranElement = -1;
+					else {
+						izbranElement = i;
+						drzanjeElementa = true;
+					}
 				}
 			}
-			else if (seznamElementov[i][2] == 4 && mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 80 && mousePos.y > seznamElementov[i][1] - 20 && mousePos.y < seznamElementov[i][1]) { 
-				if (izbranElement == i) izbranElement = -1;		
-				else {
-					izbranElement = i;
-					drzanjeElementa = true;
+			else if (seznamElementov[i][2] == 4) { 
+				if (drzanjePovezav > 0) {
+					if (mousePos.x > seznamElementov[i][0] - 15 && mousePos.x < seznamElementov[i][0] - 5 && mousePos.y > seznamElementov[i][1] + 15 && mousePos.y < seznamElementov[i][1] + 25) {
+						/*seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 0; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; */}
+					else if (mousePos.x > seznamElementov[i][0] - 15 && mousePos.x < seznamElementov[i][0] - 5 && mousePos.y > seznamElementov[i][1] + 175 && mousePos.y < seznamElementov[i][1] + 185) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 1; seznamPovezav[seznamPovezav.size() - 1][4] = 1; drzanjePovezav++; }
+				}
+				else if (mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 80 && mousePos.y > seznamElementov[i][1] - 20 && mousePos.y < seznamElementov[i][1]) {
+					if (izbranElement == i) izbranElement = -1;
+					else {
+						izbranElement = i;
+						drzanjeElementa = true;
+					}
 				}
 			}
-			else if (seznamElementov[i][2] > 4 && mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 80 && mousePos.y > seznamElementov[i][1] && mousePos.y < seznamElementov[i][1] + 50) { 
-				if (izbranElement == i) izbranElement = -1;			
-				else {
-					izbranElement = i;
-					drzanjeElementa = true;
+			else {
+				if (mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 80 && mousePos.y > seznamElementov[i][1] && mousePos.y < seznamElementov[i][1] + 50) {
+					if (izbranElement == i) izbranElement = -1;
+					else {
+						izbranElement = i;
+						drzanjeElementa = true;
+					}
 				}
 			}
+			if (drzanjePovezav == 3 && seznamPovezav[seznamPovezav.size() - 1][4] != vrst) {
+				seznamPovezav.erase(seznamPovezav.begin() + seznamPovezav.size() - 1);
+				drzanjePovezav = 0;
+			}
+		}
+		if (drzanjePovezav == 3) {
+			seznamPovezav.push_back({ -1,-1,-1,-1,-1 });
+			drzanjePovezav = 1;
 		}
 	}
 
@@ -178,12 +245,18 @@ void OknoSim::OnRisanjePovezavClicked(wxCommandEvent& evt) {
 
 	if (drzanjePovezav == 0) {
 
+		seznamPovezav.push_back({ -1,-1,-1,-1,-1 });
 
 		drzanjePovezav = 1;
 	}
 	else {
+
+		seznamPovezav.erase(seznamPovezav.begin() + seznamPovezav.size() - 1);
+
 		drzanjePovezav = 0;
 	}
+
+	Refresh();
 }
 
 
@@ -192,6 +265,9 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	wxPaintDC dc(this);
 	wxSize velikostOkna = this->GetSize();
 	
+	if (true) { // ADMIN LOGS
+		for (int i = 0; i < seznamPovezav.size(); i++) dc.DrawText(wxString::Format("%d | %d | %d | %d | %d", seznamPovezav[i][0], seznamPovezav[i][1], seznamPovezav[i][2], seznamPovezav[i][3], seznamPovezav[i][4]), wxPoint(20, 400 + 12 * i));
+	}
 
 	//- IZRIS OKNA
 	int sirinaOrodja = 200;
@@ -302,7 +378,10 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 
 	//- IZRIS POVEZAV
-	for (int i = 0; i < seznamPovezav.size(); i++) {
+	int st = seznamPovezav.size();
+	if (drzanjePovezav > 0) st--;
+
+	for (int i = 0; i < st; i++) {
 
 		wxPoint tocka1(0, 0);
 		tocka1.x = seznamElementov[seznamPovezav[i][0]][0];
@@ -349,6 +428,10 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 			if (seznamPovezav[i][1] == 0) {
 				tocka1.x -= 10;
+				tocka1.y += 10;
+			}
+			else if (seznamPovezav[i][1] == 1) {
+				tocka1.x -= 10;
 				tocka1.y += 40;
 			}
 
@@ -356,7 +439,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 		case 4:
 
-			if (seznamPovezav[i][1] == 0) {
+			if (seznamPovezav[i][1] == 1) {
 				tocka1.x += 40;
 				tocka1.y -= 20;
 			}
@@ -414,6 +497,10 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 			if (seznamPovezav[i][3] == 0) {
 				tocka2.x -= 10;
+				tocka2.y += 10;
+			}
+			else if (seznamPovezav[i][3] == 1) {
+				tocka2.x -= 10;
 				tocka2.y += 40;
 			}
 
@@ -421,7 +508,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 		case 4:
 
-			if (seznamPovezav[i][3] == 0) {
+			if (seznamPovezav[i][3] == 1) {
 				tocka2.x += 40;
 				tocka2.y -= 20;
 			}
@@ -453,7 +540,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 		}
 	}
-
+	
 
 	//- IZRIS ELEMENTOV
 	for (int i = 0; i < seznamElementov.size(); i++) {
