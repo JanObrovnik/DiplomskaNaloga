@@ -14,5 +14,7 @@ private:
 	void OnMouseUpEvent(wxMouseEvent& evt);
 	void OnMouseDoubleEvent(wxMouseEvent& evt);
 
+	void OnRisanjePovezavClicked(wxCommandEvent& evt);
+
 };
 
