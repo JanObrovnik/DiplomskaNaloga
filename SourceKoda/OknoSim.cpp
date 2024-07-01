@@ -381,22 +381,9 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 		dc.DrawLine(wxPoint(predogled.x + 40, predogled.y - 10), wxPoint(predogled.x + 40, predogled.y - 20));
 	}
 
-/*	//- IZRIS RISANJA POVEZAV /////////////
-	if (drzanjePovezav == 2) {
-		if (seznamPovezav[seznamPovezav.size()][4] == 0) dc.SetPen(wxPen(wxColour(153, 153, 153), 1, wxPENSTYLE_SOLID));
-		else if (seznamPovezav[seznamPovezav.size()][4] == 1) dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
-
-		wxPoint povPos = wxPoint();
-		dc.DrawLine(povPos, mousePos);
-
-
-	}*/
 
 	//- IZRIS POVEZAV
-	int st = seznamPovezav.size();
-	//if (drzanjePovezav > 0) st--;
-
-	for (int i = 0; i < st; i++) {
+	for (int i = 0; i < seznamPovezav.size(); i++) {
 
 		wxPoint tocka1(0, 0);
 		if (drzanjePovezav != 1 || i < seznamPovezav.size() - 1) {
@@ -580,6 +567,23 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1] - 16));
 
+			if (drzanjePovezav > 0) {
+				dc.SetPen(wxPen(wxColour(51, 51, 153), 1, wxPENSTYLE_SOLID));
+				dc.SetBrush(wxBrush(wxColour(153, 153, 255), wxBRUSHSTYLE_SOLID));
+
+				dc.DrawRectangle(wxPoint(xy[0] + 105, xy[1] + 5), wxSize(10, 10));
+				dc.DrawRectangle(wxPoint(xy[0] + 105, xy[1] + 20), wxSize(10, 10));
+				dc.DrawRectangle(wxPoint(xy[0] + 105, xy[1] + 35), wxSize(10, 10));
+				dc.DrawRectangle(wxPoint(xy[0] + 105, xy[1] + 50), wxSize(10, 10));
+				dc.DrawRectangle(wxPoint(xy[0] + 105, xy[1] + 65), wxSize(10, 10));
+				dc.DrawRectangle(wxPoint(xy[0] + 105, xy[1] + 80), wxSize(10, 10));
+				dc.DrawRectangle(wxPoint(xy[0] + 105, xy[1] + 95), wxSize(10, 10));
+				dc.DrawRectangle(wxPoint(xy[0] + 105, xy[1] + 110), wxSize(10, 10));
+
+				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+				dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
+			}
+
 			break;
 
 		case 1:
@@ -599,6 +603,21 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 				dc.DrawLine(wxPoint(xy[0] + 10, xy[1] + 10), wxPoint(xy[0] + 10, xy[1]));
 
 				dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1] - 50));
+
+				if (drzanjePovezav > 0) {
+					dc.SetPen(wxPen(wxColour(51, 51, 153), 1, wxPENSTYLE_SOLID));
+					dc.SetBrush(wxBrush(wxColour(153, 153, 255), wxBRUSHSTYLE_SOLID));
+
+					dc.DrawRectangle(wxPoint(xy[0] + 5, xy[1] + 5), wxSize(10, 10));
+
+					dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
+					dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
+
+					dc.DrawRectangle(wxPoint(xy[0] + 15, xy[1] - 39), wxSize(10, 10));
+
+					dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+					dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
+				}
 			}
 
 			break;
@@ -610,12 +629,29 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 			dc.DrawLine(wxPoint(xy[0] - 10, xy[1] + 20), wxPoint(xy[0] + 10, xy[1] + 20));
 
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
+
 			dc.DrawLine(wxPoint(xy[0] - 10, xy[1] + 180), wxPoint(xy[0] + 10, xy[1] + 180));
 			dc.DrawLine(wxPoint(xy[0] + 110, xy[1] + 180), wxPoint(xy[0] + 130, xy[1] + 180));
+
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
-
 			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1] - 16));
+
+			if (drzanjePovezav > 0) {
+				dc.SetPen(wxPen(wxColour(51, 51, 153), 1, wxPENSTYLE_SOLID));
+				dc.SetBrush(wxBrush(wxColour(153, 153, 255), wxBRUSHSTYLE_SOLID));
+
+				dc.DrawRectangle(wxPoint(xy[0] - 15, xy[1] + 15), wxSize(10, 10));
+
+				dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
+				dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
+
+				dc.DrawRectangle(wxPoint(xy[0] - 15, xy[1] + 175), wxSize(10, 10));
+				dc.DrawRectangle(wxPoint(xy[0] + 125, xy[1] + 175), wxSize(10, 10));
+
+				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+				dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
+			}
 
 			break;
 
@@ -634,6 +670,21 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
 			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1] - 16));
+
+			if (drzanjePovezav > 0) {
+				dc.SetPen(wxPen(wxColour(51, 51, 153), 1, wxPENSTYLE_SOLID));
+				dc.SetBrush(wxBrush(wxColour(153, 153, 255), wxBRUSHSTYLE_SOLID));
+
+				dc.DrawRectangle(wxPoint(xy[0] - 15, xy[1] + 5), wxSize(10, 10));
+
+				dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
+				dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
+
+				dc.DrawRectangle(wxPoint(xy[0] - 15, xy[1] + 35), wxSize(10, 10));
+
+				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+				dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
+			}
 
 			break;
 
@@ -660,6 +711,16 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
 				dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1]));
+
+				if (drzanjePovezav > 0) {
+					dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
+					dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
+
+					dc.DrawRectangle(wxPoint(xy[0] + 35, xy[1] - 25), wxSize(10, 10));
+
+					dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+					dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
+				}
 			}
 
 			break;
