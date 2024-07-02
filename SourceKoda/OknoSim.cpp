@@ -9,19 +9,49 @@
 #include <fstream>
 
 
+std::vector<double> IzracunTlacnePosode(std::vector<double> pogojiOkolja, std::vector<double> seznamLastnosti, std::vector<double> seznamResitev, std::vector<double> prikljucki) {
+
+	double R = 287; // Masna plinska konstanta [J/kgK]
+	double T = pogojiOkolja[1]; // Temperatura zraka [K]
+	double V = seznamLastnosti[0]; // Volumen tlacne posode [m^3]
+	double m = seznamResitev[1]; // Masa zraka v tlacni posodi [kg]
+
+	double p = m * R * T / V; // Tlak v tlacni posodi [Pa]
+
+	for (int i = 0; i < prikljucki.size(); i++) {
+		//if (p < prikljucki[i])
+	}
+
+
+	return(seznamResitev);
+}
+
+
 
 bool drzanje = false;
 bool drzanjeElementa = false;
 int casDrzanja = 0;
 short drzanjePovezav = 0;
 short izbranElement = -1;
+
+std::vector<double> pogojiOkolja;
+// [tlak ozracja, temperatura ozracja]
  
 std::vector<std::vector<int>> seznamElementov;
+// [x, y, element]
 std::vector<std::vector<double>> seznamLastnosti;
+// mikroprocesor []
+// tlacna crpalka []
+// tlacna posoda [volumen]
 std::vector<std::vector<double>> seznamResitevReset;
+// mikroprocesor [delovanje0 (0/1), delovanje1(0/1), delovanje2(0/1), delovanje3(0/1), delovanje4(0/1), delovanje5(0/1), delovanje6(0/1), delovanje7(0/1)]
+// tlacna crpalka [delovanje (0/1), masni_tok]
+// tlacna posoda [tlak, masa_zraka]
 std::vector<std::vector<double>> seznamResitev;
+// seznamResitev = seznamResitevReset
 
 std::vector<std::vector<int>> seznamPovezav;
+// [element1, prikljucen1, element2, prikljucek2, kabl/cev (0/1)]
 
 wxChoice* choiceDod;
 
@@ -43,6 +73,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	choiceDod->SetSelection(0);
 
 
+	panel->Bind(wxEVT_SIZE, &OknoSim::OnSizeChanged, this);
 	panel->Bind(wxEVT_MOTION, &OknoSim::RefreshEvent, this);
 	panel->Bind(wxEVT_LEFT_DOWN, &OknoSim::OnMouseDownEvent, this);
 	panel->Bind(wxEVT_LEFT_UP, &OknoSim::OnMouseUpEvent, this);
@@ -54,11 +85,28 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	panel->SetDoubleBuffered(true);
 
 
+	pogojiOkolja.push_back(101350);
+	pogojiOkolja.push_back(293);
+
+
 	seznamElementov.push_back({ 220,20,0 });
 	seznamElementov.push_back({ 380,540,1 });
 	seznamElementov.push_back({ 480,320,2 });
 	seznamElementov.push_back({ 700,350,3 });
 	seznamElementov.push_back({ 700,500,4 });
+
+	seznamLastnosti.push_back({});
+	seznamLastnosti.push_back({});
+	seznamLastnosti.push_back({2});
+	seznamLastnosti.push_back({});
+	seznamLastnosti.push_back({});
+
+	seznamResitevReset.push_back({ 0,0 });
+	seznamResitevReset.push_back({ 0,0 });
+	seznamResitevReset.push_back({ 0,0 });
+	seznamResitevReset.push_back({ 0,0 });
+	seznamResitevReset.push_back({ 0,0 });
+	seznamResitev = seznamResitevReset;
 
 
 	seznamPovezav.push_back({ 0,0,1,0,0 });
@@ -68,6 +116,11 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamPovezav.push_back({ 2,2,4,1,1 });
 }
 
+
+void OknoSim::OnSizeChanged(wxSizeEvent& evt) {
+
+	Refresh();
+}
 
 void OknoSim::RefreshEvent(wxMouseEvent& evt) {
 
@@ -92,6 +145,7 @@ void OknoSim::OnMouseDownEvent(wxMouseEvent& evt) {
 
 		for (int i = 0; i < seznamElementov.size(); i++) {
 			int vrst = seznamPovezav[seznamPovezav.size() - 1][4];
+			//bool el = false;
 
 			if (seznamElementov[i][2] == 0) {
 				if (drzanjePovezav > 0) {
@@ -198,6 +252,9 @@ void OknoSim::OnMouseDownEvent(wxMouseEvent& evt) {
 				drzanjePovezav = 0;
 			}
 		}
+		if (drzanjeElementa == false) {
+			izbranElement = -1;
+		}
 		if (drzanjePovezav == 3) {
 			seznamPovezav.push_back({ -1,-1,-1,-1,-1 });
 			drzanjePovezav = 1;
@@ -215,7 +272,8 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 
 	if (drzanje && mousePos.x > 200) {
 
-		seznamElementov.push_back({ mousePos.x/10*10,mousePos.y/10*10,choiceDod->GetSelection() });
+		seznamElementov.push_back({ mousePos.x / 10 * 10,mousePos.y / 10 * 10,choiceDod->GetSelection() });
+		seznamResitevReset.push_back({ 0 });
 	}
 	else if (izbranElement >= 0 && casDrzanja > 2 && mousePos.x > 200 && drzanjeElementa) {
 
@@ -237,8 +295,32 @@ void OknoSim::OnMouseDoubleEvent(wxMouseEvent& evt) {
 
 	if (izbranElement >= 0) {
 
-		seznamPovezav.erase(seznamPovezav.begin() + seznamPovezav.size() - 1);
-		drzanjePovezav = 0;
+		if (drzanjePovezav > 0) {
+			seznamPovezav.erase(seznamPovezav.begin() + seznamPovezav.size() - 1);
+			drzanjePovezav = 0;
+		}
+
+
+		if (izbranElement == 0) {
+			NastavitevMikroProcesorja* procNast = new NastavitevMikroProcesorja();
+			procNast->Show();
+		}
+		else if (izbranElement == 1) {
+			NastavitevCrpalke* crpNast = new NastavitevCrpalke();
+			crpNast->Show();
+		}
+		else if (izbranElement == 2) {
+			NastavitevTlacnePosode* posNast = new NastavitevTlacnePosode();
+			posNast->Show();
+		}
+		else if (izbranElement == 3) {
+			NastavitevPrijemalke* prijNast = new NastavitevPrijemalke();
+			prijNast->Show();
+		}
+		else if (izbranElement == 4) {
+			NastavitevPriseska* prisNast = new NastavitevPriseska();
+			prisNast->Show();
+		}
 	}
 
 	
@@ -246,7 +328,7 @@ void OknoSim::OnMouseDoubleEvent(wxMouseEvent& evt) {
 }
 
 void OknoSim::OnRisanjePovezavClicked(wxCommandEvent& evt) {
-
+	
 	izbranElement = -1;
 
 	if (drzanjePovezav == 0) {
@@ -273,7 +355,8 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 	
 	if (true) { // ADMIN LOGS
-		for (int i = 0; i < seznamPovezav.size(); i++) dc.DrawText(wxString::Format("%d | %d | %d | %d | %d", seznamPovezav[i][0], seznamPovezav[i][1], seznamPovezav[i][2], seznamPovezav[i][3], seznamPovezav[i][4]), wxPoint(20, 400 + 12 * i));
+		for (int i = 0; i < seznamPovezav.size(); i++) dc.DrawText(wxString::Format("%d | %d | %d | %d | %d", seznamPovezav[i][0], seznamPovezav[i][1], seznamPovezav[i][2], seznamPovezav[i][3], seznamPovezav[i][4]), wxPoint(5, 400 + 12 * i));
+		for (int i = 0; i < seznamResitev.size(); i++) dc.DrawText(wxString::Format("%g | %g", seznamResitev[i][0], seznamResitev[i][0]), wxPoint(100, 400 + 12 * i));
 	}
 
 	//- IZRIS OKNA
@@ -736,4 +819,171 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 			break;
 		}
 	}
+}
+
+
+
+NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Mikro Procesorja"), wxPoint(0, 0), wxSize(360, 300)) {
+
+	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
+
+	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10,230), wxDefaultSize);
+
+
+	apply->Bind(wxEVT_BUTTON, &NastavitevMikroProcesorja::OnApplyClicked, this);
+
+	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevMikroProcesorja::OnPaint));
+}
+
+
+void NastavitevMikroProcesorja::OnApplyClicked(wxCommandEvent& evt) {
+
+}
+
+
+void NastavitevMikroProcesorja::OnPaint(wxPaintEvent& evt) {
+
+	wxPaintDC dc(this);
+	wxSize velikostOkna = this->GetSize();
+	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
+
+
+	for (int i = 0; i < 8; i++) {
+		short najdena = 0;
+		for(int j = 0; j < seznamPovezav.size(); j++) {
+			if (seznamPovezav[j][0] == izbranElement && seznamPovezav[j][1] == i) {
+				
+				if (seznamElementov[seznamPovezav[j][2]][2] == 2) dc.DrawText(wxString::Format("%d: Branje", i), wxPoint(5, 5 + 15 * i));
+				else if (seznamElementov[seznamPovezav[j][2]][2] == 1) dc.DrawText(wxString::Format("%d: Pisanje", i), wxPoint(5, 5 + 15 * i));
+				else dc.DrawText(wxString::Format("%d: /", i), wxPoint(5, 5 + 15 * i));
+				
+			}
+			else if (seznamPovezav[j][2] == izbranElement && seznamPovezav[j][3] == i) {
+				
+				if (seznamElementov[seznamPovezav[j][0]][2] == 2) dc.DrawText(wxString::Format("%d: Branje", i), wxPoint(5, 5 + 15 * i));
+				else if (seznamElementov[seznamPovezav[j][0]][2] == 1) dc.DrawText(wxString::Format("%d: Pisanje", i), wxPoint(5, 5 + 15 * i));
+				else dc.DrawText(wxString::Format("%d: /", i), wxPoint(5, 5 + 15 * i));
+				
+			}
+			else najdena++;
+		}
+		if (najdena == seznamPovezav.size()) dc.DrawText(wxString::Format("%d: -", i), wxPoint(5, 5 + 15 * i));
+	}
+}
+
+
+
+wxSpinCtrlDouble* masTokCrpalke;
+
+NastavitevCrpalke::NastavitevCrpalke() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Crpalke"), wxPoint(0, 0), wxSize(360, 300)) {
+
+	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
+
+	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
+
+	masTokCrpalke = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(100, 5), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 20, 0, .1);
+
+
+	apply->Bind(wxEVT_BUTTON, &NastavitevCrpalke::OnApplyClicked, this);
+
+	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevCrpalke::OnPaint));
+}
+
+
+void NastavitevCrpalke::OnApplyClicked(wxCommandEvent& evt) {
+
+	seznamResitevReset[izbranElement][1] = masTokCrpalke->GetValue();
+	seznamResitev = seznamResitevReset;
+}
+
+
+void NastavitevCrpalke::OnPaint(wxPaintEvent& evt) {
+
+	wxPaintDC dc(this);
+	wxSize velikostOkna = this->GetSize();
+	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
+
+
+	dc.DrawText("Masni tok: ", wxPoint(5, 5));
+}
+
+
+
+NastavitevTlacnePosode::NastavitevTlacnePosode() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Tlacne posode"), wxPoint(0, 0), wxSize(360, 300)) {
+
+	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
+
+	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
+
+
+	apply->Bind(wxEVT_BUTTON, &NastavitevTlacnePosode::OnApplyClicked, this);
+
+	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevTlacnePosode::OnPaint));
+}
+
+
+void NastavitevTlacnePosode::OnApplyClicked(wxCommandEvent& evt) {
+
+}
+
+
+void NastavitevTlacnePosode::OnPaint(wxPaintEvent& evt) {
+
+	wxPaintDC dc(this);
+	wxSize velikostOkna = this->GetSize();
+	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
+}
+
+
+
+NastavitevPrijemalke::NastavitevPrijemalke() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve prijemalke"), wxPoint(0, 0), wxSize(360, 300)) {
+
+	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
+
+	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
+
+
+	apply->Bind(wxEVT_BUTTON, &NastavitevPrijemalke::OnApplyClicked, this);
+
+	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevPrijemalke::OnPaint));
+}
+
+
+void NastavitevPrijemalke::OnApplyClicked(wxCommandEvent& evt) {
+
+}
+
+
+void NastavitevPrijemalke::OnPaint(wxPaintEvent& evt) {
+
+	wxPaintDC dc(this);
+	wxSize velikostOkna = this->GetSize();
+	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
+}
+
+
+
+NastavitevPriseska::NastavitevPriseska() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve priseska"), wxPoint(0, 0), wxSize(360, 300)) {
+
+	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
+
+	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
+
+
+	apply->Bind(wxEVT_BUTTON, &NastavitevPriseska::OnApplyClicked, this);
+
+	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevPriseska::OnPaint));
+}
+
+
+void NastavitevPriseska::OnApplyClicked(wxCommandEvent& evt) {
+
+}
+
+
+void NastavitevPriseska::OnPaint(wxPaintEvent& evt) {
+
+	wxPaintDC dc(this);
+	wxSize velikostOkna = this->GetSize();
+	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 }
