@@ -9,7 +9,27 @@
 #include <fstream>
 #include <numeric>
 
-// prikljucki: pi: tlak
+
+/*std::vector<double> IzracunPovezav(std::vector<double> pogojiOkolja, std::vector<std::vector<double>> seznamLastnosti, std::vector<std::vector<double>> seznamResitev, std::vector<std::vector<int>> seznamPovezav) {
+
+	double pi = 3.1415926535;
+
+	double R = 287; // Masna plinska konstanta [J/kgK]
+	double T = pogojiOkolja[1]; // Temperatura zraka [K]
+	double gama = 1.4; // Razmerje sprecificnih toplot [/]
+	double C = .6; // Koeficient prretoka [/]
+	double d = .01; // Premer cevi [m]
+	double A = pi * d * d / 4; // Prerez cevi [m^2]
+
+	for (int i = 0; i < seznamPovezav.size(); i++) {
+		if (seznamPovezav[i][4] == 1) {
+
+
+		}
+	}
+}
+
+// prikljucki: pi: masni tok
 std::vector<double> IzracunTlacnePosode(std::vector<double> pogojiOkolja, std::vector<double> seznamLastnosti, std::vector<double> seznamResitev, std::vector<double> prikljucki) {
 
 	double R = 287; // Masna plinska konstanta [J/kgK]
@@ -19,13 +39,98 @@ std::vector<double> IzracunTlacnePosode(std::vector<double> pogojiOkolja, std::v
 
 	double p = m * R * T / V; // Tlak v tlacni posodi [Pa]
 
-	//double md = std::accumulate(prikljucki.begin(), prikljucki.end(), 0);
-	for (int i = 0; i < prikljucki.size(); i++) {
+	double md = std::accumulate(prikljucki.begin(), prikljucki.end(), 0);
 
-	}
 
 
 	return(seznamResitev);
+}*/
+
+
+std::vector<std::vector<double>> IzracunMase(std::vector<double> pogojiOkolja, std::vector<std::vector<double>> seznamResitevReset) {
+
+	double R = pogojiOkolja[2];
+	double T = pogojiOkolja[1];
+
+	for (int i = 0; i < seznamResitevReset.size(); i++) if (seznamResitevReset[i][1] == -1) {
+		double p = seznamResitevReset[i][2];
+		double V = seznamResitevReset[i][3];
+
+		seznamResitevReset[i][1] = p * V / (R * T);
+	}
+	return seznamResitevReset;
+}
+
+std::vector<double> IzracunPrijemala(std::vector<double> lasti, std::vector<double> resi) {
+
+	return resi;
+}
+
+std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja, std::vector<std::vector<double>> seznamLastnosti, std::vector<std::vector<double>> seznamResitev, std::vector<std::vector<int>> seznamPovezav, double korak) {
+
+	std::vector<double> masniTok;
+
+	double pi = 3.1415926535;
+
+	double ti = korak; // Casovni korak [s]
+
+	double R = pogojiOkolja[2]; // Masna plinska konstanta [J/kgK]
+	double T = pogojiOkolja[1]; // Temperatura zraka [K]
+	double gama = 1.4; // Razmerje sprecificnih toplot [/]
+	double C = .6; // Koeficient prretoka [/]
+	double d = .01; // Premer cevi [m]
+	double A = pi * d * d / 4; // Prerez cevi [m^2]
+
+	for (int i = 0; i < seznamPovezav.size(); i++) {
+		if (seznamPovezav[i][4] == 1 && seznamResitev[seznamPovezav[i][0]][0] == 1 && seznamResitev[seznamPovezav[i][2]][0] == 1) {
+
+			double V1 = seznamResitev[seznamPovezav[i][0]][3];
+			double V2 = seznamResitev[seznamPovezav[i][2]][3];
+
+			double p1 = seznamResitev[seznamPovezav[i][0]][2];
+			double p2 = seznamResitev[seznamPovezav[i][2]][2];
+
+			double m1 = seznamResitev[seznamPovezav[i][0]][1];
+			double m2 = seznamResitev[seznamPovezav[i][2]][1];
+
+			double rho1 = m1 / V1;
+			double rho2 = m2 / V2;
+
+			double mtok = 0;
+			if (p1 > p2) mtok = C * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
+			else if (p1 < p2) mtok = -C * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
+
+			masniTok.push_back(mtok);
+		}
+	}
+
+	int stOperacij = 0;
+	for (int i = 0; i < seznamPovezav.size(); i++) {
+		if (seznamPovezav[i][4] == 1 && seznamResitev[seznamPovezav[i][0]][0] == 1 && seznamResitev[seznamPovezav[i][2]][0] == 1) {
+
+			double m1 = seznamResitev[seznamPovezav[i][0]][1] - masniTok[stOperacij] * ti; // Masa
+			double m2 = seznamResitev[seznamPovezav[i][2]][1] + masniTok[stOperacij] * ti;
+
+			//////////////// Izracun bata v prijemalu, spremeni volumen | posebi funkcija sam za to
+			double V1 = seznamResitev[seznamPovezav[i][0]][3]; // Volumen
+			double V2 = seznamResitev[seznamPovezav[i][2]][3];
+
+			double p1 = m1 * R * T / V1; // Tlak
+			double p2 = m2 * R * T / V2;
+
+
+			seznamResitev[seznamPovezav[i][0]][1] = m1;
+			seznamResitev[seznamPovezav[i][2]][1] = m2;
+			seznamResitev[seznamPovezav[i][0]][2] = p1;
+			seznamResitev[seznamPovezav[i][2]][2] = p2;
+			seznamResitev[seznamPovezav[i][0]][3] = V1;
+			seznamResitev[seznamPovezav[i][2]][3] = V2;
+
+			stOperacij++;
+		}
+	}
+
+	return seznamResitev;
 }
 
 
@@ -45,10 +150,14 @@ std::vector<std::vector<double>> seznamLastnosti;
 // mikroprocesor []
 // tlacna crpalka []
 // tlacna posoda [volumen]
+// prijemalo []
+// prisesek []
 std::vector<std::vector<double>> seznamResitevReset;
 // mikroprocesor [delovanje0 (0/1), delovanje1(0/1), delovanje2(0/1), delovanje3(0/1), delovanje4(0/1), delovanje5(0/1), delovanje6(0/1), delovanje7(0/1)]
 // tlacna crpalka [delovanje (0/1), masni_tok]
 // tlacna posoda [tlak, masa_zraka]
+// prijemalo [tlak, masa_zraka]
+// prisesek []
 std::vector<std::vector<double>> seznamResitev;
 // seznamResitev = seznamResitevReset
 
@@ -89,6 +198,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 
 	pogojiOkolja.push_back(101350);
 	pogojiOkolja.push_back(293);
+	pogojiOkolja.push_back(287);
 
 
 	seznamElementov.push_back({ 220,20,0 });
@@ -99,15 +209,17 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 
 	seznamLastnosti.push_back({});
 	seznamLastnosti.push_back({});
-	seznamLastnosti.push_back({2});
+	seznamLastnosti.push_back({ 2 });
 	seznamLastnosti.push_back({});
 	seznamLastnosti.push_back({});
 
-	seznamResitevReset.push_back({ 0,0 });
-	seznamResitevReset.push_back({ 0,0 });
-	seznamResitevReset.push_back({ 0,0 });
-	seznamResitevReset.push_back({ 0,0 });
-	seznamResitevReset.push_back({ 0,0 });
+	seznamResitevReset.push_back({ 0,0,0 });
+	seznamResitevReset.push_back({ 0,0,0 });
+	seznamResitevReset.push_back({ 1,-1,600000,2 });
+	seznamResitevReset.push_back({ 1,-1,100000,.01 });
+	seznamResitevReset.push_back({ 0,0,0 });
+
+	seznamResitevReset = IzracunMase(pogojiOkolja, seznamResitevReset);
 	seznamResitev = seznamResitevReset;
 
 
