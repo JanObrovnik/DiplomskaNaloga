@@ -16,6 +16,7 @@ private:
 	void OnMouseDoubleEvent(wxMouseEvent& evt);
 
 	void OnRisanjePovezavClicked(wxCommandEvent& evt);
+	void OnSimulirajClicked(wxCommandEvent& evt);
 };
 
 class NastavitevMikroProcesorja : public wxFrame {
