@@ -175,10 +175,13 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
-	wxButton* risanjePovezav = new wxButton(panel, wxID_ANY, "Risanje povezav", wxPoint(5,220), wxSize(190,-1));
+	wxButton* izbElement = new wxButton(panel, wxID_ANY, "Izbrisi izbrani element", wxPoint(5, 220), wxSize(190, -1));
+	wxButton* izbVse = new wxButton(panel, wxID_ANY, "Izbrisi vse", wxPoint(5, 250), wxSize(190, -1));
+	wxButton* risanjePovezav = new wxButton(panel, wxID_ANY, "Risanje povezav", wxPoint(5,280), wxSize(190,-1));
 	wxButton* simuliraj = new wxButton(panel, wxID_ANY, "Simuliraj", wxPoint(5, 500), wxSize(190, 40));
+	wxButton* resetSim = new wxButton(panel, wxID_ANY, "Reset", wxPoint(5, 570), wxSize(190, -1));
 
-	casSimulacije = new wxGauge(panel, wxID_ANY, 1200, wxPoint(5, 550), wxSize(190, -1), wxGA_HORIZONTAL, wxDefaultValidator, "cas");
+	casSimulacije = new wxGauge(panel, wxID_ANY, 1250, wxPoint(5, 548), wxSize(190, -1), wxGA_HORIZONTAL, wxDefaultValidator, "cas");
 	
 	wxArrayString choices;
 	choices.Add("Mikroprocesor");
@@ -196,8 +199,11 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	panel->Bind(wxEVT_LEFT_DOWN, &OknoSim::OnMouseDownEvent, this);
 	panel->Bind(wxEVT_LEFT_UP, &OknoSim::OnMouseUpEvent, this);
 	panel->Bind(wxEVT_LEFT_DCLICK, &OknoSim::OnMouseDoubleEvent, this);
+	izbElement->Bind(wxEVT_BUTTON, &OknoSim::OnButtonIzbClicked, this);
+	izbVse->Bind(wxEVT_BUTTON, &OknoSim::OnButtonIzbVseClicked, this);
 	risanjePovezav->Bind(wxEVT_BUTTON, &OknoSim::OnRisanjePovezavClicked, this);
 	simuliraj->Bind(wxEVT_BUTTON, &OknoSim::OnSimulirajClicked, this);
+	resetSim->Bind(wxEVT_BUTTON, &OknoSim::OnResetSimClicked, this);
 	
 	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(OknoSim::OnPaint));
 
@@ -268,7 +274,8 @@ void OknoSim::OnMouseDownEvent(wxMouseEvent& evt) {
 	else if (mousePos.x > 200) {
 
 		for (int i = 0; i < seznamElementov.size(); i++) {
-			int vrst = seznamPovezav[seznamPovezav.size() - 1][4];
+			int vrst;
+			if (drzanjePovezav > 0) vrst = seznamPovezav[seznamPovezav.size() - 1][4];
 
 			if (seznamElementov[i][2] == 0) {
 				if (drzanjePovezav > 0) {
@@ -305,6 +312,8 @@ void OknoSim::OnMouseDownEvent(wxMouseEvent& evt) {
 						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 0; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; }
 					else if (mousePos.x > seznamElementov[i][0] + 15 && mousePos.x < seznamElementov[i][0] + 25 && mousePos.y > seznamElementov[i][1] - 39 && mousePos.y < seznamElementov[i][1] - 29) {
 						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 1; seznamPovezav[seznamPovezav.size() - 1][4] = 1; drzanjePovezav++; }
+					else if (mousePos.x > seznamElementov[i][0] + 15 && mousePos.x < seznamElementov[i][0] + 25 && mousePos.y > seznamElementov[i][1] + 5 && mousePos.y < seznamElementov[i][1] + 15) {
+						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 2; seznamPovezav[seznamPovezav.size() - 1][4] = 1; drzanjePovezav++; }
 				}
 				if (mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 40 && mousePos.y > seznamElementov[i][1] - 34 && mousePos.y < seznamElementov[i][1]) {
 					if (izbranElement == i) izbranElement = -1;
@@ -396,7 +405,31 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 	if (drzanje && mousePos.x > 200) {
 
 		seznamElementov.push_back({ mousePos.x / 10 * 10,mousePos.y / 10 * 10,choiceDod->GetSelection() }); ////////////// treba dodat vse
-		seznamResitevReset.push_back({ 1,-1,100000,.01 });
+
+		if (choiceDod->GetSelection() == 0) {
+			seznamLastnosti.push_back({});
+			seznamResitevReset.push_back({ 0,0,0,0 });
+		}
+		else if (choiceDod->GetSelection() == 1) {
+			seznamLastnosti.push_back({});
+			seznamResitevReset.push_back({ 0,0,0,0 });
+		}
+		else if (choiceDod->GetSelection() == 2) {
+			seznamLastnosti.push_back({});
+			seznamResitevReset.push_back({ 1,-1,600000,2 });
+		}
+		else if (choiceDod->GetSelection() == 3) {
+			seznamLastnosti.push_back({});
+			seznamResitevReset.push_back({ 1,-1,100000,.01 });
+		}
+		else if (choiceDod->GetSelection() == 4) {
+			seznamLastnosti.push_back({});
+			seznamResitevReset.push_back({ 0,0,0,0 });
+		}
+		else {
+			seznamLastnosti.push_back({});
+			seznamResitevReset.push_back({ 0,0,0,0 });
+		}
 
 		seznamResitevReset = IzracunMase(pogojiOkolja, seznamResitevReset);
 		seznamResitev = seznamResitevReset;
@@ -426,7 +459,6 @@ void OknoSim::OnMouseDoubleEvent(wxMouseEvent& evt) {
 			drzanjePovezav = 0;
 		}
 
-
 		if (izbranElement == 0) {
 			NastavitevMikroProcesorja* procNast = new NastavitevMikroProcesorja();
 			procNast->Show();
@@ -449,7 +481,48 @@ void OknoSim::OnMouseDoubleEvent(wxMouseEvent& evt) {
 		}
 	}
 
-	
+	Refresh();
+}
+
+void OknoSim::OnButtonIzbClicked(wxCommandEvent& evt) {
+
+	if (izbranElement >= 0) {
+
+		simbool = false;
+
+		for (int i = seznamPovezav.size() - 1; i >= 0; i--) if (seznamPovezav[i][0] == izbranElement || seznamPovezav[i][2] == izbranElement) seznamPovezav.erase(seznamPovezav.begin() + i); // brisanje cevi
+
+		for (int i = 0; i < seznamPovezav.size(); i++) {
+			if (seznamPovezav[i][0] > izbranElement) seznamPovezav[i][0]--;
+			if (seznamPovezav[i][2] > izbranElement) seznamPovezav[i][2]--;
+		}
+
+
+		seznamElementov.erase(seznamElementov.begin() + izbranElement);
+		seznamLastnosti.erase(seznamLastnosti.begin() + izbranElement);
+		seznamResitevReset.erase(seznamResitevReset.begin() + izbranElement);
+		seznamResitev = seznamResitevReset;
+
+		casSimulacije->SetValue(0);
+		izbranElement = -1;
+
+		Refresh();
+	}
+}
+
+void OknoSim::OnButtonIzbVseClicked(wxCommandEvent& evt) {
+
+	simbool = false;
+
+	seznamPovezav.clear();
+	seznamElementov.clear();
+	seznamLastnosti.clear();
+	seznamResitevReset.clear();
+	seznamResitev = seznamResitevReset;
+
+	casSimulacije->SetValue(0);
+	izbranElement = -1;
+
 	Refresh();
 }
 
@@ -499,17 +572,26 @@ void OknoSim::OnSimulirajClicked(wxCommandEvent& evt) {
 	}
 }
 
+void OknoSim::OnResetSimClicked(wxCommandEvent& evt) {
+
+	simbool = false;
+	casSimulacije->SetValue(0);
+	seznamResitev = seznamResitevReset;
+
+	Refresh();
+}
+
 
 void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 	wxPaintDC dc(this);
 	wxSize velikostOkna = this->GetSize();
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
-	
+
 	if (true) { // ADMIN LOGS
-		dc.DrawText(wxString::Format("%d", casSimulacije->GetValue()), wxPoint(5, 380));
+		dc.DrawText(wxString::Format("%d ms   %d element   %d st   %d drpov", casSimulacije->GetValue(), izbranElement, seznamPovezav.size(), drzanjePovezav), wxPoint(5, 380));
 		for (int i = 0; i < seznamPovezav.size(); i++) dc.DrawText(wxString::Format("%d | %d | %d | %d | %d", seznamPovezav[i][0], seznamPovezav[i][1], seznamPovezav[i][2], seznamPovezav[i][3], seznamPovezav[i][4]), wxPoint(5, 400 + 12 * i));
-		for (int i = 0; i < seznamResitev.size(); i++) dc.DrawText(wxString::Format("%g | %g", seznamResitev[i][0], seznamResitev[i][0]), wxPoint(100, 400 + 12 * i));
+		for (int i = 0; i < seznamElementov.size(); i++) dc.DrawText(wxString::Format("%d: %d | %d | %d", i, seznamElementov[i][0], seznamElementov[i][1], seznamElementov[i][2]), wxPoint(90, 400 + 12 * i));
 	}
 
 	//- IZRIS OKNA
@@ -522,7 +604,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 	//- PRIKAZ IZBRANEGA ELEMENTA
 	if (izbranElement >= 0) {
-		wxLogStatus(wxString::Format("%d - %d", izbranElement, seznamElementov[izbranElement][2]));
+		//wxLogStatus(wxString::Format("%d - %d", izbranElement, seznamElementov[izbranElement][2]));
 		wxPoint oznacenElementPoint(seznamElementov[izbranElement][0], seznamElementov[izbranElement][1]);
 		wxSize oznacenElementSize(100, 70);
 		if (seznamElementov[izbranElement][2] == 0) { oznacenElementPoint.x -= 10; oznacenElementPoint.y -= 10; oznacenElementSize.x = 120; oznacenElementSize.y = 160; }
@@ -535,13 +617,13 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 		dc.DrawRectangle(oznacenElementPoint, oznacenElementSize);
 		dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 	}
-	
+
 
 	//- IZRIS PRIKAZA ELEMENTA
 	wxPoint predogled(10, 50);
 
 	if (drzanje) { 
-		predogled = this->ScreenToClient(wxGetMousePosition()); 
+		predogled = this->ScreenToClient(wxGetMousePosition());
 		predogled.x = predogled.x / 10 * 10;
 		predogled.y = predogled.y / 10 * 10;
 	}
@@ -550,8 +632,8 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	else if (choiceDod->GetSelection() == 2) { predogled.x = sirinaOrodja / 2 - 60; }
 	else if (choiceDod->GetSelection() == 3) { predogled.x = sirinaOrodja / 2 - 45; }
 	else if (choiceDod->GetSelection() == 4) { predogled.x = sirinaOrodja / 2 - 40; predogled.y += 20; }
-		
-	
+
+
 	if (choiceDod->GetSelection() == 0) {
 		dc.DrawRectangle(predogled, wxSize(100, 140));
 		dc.DrawText("0", wxPoint(predogled.x + 88, predogled.y + 5));
@@ -601,6 +683,11 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 		dc.DrawRectangle(wxPoint(predogled.x, predogled.y), wxSize(65, 50));
 		dc.DrawRectangle(wxPoint(predogled.x + 40, predogled.y), wxSize(50, 10));
 		dc.DrawRectangle(wxPoint(predogled.x + 40, predogled.y + 40), wxSize(50, 10));
+
+		dc.DrawLine(wxPoint(predogled.x - 10, predogled.y + 10), wxPoint(predogled.x, predogled.y + 10));
+		dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
+		dc.DrawLine(wxPoint(predogled.x - 10, predogled.y + 40), wxPoint(predogled.x, predogled.y + 40));
+		dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 	}
 	else if (choiceDod->GetSelection() == 4) {
 		wxPoint* t1 = new wxPoint(predogled.x, predogled.y);
@@ -616,7 +703,9 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 		dc.DrawPolygon(tocke);
 
+		dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
 		dc.DrawLine(wxPoint(predogled.x + 40, predogled.y - 10), wxPoint(predogled.x + 40, predogled.y - 20));
+		dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 	}
 
 
@@ -865,6 +954,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 					dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
 
 					dc.DrawRectangle(wxPoint(xy[0] + 15, xy[1] - 39), wxSize(10, 10));
+					dc.DrawRectangle(wxPoint(xy[0] + 15, xy[1] + 5), wxSize(10, 10));
 
 					dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 					dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
@@ -886,7 +976,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
 			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0] + 60, xy[1] - 16));
-			dc.DrawText(wxString::Format("p =  %g", seznamResitev[i][2] / 100000), wxPoint(xy[0] + 60, xy[1] + 40));
+			dc.DrawText(wxString::Format("p =  %g bar", seznamResitev[i][2] / 100000), wxPoint(xy[0] + 60, xy[1] + 40));
 
 			if (drzanjePovezav > 0) {
 				dc.SetPen(wxPen(wxColour(51, 51, 153), 1, wxPENSTYLE_SOLID));
@@ -921,7 +1011,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
 			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1] - 16));
-			dc.DrawText(wxString::Format("p = %g", seznamResitev[i][2] / 100000), wxPoint(xy[0], xy[1] + 50));
+			dc.DrawText(wxString::Format("p1 = %g bar", seznamResitev[i][2] / 100000), wxPoint(xy[0], xy[1] + 50));
 
 			if (drzanjePovezav > 0) {
 				dc.SetPen(wxPen(wxColour(51, 51, 153), 1, wxPENSTYLE_SOLID));
