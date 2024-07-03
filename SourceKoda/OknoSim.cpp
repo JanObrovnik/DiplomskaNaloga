@@ -47,7 +47,40 @@ std::vector<double> IzracunTlacnePosode(std::vector<double> pogojiOkolja, std::v
 }*/
 
 
-std::vector<std::vector<double>> IzracunMase(std::vector<double> pogojiOkolja, std::vector<std::vector<double>> seznamResitevReset) {
+std::vector<std::vector<double>> IzracunValja(std::vector<std::vector<int>> seznamElementov, std::vector<std::vector<double>> seznamResitevReset, std::vector<std::vector<double>> seznamLastnosti) {
+
+	const double pi = 3.14159265358979;
+
+	double V0_krmilni = .001;
+	double V1_krmilni = .001;
+
+	for (int i = 0; i < seznamResitevReset.size(); i++) {
+
+		if (seznamElementov[i][2] == 3) {
+
+			double D = seznamLastnosti[i][0];
+			double d = seznamLastnosti[i][1];
+			double l = seznamLastnosti[i][2];
+			double x0 = seznamLastnosti[i][3] / 100 * l;
+			double x1 = l - x0;
+
+			double A0 = pi * pow(D, 2) / 4;
+			double Ab = pi * pow(d, 2) / 4;
+			double A1 = A0 - Ab;
+
+			double V0 = A0 * x0 + V0_krmilni;
+			double V1 = A1 * x1 + V1_krmilni;
+
+
+			seznamResitevReset[i][3] = V0;
+			seznamResitevReset[i][6] = V1;
+			seznamResitevReset[i][8] = x0;
+		}
+	}
+	return seznamResitevReset;
+}
+
+std::vector<std::vector<double>> IzracunMase(std::vector<double> pogojiOkolja, std::vector<std::vector<int>> seznamElementov, std::vector<std::vector<double>> seznamResitevReset) {
 
 	double R = pogojiOkolja[2];
 	double T = pogojiOkolja[1];
@@ -57,20 +90,120 @@ std::vector<std::vector<double>> IzracunMase(std::vector<double> pogojiOkolja, s
 		double V = seznamResitevReset[i][3];
 
 		seznamResitevReset[i][1] = p * V / (R * T);
+
+		if (seznamElementov[i][2] == 3) {
+			p = seznamResitevReset[i][5];
+			V = seznamResitevReset[i][6];
+
+			seznamResitevReset[i][4] = p * V / (R * T);
+
+		}
 	}
 	return seznamResitevReset;
 }
 
-std::vector<double> IzracunPrijemala(std::vector<double> lasti, std::vector<double> resi) {
+//lasti[bat_premer, batnica_premer, hod_bata, zacetna_poz]
+//resi[deluje, p_d, x, v, a, V_l, V_d, n]
+//pogojiOkolja[p_ok, T, R, g]
+std::vector<double> IzracunPrijemala(std::vector<double> pogojiOkolja, std::vector<double> lasti, std::vector<double> resi, double korak) {
+
+
+	const double pi = 3.14159265358979;
+
+	double g = pogojiOkolja[3];
+	double pok = pogojiOkolja[0];
+
+	double ti = korak;
+
+	double koef_tr_st = .8;
+	double koef_tr_din = .6;
+
+
+	double D = lasti[0];
+	double d = lasti[1];
+	double l = lasti[2];
+	double m = .8;
+
+	double Ftr_s = m * g * koef_tr_st;
+	double Ftr_d = m * g * koef_tr_din;
+
+
+	double A0 = pi * pow(D, 2) / 4;
+	double Ab = pi * pow(d, 2) / 4;
+	double A1 = A0 - Ab;
+
+
+	double p0 = resi[2];
+	double p1 = resi[5];
+
+	double x = resi[8];
+	double v = resi[9];
+	double a = resi[10];
+
+	double V0 = resi[3];
+	double V1 = resi[6];
+
+
+	double F0, F1, F1b, dF;
+
+	F0 = A0 * p0;
+	F1 = A1 * p1;
+	F1b = Ab * pok;
+
+	dF = F0 - F1 - F1b;
+
+
+	if (v == 0) {
+
+		if (abs(dF) > Ftr_s) {
+
+			if (dF > 0) a = (dF - Ftr_s) / m;
+			else if (dF < 0) a = (dF + Ftr_s) / m;
+		}
+		else a = 0;
+	}
+	else if (v > 0) a = (dF - Ftr_d) / m;
+	else if (v < 0) a = (dF + Ftr_d) / m;
+
+	v = v + a * ti;
+
+	if (abs(v) < .0001) v = 0;
+
+	double dx = v * ti;
+	if ((x + dx) <= 0) {
+		dx = x - 0;
+		x = 0;
+		v = 0;
+	}
+	else if ((x + dx) >= l) {
+		dx = l - x;
+		x = l;
+		v = 0;
+	}
+	else {
+		x = x + dx;
+	}
+
+	V0 += A0 * dx;
+	V1 -= A1 * dx;
+
+
+	resi[2] = p0;
+	resi[3] = V0;
+	resi[5] = p1;
+	resi[6] = V1;
+	resi[8] = x;
+	resi[9] = v;
+	resi[10] = a;
 
 	return resi;
 }
 
-std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja, std::vector<std::vector<double>> seznamLastnosti, std::vector<std::vector<double>> seznamResitev, std::vector<std::vector<int>> seznamPovezav, double korak) {
+std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja, std::vector<std::vector<int>> seznamElementov, std::vector<std::vector<double>> seznamLastnosti, std::vector<std::vector<double>> seznamResitev, std::vector<std::vector<int>> seznamPovezav, double korak) {
 
 	std::vector<double> masniTok;
 
-	double pi = 3.1415926535;
+	double pi = 3.14159265358979;
 
 	double ti = korak; // Casovni korak [s]
 
@@ -111,7 +244,8 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 			double m1 = seznamResitev[seznamPovezav[i][0]][1] - masniTok[stOperacij] * ti; // Masa
 			double m2 = seznamResitev[seznamPovezav[i][2]][1] + masniTok[stOperacij] * ti;
 
-			//////////////// Izracun bata v prijemalu, spremeni volumen | posebi funkcija sam za to
+			if (seznamElementov[seznamPovezav[i][0]][2] == 3) seznamResitev[seznamPovezav[i][0]] = IzracunPrijemala(pogojiOkolja, seznamLastnosti[seznamPovezav[i][0]], seznamResitev[seznamPovezav[i][0]], korak);
+			if (seznamElementov[seznamPovezav[i][2]][2] == 3) seznamResitev[seznamPovezav[i][2]] = IzracunPrijemala(pogojiOkolja, seznamLastnosti[seznamPovezav[i][2]], seznamResitev[seznamPovezav[i][2]], korak);
 			double V1 = seznamResitev[seznamPovezav[i][0]][3]; // Volumen
 			double V2 = seznamResitev[seznamPovezav[i][2]][3];
 
@@ -213,27 +347,32 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	pogojiOkolja.push_back(101350);
 	pogojiOkolja.push_back(293);
 	pogojiOkolja.push_back(287);
+	pogojiOkolja.push_back(9.81);
 
 
 	seznamElementov.push_back({ 220,20,0 });
 	seznamElementov.push_back({ 380,540,1 });
-	seznamElementov.push_back({ 420,420,2 });
-	seznamElementov.push_back({ 700,360,3 });
-	seznamElementov.push_back({ 700,520,4 });
+	seznamElementov.push_back({ 480,460,2 });
+	seznamElementov.push_back({ 700,350,3 });
+	seznamElementov.push_back({ 700,550,4 });
+	seznamElementov.push_back({ 700,250,3 });
 
 	seznamLastnosti.push_back({});
 	seznamLastnosti.push_back({});
-	seznamLastnosti.push_back({ 2 });
 	seznamLastnosti.push_back({});
+	seznamLastnosti.push_back({ 0.1,0.025,0.4,50 });
 	seznamLastnosti.push_back({});
+	seznamLastnosti.push_back({ 0.1,0.025,0.4,25 });
 
-	seznamResitevReset.push_back({ 0,0,0 });
-	seznamResitevReset.push_back({ 0,0,0 });
+	seznamResitevReset.push_back({ 0,0,0,0 });
+	seznamResitevReset.push_back({ 0,0,0,0 });
 	seznamResitevReset.push_back({ 1,-1,600000,2 });
-	seznamResitevReset.push_back({ 1,-1,100000,.01 });
-	seznamResitevReset.push_back({ 0,0,0 });
+	seznamResitevReset.push_back({ 1,-1,100000,-1,-1,100000,-1,0,0,0,0 });
+	seznamResitevReset.push_back({ 0,0,0,0 });
+	seznamResitevReset.push_back({ 1,-1,100000,-1,-1,100000,-1,0,0,0,0 });
 
-	seznamResitevReset = IzracunMase(pogojiOkolja, seznamResitevReset);
+	seznamResitevReset = IzracunValja(seznamElementov, seznamResitevReset, seznamLastnosti);
+	seznamResitevReset = IzracunMase(pogojiOkolja, seznamElementov, seznamResitevReset);
 	seznamResitev = seznamResitevReset;
 
 
@@ -241,6 +380,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamPovezav.push_back({ 0,1,2,0,0 });
 	seznamPovezav.push_back({ 1,1,2,1,1 });
 	seznamPovezav.push_back({ 2,2,3,1,1 });
+	seznamPovezav.push_back({ 5,1,2,2,1 });
 	seznamPovezav.push_back({ 1,2,4,1,1 });
 }
 
@@ -419,8 +559,8 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 			seznamResitevReset.push_back({ 1,-1,600000,2 });
 		}
 		else if (choiceDod->GetSelection() == 3) {
-			seznamLastnosti.push_back({});
-			seznamResitevReset.push_back({ 1,-1,100000,.01 });
+			seznamLastnosti.push_back({ 0.1,0.025,0.4,25 });
+			seznamResitevReset.push_back({ 1,-1,100000,-1,-1,100000,-1,0,0,0,0 });
 		}
 		else if (choiceDod->GetSelection() == 4) {
 			seznamLastnosti.push_back({});
@@ -431,7 +571,8 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 			seznamResitevReset.push_back({ 0,0,0,0 });
 		}
 
-		seznamResitevReset = IzracunMase(pogojiOkolja, seznamResitevReset);
+		seznamResitevReset = IzracunValja(seznamElementov, seznamResitevReset, seznamLastnosti);
+		seznamResitevReset = IzracunMase(pogojiOkolja, seznamElementov, seznamResitevReset);
 		seznamResitev = seznamResitevReset;
 	}
 	else if (izbranElement >= 0 && casDrzanja > 2 && mousePos.x > 200 && drzanjeElementa) {
@@ -875,10 +1016,11 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	
 	
 	//- IZRIS ELEMENTOV
-	if (simbool) seznamResitev = IzracunPovezav(pogojiOkolja, seznamLastnosti, seznamResitev, seznamPovezav, korak);
+	if (simbool) seznamResitev = IzracunPovezav(pogojiOkolja, seznamElementov, seznamLastnosti, seznamResitev, seznamPovezav, korak);
 
 	for (int i = 0; i < seznamElementov.size(); i++) {
 		std::vector<int> xy = seznamElementov[i];
+		int zamik = 0;
 
 		switch (xy[2]) {
 
@@ -998,9 +1140,11 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 		case 3:
 
+			zamik = seznamResitev[i][8] / seznamLastnosti[i][2] * 10;
+			
 			dc.DrawRectangle(wxPoint(xy[0], xy[1]), wxSize(65, 50));
-			dc.DrawRectangle(wxPoint(xy[0] + 40, xy[1]), wxSize(50, 10));
-			dc.DrawRectangle(wxPoint(xy[0] + 40, xy[1] + 40), wxSize(50, 10));
+			dc.DrawRectangle(wxPoint(xy[0] + 40, xy[1] + zamik), wxSize(50, 10));
+			dc.DrawRectangle(wxPoint(xy[0] + 40, xy[1] + 40 - zamik), wxSize(50, 10));
 
 			dc.DrawLine(wxPoint(xy[0] - 10, xy[1] + 10), wxPoint(xy[0], xy[1] + 10));
 
@@ -1012,6 +1156,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1] - 16));
 			dc.DrawText(wxString::Format("p1 = %g bar", seznamResitev[i][2] / 100000), wxPoint(xy[0], xy[1] + 50));
+			dc.DrawText(wxString::Format("p1 = %g bar", seznamResitev[i][5] / 100000), wxPoint(xy[0], xy[1] + 65));
 
 			if (drzanjePovezav > 0) {
 				dc.SetPen(wxPen(wxColour(51, 51, 153), 1, wxPENSTYLE_SOLID));
