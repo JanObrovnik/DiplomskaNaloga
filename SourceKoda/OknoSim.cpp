@@ -10,42 +10,6 @@
 #include <numeric>
 
 
-/*std::vector<double> IzracunPovezav(std::vector<double> pogojiOkolja, std::vector<std::vector<double>> seznamLastnosti, std::vector<std::vector<double>> seznamResitev, std::vector<std::vector<int>> seznamPovezav) {
-
-	double pi = 3.1415926535;
-
-	double R = 287; // Masna plinska konstanta [J/kgK]
-	double T = pogojiOkolja[1]; // Temperatura zraka [K]
-	double gama = 1.4; // Razmerje sprecificnih toplot [/]
-	double C = .6; // Koeficient prretoka [/]
-	double d = .01; // Premer cevi [m]
-	double A = pi * d * d / 4; // Prerez cevi [m^2]
-
-	for (int i = 0; i < seznamPovezav.size(); i++) {
-		if (seznamPovezav[i][4] == 1) {
-
-
-		}
-	}
-}
-
-// prikljucki: pi: masni tok
-std::vector<double> IzracunTlacnePosode(std::vector<double> pogojiOkolja, std::vector<double> seznamLastnosti, std::vector<double> seznamResitev, std::vector<double> prikljucki) {
-
-	double R = 287; // Masna plinska konstanta [J/kgK]
-	double T = pogojiOkolja[1]; // Temperatura zraka [K]
-	double V = seznamLastnosti[0]; // Volumen tlacne posode [m^3]
-	double m = seznamResitev[1]; // Masa zraka v tlacni posodi [kg]
-
-	double p = m * R * T / V; // Tlak v tlacni posodi [Pa]
-
-	double md = std::accumulate(prikljucki.begin(), prikljucki.end(), 0);
-
-
-
-	return(seznamResitev);
-}*/
-
 
 std::vector<std::vector<double>> IzracunValja(std::vector<std::vector<int>> seznamElementov, std::vector<std::vector<double>> seznamResitevReset, std::vector<std::vector<double>> seznamLastnosti) {
 
@@ -58,10 +22,10 @@ std::vector<std::vector<double>> IzracunValja(std::vector<std::vector<int>> sezn
 
 		if (seznamElementov[i][2] == 3) {
 
-			double D = seznamLastnosti[i][0];
-			double d = seznamLastnosti[i][1];
-			double l = seznamLastnosti[i][2];
-			double x0 = seznamLastnosti[i][3] / 100 * l;
+			double D = seznamLastnosti[i][2];
+			double d = seznamLastnosti[i][3];
+			double l = seznamLastnosti[i][4];
+			double x0 = seznamLastnosti[i][5] / 100 * l;
 			double x1 = l - x0;
 
 			double A0 = pi * pow(D, 2) / 4;
@@ -119,9 +83,9 @@ std::vector<double> IzracunPrijemala(std::vector<double> pogojiOkolja, std::vect
 	double koef_tr_din = .6;
 
 
-	double D = lasti[0];
-	double d = lasti[1];
-	double l = lasti[2];
+	double D = lasti[2];
+	double d = lasti[3];
+	double l = lasti[4];
 	double m = .8;
 
 	double Ftr_s = m * g * koef_tr_st;
@@ -201,155 +165,191 @@ std::vector<double> IzracunPrijemala(std::vector<double> pogojiOkolja, std::vect
 
 std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja, std::vector<std::vector<int>> seznamElementov, std::vector<std::vector<double>> seznamLastnosti, std::vector<std::vector<double>> seznamResitev, std::vector<std::vector<int>> seznamPovezav, double korak) {
 
-    std::vector<double> masniTok;
+	std::vector<double> masniTok;
 
-    double pi = 3.14159265358979;
+	double pi = 3.14159265358979;
 
-    double ti = korak; // Casovni korak [s]
+	double ti = korak; // Casovni korak [s]
 
-    double R = pogojiOkolja[2]; // Masna plinska konstanta [J/kgK]
-    double T = pogojiOkolja[1]; // Temperatura zraka [K]
-    double gama = 1.4; // Razmerje sprecificnih toplot [/]
-    double C = .6; // Koeficient prretoka [/]
-    double d = .01; // Premer cevi [m]
-    double A = pi * d * d / 4; // Prerez cevi [m^2]
+	double R = pogojiOkolja[2]; // Masna plinska konstanta [J/kgK]
+	double T = pogojiOkolja[1]; // Temperatura zraka [K]
+	double gama = 1.4; // Razmerje sprecificnih toplot [/]
+	double C = .6; // Koeficient prretoka [/]
+	double d = .01; // Premer cevi [m]
+	double A = pi * d * d / 4; // Prerez cevi [m^2]
 
-    for (int i = 0; i < seznamPovezav.size(); i++) {
-        if (seznamPovezav[i][4] == 1 && seznamResitev[seznamPovezav[i][0]][0] == 1 && seznamResitev[seznamPovezav[i][2]][0] == 1) {
+	for (int i = 0; i < seznamPovezav.size(); i++) {
 
-            double V1, V2;
-            double p1, p2;
-            double m1, m2;
+		if (seznamPovezav[i][4] == 1 && seznamResitev[seznamPovezav[i][0]][0] == 1 && seznamResitev[seznamPovezav[i][2]][0] == 1) {
 
-            if (seznamElementov[seznamPovezav[i][0]][2] == 2) {
-                V1 = seznamResitev[seznamPovezav[i][0]][3];
-                p1 = seznamResitev[seznamPovezav[i][0]][2];
-                m1 = seznamResitev[seznamPovezav[i][0]][1];
-            }
-            else if (seznamElementov[seznamPovezav[i][0]][2] == 3) {
-                if (seznamResitev[seznamPovezav[i][0]][7] == 0) {
-                    V1 = seznamResitev[seznamPovezav[i][0]][3];
-                    p1 = seznamResitev[seznamPovezav[i][0]][2];
-                    m1 = seznamResitev[seznamPovezav[i][0]][1];
-                }
-                else if (seznamResitev[seznamPovezav[i][0]][7] == 1) {
-                    V1 = seznamResitev[seznamPovezav[i][0]][6];
-                    p1 = seznamResitev[seznamPovezav[i][0]][5];
-                    m1 = seznamResitev[seznamPovezav[i][0]][4];
-                }
-            }
+			double V1, V2;
+			double p1, p2;
+			double m1, m2;
 
-            if (seznamElementov[seznamPovezav[i][2]][2] == 2) {
-                V2 = seznamResitev[seznamPovezav[i][2]][3];
-                p2 = seznamResitev[seznamPovezav[i][2]][2];
-                m2 = seznamResitev[seznamPovezav[i][2]][1];
-            }
-            else if (seznamElementov[seznamPovezav[i][2]][2] == 3) {
-                if (seznamResitev[seznamPovezav[i][2]][7] == 0) {
-                    V2 = seznamResitev[seznamPovezav[i][2]][3];
-                    p2 = seznamResitev[seznamPovezav[i][2]][2];
-                    m2 = seznamResitev[seznamPovezav[i][2]][1];
-                }
-                else if (seznamResitev[seznamPovezav[i][2]][7] == 1) {
-                    V2 = seznamResitev[seznamPovezav[i][2]][6];
-                    p2 = seznamResitev[seznamPovezav[i][2]][5];
-                    m2 = seznamResitev[seznamPovezav[i][2]][4];
-                }
-            }
+			if (seznamElementov[seznamPovezav[i][0]][2] == 2) {
+				V1 = seznamResitev[seznamPovezav[i][0]][3];
+				p1 = seznamResitev[seznamPovezav[i][0]][2];
+				m1 = seznamResitev[seznamPovezav[i][0]][1];
+			}
+			else if (seznamElementov[seznamPovezav[i][0]][2] == 3) {
+				if (seznamResitev[seznamPovezav[i][0]][7] == 0) {
+					V1 = seznamResitev[seznamPovezav[i][0]][3];
+					p1 = seznamResitev[seznamPovezav[i][0]][2];
+					m1 = seznamResitev[seznamPovezav[i][0]][1];
+				}
+				else if (seznamResitev[seznamPovezav[i][0]][7] == 1) {
+					V1 = seznamResitev[seznamPovezav[i][0]][6];
+					p1 = seznamResitev[seznamPovezav[i][0]][5];
+					m1 = seznamResitev[seznamPovezav[i][0]][4];
+				}
+			}
+
+			if (seznamElementov[seznamPovezav[i][2]][2] == 2) {
+				V2 = seznamResitev[seznamPovezav[i][2]][3];
+				p2 = seznamResitev[seznamPovezav[i][2]][2];
+				m2 = seznamResitev[seznamPovezav[i][2]][1];
+			}
+			else if (seznamElementov[seznamPovezav[i][2]][2] == 3) {
+				if (seznamResitev[seznamPovezav[i][2]][7] == 0) {
+					V2 = seznamResitev[seznamPovezav[i][2]][3];
+					p2 = seznamResitev[seznamPovezav[i][2]][2];
+					m2 = seznamResitev[seznamPovezav[i][2]][1];
+				}
+				else if (seznamResitev[seznamPovezav[i][2]][7] == 1) {
+					V2 = seznamResitev[seznamPovezav[i][2]][6];
+					p2 = seznamResitev[seznamPovezav[i][2]][5];
+					m2 = seznamResitev[seznamPovezav[i][2]][4];
+				}
+			}
 
 
-            double rho1 = m1 / V1;
-            double rho2 = m2 / V2;
+			double rho1 = m1 / V1;
+			double rho2 = m2 / V2;
 
-            double mtok = 0;
-            if (p1 > p2) mtok = C * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
-            else if (p1 < p2) mtok = - C * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
+			double mtok = 0;
+			if (p1 > p2) mtok = C * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
+			else if (p1 < p2) mtok = -C * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
 
-            masniTok.push_back(mtok);
-        }
-    }
+			masniTok.push_back(mtok);
+		}
+		else if (seznamPovezav[i][4] == 2 && seznamResitev[seznamPovezav[i][0]][2] > seznamLastnosti[seznamPovezav[i][0]][1]) {
 
-    int stOperacij = 0;
-    for (int i = 0; i < seznamPovezav.size(); i++) {
-        if (seznamPovezav[i][4] == 1 && seznamResitev[seznamPovezav[i][0]][0] == 1 && seznamResitev[seznamPovezav[i][2]][0] == 1) {
+			double V1, V2;
+			double p1, p2;
+			double m1, m2;
 
-            double m1 = 0, m2 = 0; // Masa
-            if (seznamElementov[seznamPovezav[i][0]][2] == 2) m1 = seznamResitev[seznamPovezav[i][0]][1];
-            else if (seznamElementov[seznamPovezav[i][0]][2] == 3) {
-                if (seznamResitev[seznamPovezav[i][0]][7] == 0) m1 = seznamResitev[seznamPovezav[i][0]][1];
-                else if (seznamResitev[seznamPovezav[i][0]][7] == 1) m1 = seznamResitev[seznamPovezav[i][0]][4];
-            }
-            if (seznamElementov[seznamPovezav[i][2]][2] == 2) m2 = seznamResitev[seznamPovezav[i][2]][1];
-            else if (seznamElementov[seznamPovezav[i][2]][2] == 3) {
-                if (seznamResitev[seznamPovezav[i][2]][7] == 0) m2 = seznamResitev[seznamPovezav[i][2]][1];
-                else if (seznamResitev[seznamPovezav[i][2]][7] == 1) m2 = seznamResitev[seznamPovezav[i][2]][4];
-            }
-            
-            m1 = m1 - masniTok[stOperacij] * ti;
-            m2 = m2 + masniTok[stOperacij] * ti;
+			V1 = seznamResitev[seznamPovezav[i][0]][3];
+			p1 = seznamResitev[seznamPovezav[i][0]][2];
+			m1 = seznamResitev[seznamPovezav[i][0]][1];
 
-            if (seznamElementov[seznamPovezav[i][0]][2] == 3) seznamResitev[seznamPovezav[i][0]] = IzracunPrijemala(pogojiOkolja, seznamLastnosti[seznamPovezav[i][0]], seznamResitev[seznamPovezav[i][0]], korak);
-            if (seznamElementov[seznamPovezav[i][2]][2] == 3) seznamResitev[seznamPovezav[i][2]] = IzracunPrijemala(pogojiOkolja, seznamLastnosti[seznamPovezav[i][2]], seznamResitev[seznamPovezav[i][2]], korak);
-            
+			double rho1 = m1 / V1;
+
+			p2 = pogojiOkolja[0];
+
+			double mtok = 0;
+			mtok = C * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
+
+			masniTok.push_back(mtok);
+		}
+	}
+
+
+	int stOperacij = 0;
+	for (int i = 0; i < seznamPovezav.size(); i++) {
+		if ((seznamPovezav[i][4] == 1 && seznamResitev[seznamPovezav[i][0]][0] == 1 && seznamResitev[seznamPovezav[i][2]][0] == 1) || (seznamPovezav[i][4] == 2 && seznamResitev[seznamPovezav[i][0]][2] > seznamLastnosti[seznamPovezav[i][0]][1])) {
+
+			double m1 = 0, m2 = 0; // Masa
+			if (seznamPovezav[i][4] == 2) m1 = seznamResitev[seznamPovezav[i][0]][1];
+			else {
+				if (seznamElementov[seznamPovezav[i][0]][2] == 2) m1 = seznamResitev[seznamPovezav[i][0]][1];
+				else if (seznamElementov[seznamPovezav[i][0]][2] == 3) {
+					if (seznamResitev[seznamPovezav[i][0]][7] == 0) m1 = seznamResitev[seznamPovezav[i][0]][1];
+					else if (seznamResitev[seznamPovezav[i][0]][7] == 1) m1 = seznamResitev[seznamPovezav[i][0]][4];
+				}
+				if (seznamElementov[seznamPovezav[i][2]][2] == 2) m2 = seznamResitev[seznamPovezav[i][2]][1];
+				else if (seznamElementov[seznamPovezav[i][2]][2] == 3) {
+					if (seznamResitev[seznamPovezav[i][2]][7] == 0) m2 = seznamResitev[seznamPovezav[i][2]][1];
+					else if (seznamResitev[seznamPovezav[i][2]][7] == 1) m2 = seznamResitev[seznamPovezav[i][2]][4];
+				}
+			}
+
+			m1 = m1 - masniTok[stOperacij] * ti;
+			if (seznamPovezav[i][4] != 2)
+				m2 = m2 + masniTok[stOperacij] * ti;
+
+			if (seznamElementov[seznamPovezav[i][0]][2] == 3) seznamResitev[seznamPovezav[i][0]] = IzracunPrijemala(pogojiOkolja, seznamLastnosti[seznamPovezav[i][0]], seznamResitev[seznamPovezav[i][0]], korak);
+			if (seznamPovezav[i][4] != 2)
+				if (seznamElementov[seznamPovezav[i][2]][2] == 3) seznamResitev[seznamPovezav[i][2]] = IzracunPrijemala(pogojiOkolja, seznamLastnosti[seznamPovezav[i][2]], seznamResitev[seznamPovezav[i][2]], korak);
+
 
 			double V1 = 0, V2 = 0; // Volumen
-            if (seznamElementov[seznamPovezav[i][0]][2] == 2) V1 = seznamResitev[seznamPovezav[i][0]][3];
-            else if (seznamElementov[seznamPovezav[i][0]][2] == 3) {
-                if (seznamResitev[seznamPovezav[i][0]][7] == 0) V1 = seznamResitev[seznamPovezav[i][0]][3];
-                else if (seznamResitev[seznamPovezav[i][0]][7] == 1) V1 = seznamResitev[seznamPovezav[i][0]][6];
-            }
-            if (seznamElementov[seznamPovezav[i][2]][2] == 2) V2 = seznamResitev[seznamPovezav[i][2]][3];
-            else if (seznamElementov[seznamPovezav[i][2]][2] == 3) {
-                if (seznamResitev[seznamPovezav[i][2]][7] == 0) V2 = seznamResitev[seznamPovezav[i][2]][3];
-                else if (seznamResitev[seznamPovezav[i][2]][7] == 1) V2 = seznamResitev[seznamPovezav[i][2]][6];
-            }
+			if (seznamPovezav[i][4] == 2) V1 = seznamResitev[seznamPovezav[i][0]][3];
+			else {
+				if (seznamElementov[seznamPovezav[i][0]][2] == 2) V1 = seznamResitev[seznamPovezav[i][0]][3];
+				else if (seznamElementov[seznamPovezav[i][0]][2] == 3) {
+					if (seznamResitev[seznamPovezav[i][0]][7] == 0) V1 = seznamResitev[seznamPovezav[i][0]][3];
+					else if (seznamResitev[seznamPovezav[i][0]][7] == 1) V1 = seznamResitev[seznamPovezav[i][0]][6];
+				}
+				if (seznamElementov[seznamPovezav[i][2]][2] == 2) V2 = seznamResitev[seznamPovezav[i][2]][3];
+				else if (seznamElementov[seznamPovezav[i][2]][2] == 3) {
+					if (seznamResitev[seznamPovezav[i][2]][7] == 0) V2 = seznamResitev[seznamPovezav[i][2]][3];
+					else if (seznamResitev[seznamPovezav[i][2]][7] == 1) V2 = seznamResitev[seznamPovezav[i][2]][6];
+				}
+			}
 
+			double p1 = 0, p2 = 0;
+			p1 = m1 * R * T / V1; // Tlak
+			if (seznamPovezav[i][4] != 2)
+				p2 = m2 * R * T / V2;
 
-            double p1 = m1 * R * T / V1; // Tlak
-            double p2 = m2 * R * T / V2;
+			if (seznamPovezav[i][4] == 2) {
+				seznamResitev[seznamPovezav[i][0]][3] = V1;
+				seznamResitev[seznamPovezav[i][0]][2] = p1;
+				seznamResitev[seznamPovezav[i][0]][1] = m1;
+			}
+			else {
+				if (seznamElementov[seznamPovezav[i][0]][2] == 2) {
+					seznamResitev[seznamPovezav[i][0]][3] = V1;
+					seznamResitev[seznamPovezav[i][0]][2] = p1;
+					seznamResitev[seznamPovezav[i][0]][1] = m1;
+				}
+				else if (seznamElementov[seznamPovezav[i][0]][2] == 3) {
+					if (seznamResitev[seznamPovezav[i][0]][7] == 0) {
+						seznamResitev[seznamPovezav[i][0]][3] = V1;
+						seznamResitev[seznamPovezav[i][0]][2] = p1;
+						seznamResitev[seznamPovezav[i][0]][1] = m1;
+					}
+					else if (seznamResitev[seznamPovezav[i][0]][7] == 1) {
+						seznamResitev[seznamPovezav[i][0]][6] = V1;
+						seznamResitev[seznamPovezav[i][0]][5] = p1;
+						seznamResitev[seznamPovezav[i][0]][4] = m1;
+					}
+				}
 
+				if (seznamElementov[seznamPovezav[i][2]][2] == 2) {
+					seznamResitev[seznamPovezav[i][2]][3] = V2;
+					seznamResitev[seznamPovezav[i][2]][2] = p2;
+					seznamResitev[seznamPovezav[i][2]][1] = m2;
+				}
+				else if (seznamElementov[seznamPovezav[i][2]][2] == 3) {
+					if (seznamResitev[seznamPovezav[i][2]][7] == 0) {
+						seznamResitev[seznamPovezav[i][2]][3] = V2;
+						seznamResitev[seznamPovezav[i][2]][2] = p2;
+						seznamResitev[seznamPovezav[i][2]][1] = m2;
+					}
+					else if (seznamResitev[seznamPovezav[i][2]][7] == 1) {
+						seznamResitev[seznamPovezav[i][2]][6] = V2;
+						seznamResitev[seznamPovezav[i][2]][5] = p2;
+						seznamResitev[seznamPovezav[i][2]][4] = m2;
+					}
+				}
+			}
 
-            if (seznamElementov[seznamPovezav[i][0]][2] == 2) {
-                seznamResitev[seznamPovezav[i][0]][3] = V1;
-                seznamResitev[seznamPovezav[i][0]][2] = p1;
-                seznamResitev[seznamPovezav[i][0]][1] = m1;
-            }
-            else if (seznamElementov[seznamPovezav[i][0]][2] == 3) {
-                if (seznamResitev[seznamPovezav[i][0]][7] == 0) {
-                    seznamResitev[seznamPovezav[i][0]][3] = V1;
-                    seznamResitev[seznamPovezav[i][0]][2] = p1;
-                    seznamResitev[seznamPovezav[i][0]][1] = m1;
-                }
-                else if (seznamResitev[seznamPovezav[i][0]][7] == 1) {
-                    seznamResitev[seznamPovezav[i][0]][6] = V1;
-                    seznamResitev[seznamPovezav[i][0]][5] = p1;
-                    seznamResitev[seznamPovezav[i][0]][4] = m1;
-                }
-            }
+			stOperacij++;
+		}
+	}
 
-            if (seznamElementov[seznamPovezav[i][2]][2] == 2) {
-                seznamResitev[seznamPovezav[i][2]][3] = V2;
-                seznamResitev[seznamPovezav[i][2]][2] = p2;
-                seznamResitev[seznamPovezav[i][2]][1] = m2;
-            }
-            else if (seznamElementov[seznamPovezav[i][2]][2] == 3) {
-                if (seznamResitev[seznamPovezav[i][2]][7] == 0) {
-                    seznamResitev[seznamPovezav[i][2]][3] = V2;
-                    seznamResitev[seznamPovezav[i][2]][2] = p2;
-                    seznamResitev[seznamPovezav[i][2]][1] = m2;
-                }
-                else if (seznamResitev[seznamPovezav[i][2]][7] == 1) {
-                    seznamResitev[seznamPovezav[i][2]][6] = V2;
-                    seznamResitev[seznamPovezav[i][2]][5] = p2;
-                    seznamResitev[seznamPovezav[i][2]][4] = m2;
-                }
-            }
-
-            stOperacij++;
-        }
-    }
-
-    return seznamResitev;
+	return seznamResitev;
 }
 
 
@@ -400,7 +400,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	wxButton* simuliraj = new wxButton(panel, wxID_ANY, "Simuliraj", wxPoint(5, 500), wxSize(190, 40));
 	wxButton* resetSim = new wxButton(panel, wxID_ANY, "Reset", wxPoint(5, 570), wxSize(190, -1));
 
-	casSimulacije = new wxGauge(panel, wxID_ANY, 2000, wxPoint(5, 548), wxSize(190, -1), wxGA_HORIZONTAL, wxDefaultValidator, "cas");
+	casSimulacije = new wxGauge(panel, wxID_ANY, 6969, wxPoint(5, 548), wxSize(190, -1), wxGA_HORIZONTAL, wxDefaultValidator, "cas");
 	
 	wxArrayString choices;
 	choices.Add("Mikroprocesor");
@@ -444,10 +444,10 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 
 	seznamLastnosti.push_back({});
 	seznamLastnosti.push_back({});
-	seznamLastnosti.push_back({ 2,7 });
-	seznamLastnosti.push_back({ 0.1,0.025,0.4,80 });
+	seznamLastnosti.push_back({ 2,700000 });
+	seznamLastnosti.push_back({ 0,500000,0.1,0.025,0.4,80 });
 	seznamLastnosti.push_back({});
-	seznamLastnosti.push_back({ 0.1,0.025,0.4,40 });
+	seznamLastnosti.push_back({ 0,500000,0.1,0.025,0.4,40 });
 
 	seznamResitevReset.push_back({ 0,0,0,0 });
 	seznamResitevReset.push_back({ 0,0,0,0 });
@@ -460,6 +460,10 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamResitevReset = IzracunMase(pogojiOkolja, seznamElementov, seznamResitevReset);
 	seznamResitev = seznamResitevReset;
 
+
+	seznamPovezav.push_back({ 2,3,-1,-1,2 });
+	seznamPovezav.push_back({ 3,3,-1,-1,2 });
+	seznamPovezav.push_back({ 5,3,-1,-1,2 });
 
 	seznamPovezav.push_back({ 0,0,1,0,0 });
 	seznamPovezav.push_back({ 0,1,2,0,0 });
@@ -640,11 +644,11 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 			seznamResitevReset.push_back({ 0,0,0,0 });
 		}
 		else if (choiceDod->GetSelection() == 2) {
-			seznamLastnosti.push_back({});
+			seznamLastnosti.push_back({ 2,700000 });
 			seznamResitevReset.push_back({ 1,-1,600000,2 });
 		}
 		else if (choiceDod->GetSelection() == 3) {
-			seznamLastnosti.push_back({ 0.1,0.025,0.4,25 });
+			seznamLastnosti.push_back({ 0,500000,0.1,0.025,0.4,25 });
 			seznamResitevReset.push_back({ 1,-1,100000,-1,-1,100000,-1,0,0,0,0 });
 		}
 		else if (choiceDod->GetSelection() == 4) {
@@ -942,170 +946,175 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	//- IZRIS POVEZAV
 	for (int i = 0; i < seznamPovezav.size(); i++) {
 
-		wxPoint tocka1(0, 0);
-		if (drzanjePovezav != 1 || i < seznamPovezav.size() - 1) {
-			tocka1.x = seznamElementov[seznamPovezav[i][0]][0];
-			tocka1.y = seznamElementov[seznamPovezav[i][0]][1];
+		if (seznamPovezav[i][4] != 2) {
+			wxPoint tocka1(0, 0);
+			if (drzanjePovezav != 1 || i < seznamPovezav.size() - 1) {
+				tocka1.x = seznamElementov[seznamPovezav[i][0]][0];
+				tocka1.y = seznamElementov[seznamPovezav[i][0]][1];
 
-			switch (seznamElementov[seznamPovezav[i][0]][2]) {
+				switch (seznamElementov[seznamPovezav[i][0]][2]) {
 
-			case 0:
-				tocka1.x += 110;
-				tocka1.y += 10 + seznamPovezav[i][1] * 15;
+				case 0:
+					tocka1.x += 110;
+					tocka1.y += 10 + seznamPovezav[i][1] * 15;
 
-				break;
+					break;
 
-			case 1:
-				if (seznamPovezav[i][1] == 0) {
-					tocka1.x += 10;
-					tocka1.y += 10;
+				case 1:
+					if (seznamPovezav[i][1] == 0) {
+						tocka1.x += 10;
+						tocka1.y += 10;
+					}
+					else if (seznamPovezav[i][1] == 1) {
+						tocka1.x += 20;
+						tocka1.y -= 34;
+					}
+					else if (seznamPovezav[i][1] == 2) {
+						tocka1.x += 20;
+						tocka1.y += 10;
+					}
+
+					break;
+
+				case 2:
+
+					if (seznamPovezav[i][1] == 0) {
+						tocka1.x += 30;
+						tocka1.y -= 10;
+					}
+					else if (seznamPovezav[i][1] == 1) {
+						tocka1.x -= 10;
+						tocka1.y += 20;
+					}
+					else if (seznamPovezav[i][1] == 2) {
+						tocka1.x += 130;
+						tocka1.y += 20;
+					}
+
+					break;
+
+				case 3:
+
+					if (seznamPovezav[i][1] == 0) {
+						tocka1.x -= 10;
+						tocka1.y += 10;
+					}
+					else if (seznamPovezav[i][1] == 1) {
+						tocka1.x -= 10;
+						tocka1.y += 40;
+					}
+
+					break;
+
+				case 4:
+
+					if (seznamPovezav[i][1] == 1) {
+						tocka1.x += 40;
+						tocka1.y -= 20;
+					}
+
+					break;
+
+
+				default:
+					break;
 				}
-				else if (seznamPovezav[i][1] == 1) {
-					tocka1.x += 20;
-					tocka1.y -= 34;
-				}
-				else if (seznamPovezav[i][1] == 2) {
-					tocka1.x += 20;
-					tocka1.y += 10;
-				}
-
-				break;
-
-			case 2:
-
-				if (seznamPovezav[i][1] == 0) {
-					tocka1.x += 30;
-					tocka1.y -= 10;
-				}
-				else if (seznamPovezav[i][1] == 1) {
-					tocka1.x -= 10;
-					tocka1.y += 20;
-				}
-				else if (seznamPovezav[i][1] == 2) {
-					tocka1.x += 130;
-					tocka1.y += 20;
-				}
-
-				break;
-
-			case 3:
-
-				if (seznamPovezav[i][1] == 0) {
-					tocka1.x -= 10;
-					tocka1.y += 10;
-				}
-				else if (seznamPovezav[i][1] == 1) {
-					tocka1.x -= 10;
-					tocka1.y += 40;
-				}
-
-				break;
-
-			case 4:
-
-				if (seznamPovezav[i][1] == 1) {
-					tocka1.x += 40;
-					tocka1.y -= 20;
-				}
-
-				break;
-
-
-			default:
-				break;
 			}
-		}
 
 
-		wxPoint tocka2(0, 0);
-		if (drzanjePovezav == 2 && i == seznamPovezav.size() - 1) tocka2 = mousePos;
-		else if (drzanjePovezav != 1 || i < seznamPovezav.size() - 1) {
-			tocka2.x = seznamElementov[seznamPovezav[i][2]][0];
-			tocka2.y = seznamElementov[seznamPovezav[i][2]][1];
+			wxPoint tocka2(0, 0);
+			if (drzanjePovezav == 2 && i == seznamPovezav.size() - 1) tocka2 = mousePos;
+			else if (drzanjePovezav != 1 || i < seznamPovezav.size() - 1) {
+				tocka2.x = seznamElementov[seznamPovezav[i][2]][0];
+				tocka2.y = seznamElementov[seznamPovezav[i][2]][1];
 
-			switch (seznamElementov[seznamPovezav[i][2]][2]) {
+				switch (seznamElementov[seznamPovezav[i][2]][2]) {
 
-			case 0:
-				tocka2.x += 110;
-				tocka2.y += 10 + seznamPovezav[i][3] * 15;
+				case 0:
+					tocka2.x += 110;
+					tocka2.y += 10 + seznamPovezav[i][3] * 15;
 
-				break;
+					break;
 
-			case 1:
-				if (seznamPovezav[i][3] == 0) {
-					tocka2.x += 10;
-					tocka2.y += 10;
+				case 1:
+					if (seznamPovezav[i][3] == 0) {
+						tocka2.x += 10;
+						tocka2.y += 10;
+					}
+					else if (seznamPovezav[i][3] == 1) {
+						tocka2.x += 20;
+						tocka2.y -= 34;
+					}
+					else if (seznamPovezav[i][3] == 2) {
+						tocka2.x += 20;
+						tocka2.y += 10;
+					}
+
+					break;
+
+				case 2:
+
+					if (seznamPovezav[i][3] == 0) {
+						tocka2.x += 30;
+						tocka2.y -= 10;
+					}
+					else if (seznamPovezav[i][3] == 1) {
+						tocka2.x -= 10;
+						tocka2.y += 20;
+					}
+					else if (seznamPovezav[i][3] == 2) {
+						tocka2.x += 130;
+						tocka2.y += 20;
+					}
+
+					break;
+
+				case 3:
+
+					if (seznamPovezav[i][3] == 0) {
+						tocka2.x -= 10;
+						tocka2.y += 10;
+					}
+					else if (seznamPovezav[i][3] == 1) {
+						tocka2.x -= 10;
+						tocka2.y += 40;
+					}
+
+					break;
+
+				case 4:
+
+					if (seznamPovezav[i][3] == 1) {
+						tocka2.x += 40;
+						tocka2.y -= 20;
+					}
+
+					break;
+
+
+				default:
+					break;
 				}
-				else if (seznamPovezav[i][3] == 1) {
-					tocka2.x += 20;
-					tocka2.y -= 34;
-				}
-				else if (seznamPovezav[i][3] == 2) {
-					tocka2.x += 20;
-					tocka2.y += 10;
-				}
-
-				break;
-
-			case 2:
-
-				if (seznamPovezav[i][3] == 0) {
-					tocka2.x += 30;
-					tocka2.y -= 10;
-				}
-				else if (seznamPovezav[i][3] == 1) {
-					tocka2.x -= 10;
-					tocka2.y += 20;
-				}
-				else if (seznamPovezav[i][3] == 2) {
-					tocka2.x += 130;
-					tocka2.y += 20;
-				}
-
-				break;
-
-			case 3:
-
-				if (seznamPovezav[i][3] == 0) {
-					tocka2.x -= 10;
-					tocka2.y += 10;
-				}
-				else if (seznamPovezav[i][3] == 1) {
-					tocka2.x -= 10;
-					tocka2.y += 40;
-				}
-
-				break;
-
-			case 4:
-
-				if (seznamPovezav[i][3] == 1) {
-					tocka2.x += 40;
-					tocka2.y -= 20;
-				}
-
-				break;
-
-
-			default:
-				break;
 			}
+
+			if (seznamPovezav[i][4] == 0) dc.SetPen(wxPen(wxColour(153, 153, 153), 1, wxPENSTYLE_SOLID));
+			else if (seznamPovezav[i][4] == 1) dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
+
+			dc.DrawLine(tocka1, wxPoint((tocka1.x + tocka2.x) / 2, tocka1.y));
+			dc.DrawLine(wxPoint((tocka1.x + tocka2.x) / 2, tocka1.y), wxPoint((tocka1.x + tocka2.x) / 2, tocka2.y));
+			dc.DrawLine(wxPoint((tocka1.x + tocka2.x) / 2, tocka2.y), tocka2);
+
+			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 		}
-
-		if (seznamPovezav[i][4] == 0) dc.SetPen(wxPen(wxColour(153, 153, 153), 1, wxPENSTYLE_SOLID));
-		else if (seznamPovezav[i][4] == 1) dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));	
-
-		dc.DrawLine(tocka1, wxPoint((tocka1.x + tocka2.x) / 2, tocka1.y));
-		dc.DrawLine(wxPoint((tocka1.x + tocka2.x) / 2, tocka1.y), wxPoint((tocka1.x + tocka2.x) / 2, tocka2.y));
-		dc.DrawLine(wxPoint((tocka1.x + tocka2.x) / 2, tocka2.y), tocka2);
-
-		dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
 	}
 	
 	
 	//- IZRIS ELEMENTOV
 	if (casSimulacije->GetValue() == 600) { seznamResitev[3][7] = 0; seznamResitev[5][7] = 0; }
+	if (casSimulacije->GetValue() == 2400) seznamLastnosti[2][1] = 591250;
+	if (casSimulacije->GetValue() == 4000) { seznamResitev[3][7] = 1; seznamResitev[5][7] = 1; seznamLastnosti[3][1] = 500000; }
+
 	if (simbool) seznamResitev = IzracunPovezav(pogojiOkolja, seznamElementov, seznamLastnosti, seznamResitev, seznamPovezav, korak);
 
 	for (int i = 0; i < seznamElementov.size(); i++) {
@@ -1208,7 +1217,15 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
 			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0] + 60, xy[1] - 16));
-			dc.DrawText(wxString::Format("p =  %g bar", seznamResitev[i][2] / 100000), wxPoint(xy[0] + 20, xy[1] + 40));
+			dc.DrawText(wxString::Format("p =  %g bar", seznamResitev[i][2] / 100000), wxPoint(xy[0] + 20, xy[1] + 55));
+
+			if (seznamLastnosti[i][1] >= 0) {
+				dc.DrawLine(wxPoint(xy[0] + 30, xy[1] + 40), wxPoint(xy[0] + 30, xy[1] + 50));
+				dc.DrawLine(wxPoint(xy[0] + 30, xy[1] + 50), wxPoint(xy[0] + 35, xy[1] + 50));
+				dc.DrawCircle(wxPoint(xy[0] + 45, xy[1] + 50), 5);
+				dc.DrawLine(wxPoint(xy[0] + 35, xy[1] + 50), wxPoint(xy[0] + 48, xy[1] + 58));
+				dc.DrawLine(wxPoint(xy[0] + 35, xy[1] + 50), wxPoint(xy[0] + 48, xy[1] + 42));
+			}
 
 			if (drzanjePovezav > 0) {
 				dc.SetPen(wxPen(wxColour(51, 51, 153), 1, wxPENSTYLE_SOLID));
@@ -1230,7 +1247,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 		case 3:
 
-			zamik = seznamResitev[i][8] / seznamLastnosti[i][2] * 10;
+			zamik = seznamResitev[i][8] / seznamLastnosti[i][4] * 10;
 			
 			dc.DrawRectangle(wxPoint(xy[0], xy[1]), wxSize(65, 50));
 			dc.DrawRectangle(wxPoint(xy[0] + 40, xy[1] + zamik), wxSize(50, 10));
@@ -1420,11 +1437,11 @@ NastavitevTlacnePosode::NastavitevTlacnePosode() : wxFrame(nullptr, wxID_ANY, wx
 
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
 
-	tlakVarnVent = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(170, 23), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, 7, .1);
+	tlakVarnVent = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(170, 23), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, pogojiOkolja[0]/100000, 10, 7, .1);
 	tlakVarnVentBool = new wxCheckBox(panel, wxID_ANY, "Tlacni varnostni ventil", wxPoint(5, 5), wxDefaultSize);
 
 	if (seznamLastnosti[izbranElement][1] >= 0) {
-		tlakVarnVent->SetValue(seznamLastnosti[izbranElement][1]);
+		tlakVarnVent->SetValue(seznamLastnosti[izbranElement][1]/100000);
 		tlakVarnVentBool->SetValue(1);
 	}
 	else {
@@ -1441,8 +1458,16 @@ NastavitevTlacnePosode::NastavitevTlacnePosode() : wxFrame(nullptr, wxID_ANY, wx
 
 void NastavitevTlacnePosode::OnApplyClicked(wxCommandEvent& evt) {
 
-	if (tlakVarnVentBool->IsChecked()) seznamLastnosti[izbranElement][1] = tlakVarnVent->GetValue();
-	else seznamLastnosti[izbranElement][1] = -1;
+	int obstaja = -1;
+	for (int i = 0; i < seznamPovezav.size(); i++) if (seznamPovezav[i][0] == izbranElement && seznamPovezav[i][4] == 2) obstaja = i;
+	if (tlakVarnVentBool->IsChecked()) {
+		seznamLastnosti[izbranElement][1] = tlakVarnVent->GetValue() * 100000;
+		if (obstaja == -1) seznamPovezav.push_back({ izbranElement,3,-1,-1,2 });
+	}
+	else {
+		seznamLastnosti[izbranElement][1] = -1;
+		if (obstaja >= 0) seznamPovezav.erase(seznamPovezav.begin() + obstaja);
+	}
 }
 
 
