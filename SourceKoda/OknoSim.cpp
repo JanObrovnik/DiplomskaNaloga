@@ -190,6 +190,7 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 				if (seznamElementov[seznamPovezav[i][0]][2] == 1) {
 
 					mtok = .1 * seznamResitev[seznamPovezav[i][0]][0];
+					if (seznamElementov[seznamPovezav[i][1]][2] == 2) mtok *= -1;
 
 					if (seznamElementov[seznamPovezav[i][2]][2] == 2) masniTok[seznamPovezav[i][2]].push_back(0);
 					else if (seznamElementov[seznamPovezav[i][2]][2] == 3) masniTok[seznamPovezav[i][2]].push_back(seznamResitev[seznamPovezav[i][2]][7]);
@@ -199,6 +200,7 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 				else {
 
 					mtok = .1 * seznamResitev[seznamPovezav[i][2]][0];
+					if (seznamElementov[seznamPovezav[i][3]][2] == 2) mtok *= -1;
 
 					if (seznamElementov[seznamPovezav[i][0]][2] == 2) masniTok[seznamPovezav[i][0]].push_back(0);
 					else if (seznamElementov[seznamPovezav[i][0]][2] == 3) masniTok[seznamPovezav[i][0]].push_back(seznamResitev[seznamPovezav[i][0]][7]);
@@ -288,7 +290,7 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 				}
 			}
 			else if (seznamElementov[seznamPovezav[i][0]][2] == 3) {
-				if (seznamResitev[seznamPovezav[i][0]][7] == 0 && seznamResitev[seznamPovezav[i][0]][5] > pogojiOkolja[0]) {
+				if (seznamResitev[seznamPovezav[i][0]][7] == 0 && (seznamResitev[seznamPovezav[i][0]][5] > pogojiOkolja[0] || seznamResitev[seznamPovezav[i][0]][5] < pogojiOkolja[0])) {
 					double V1;
 					double p1, p2;
 					double m1;
@@ -301,13 +303,16 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 
 					p2 = pogojiOkolja[0];
 
+					double rho2 = 1.293;
+
 					double mtok = 0;
-					mtok = -C * 3 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
+					if (seznamResitev[seznamPovezav[i][0]][5] > pogojiOkolja[0]) mtok = -C * 3 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
+					else if (seznamResitev[seznamPovezav[i][0]][5] < pogojiOkolja[0]) mtok = C * 3 * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
 
 					masniTok[seznamPovezav[i][0]].push_back(1);
 					masniTok[seznamPovezav[i][0]].push_back(mtok);
 				}
-				else if (seznamResitev[seznamPovezav[i][0]][7] == 1 && seznamResitev[seznamPovezav[i][0]][2] > pogojiOkolja[0]) {
+				else if (seznamResitev[seznamPovezav[i][0]][7] == 1 && (seznamResitev[seznamPovezav[i][0]][2] > pogojiOkolja[0] || seznamResitev[seznamPovezav[i][0]][2] < pogojiOkolja[0])) {
 					double V1;
 					double p1, p2;
 					double m1;
@@ -320,8 +325,11 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 
 					p2 = pogojiOkolja[0];
 
+					double rho2 = 1.293;
+
 					double mtok = 0;
-					mtok = -C * 3 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
+					if (seznamResitev[seznamPovezav[i][0]][2] > pogojiOkolja[0]) mtok = -C * 3 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
+					else if (seznamResitev[seznamPovezav[i][0]][2] < pogojiOkolja[0]) mtok = C * 3 * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
 
 					masniTok[seznamPovezav[i][0]].push_back(0);
 					masniTok[seznamPovezav[i][0]].push_back(mtok);
@@ -481,9 +489,9 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamResitevReset.push_back({ 0,0,0,0 });
 	seznamResitevReset.push_back({ 0,0,0,0 });
 	seznamResitevReset.push_back({ 1,-1,600000,2 });
-	seznamResitevReset.push_back({ 1,-1,100000,-1,-1,100000,-1,0,0,0,0 });
+	seznamResitevReset.push_back({ 1,-1,pogojiOkolja[0],-1,-1,pogojiOkolja[0],-1,0,0,0,0});
 	seznamResitevReset.push_back({ 0,0,0,0 });
-	seznamResitevReset.push_back({ 1,-1,100000,-1,-1,100000,-1,0,0,0,0 });
+	seznamResitevReset.push_back({ 1,-1,pogojiOkolja[0],-1,-1,pogojiOkolja[0],-1,0,0,0,0 });
 
 	seznamResitevReset = IzracunValja(seznamElementov, seznamResitevReset, seznamLastnosti);
 	seznamResitevReset = IzracunMase(pogojiOkolja, seznamElementov, seznamResitevReset);
@@ -619,7 +627,7 @@ void OknoSim::OnMouseDownEvent(wxMouseEvent& evt) {
 				if (drzanjePovezav > 0) {
 					if (mousePos.x > seznamElementov[i][0] + 0 && mousePos.x < seznamElementov[i][0] + 0 && mousePos.y > seznamElementov[i][1] - 25 && mousePos.y < seznamElementov[i][1] - 15) { /////////// Še ne obstaja
 						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 0; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; }
-					else if (mousePos.x > seznamElementov[i][0] + 35 && mousePos.x < seznamElementov[i][0] + 45 && mousePos.y > seznamElementov[i][1] - 25 && mousePos.y < seznamElementov[i][1] - 15) {
+					else if (mousePos.x > seznamElementov[i][0] + 35 && mousePos.x < seznamElementov[i][0] + 45 && mousePos.y > seznamElementov[i][1] - 30 && mousePos.y < seznamElementov[i][1] - 20) {
 						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 1; seznamPovezav[seznamPovezav.size() - 1][4] = 1; drzanjePovezav++; }
 				}
 				if (mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 80 && mousePos.y > seznamElementov[i][1] - 20 && mousePos.y < seznamElementov[i][1]) {
@@ -813,6 +821,10 @@ void OknoSim::OnButtonIzbVseClicked(wxCommandEvent& evt) {
 
 void OknoSim::OnRisanjePovezavClicked(wxCommandEvent& evt) {
 	
+	simbool = false;
+	casSimulacije->SetValue(0);
+	seznamResitev = seznamResitevReset;
+
 	izbranElement = -1;
 
 	if (drzanjePovezav == 0) {
@@ -832,6 +844,12 @@ void OknoSim::OnRisanjePovezavClicked(wxCommandEvent& evt) {
 }
 
 void OknoSim::OnSimulirajClicked(wxCommandEvent& evt) {
+
+	if (drzanjePovezav > 0) {
+
+		seznamPovezav.erase(seznamPovezav.begin() + seznamPovezav.size() - 1);
+		drzanjePovezav = 0;
+	}
 
 	if (casSimulacije->GetValue() >= casSimulacije->GetRange() || casSimulacije->GetValue() == 0) {
 		casSimulacije->SetValue(0);
@@ -874,7 +892,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 
 	if (true) { // ADMIN LOGS
-		dc.DrawText(wxString::Format("%d ms   %d element   %d st   %d drpov", casSimulacije->GetValue(), izbranElement, seznamPovezav.size(), drzanjePovezav), wxPoint(5, 304));
+		dc.DrawText(wxString::Format("%d ms   %d element   %d st   %d drpov", casSimulacije->GetValue()*2, izbranElement, seznamPovezav.size(), drzanjePovezav), wxPoint(5, 304));
 		for (int i = 0; i < seznamPovezav.size(); i++) dc.DrawText(wxString::Format("%d | %d | %d | %d | %d", seznamPovezav[i][0], seznamPovezav[i][1], seznamPovezav[i][2], seznamPovezav[i][3], seznamPovezav[i][4]), wxPoint(5, 320 + 12 * i));
 		for (int i = 0; i < seznamElementov.size(); i++) dc.DrawText(wxString::Format("%d: %d | %d | %d", i, seznamElementov[i][0], seznamElementov[i][1], seznamElementov[i][2]), wxPoint(90, 320 + 12 * i));
 	}
@@ -979,8 +997,8 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	else if (choiceDod->GetSelection() == 4) {
 		wxPoint* t1 = new wxPoint(predogled.x, predogled.y);
 		wxPoint* t2 = new wxPoint(predogled.x + 80, predogled.y);
-		wxPoint* t3 = new wxPoint(predogled.x + 70, predogled.y - 10);
-		wxPoint* t4 = new wxPoint(predogled.x + 10, predogled.y - 10);
+		wxPoint* t3 = new wxPoint(predogled.x + 65, predogled.y - 15);
+		wxPoint* t4 = new wxPoint(predogled.x + 15, predogled.y - 15);
 
 		wxPointList* tocke = new wxPointList();
 		tocke->Append(t1);
@@ -991,7 +1009,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 		dc.DrawPolygon(tocke);
 
 		dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
-		dc.DrawLine(wxPoint(predogled.x + 40, predogled.y - 10), wxPoint(predogled.x + 40, predogled.y - 20));
+		dc.DrawLine(wxPoint(predogled.x + 40, predogled.y - 15), wxPoint(predogled.x + 40, predogled.y - 25));
 		dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 	}
 
@@ -1063,7 +1081,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 					if (seznamPovezav[i][1] == 1) {
 						tocka1.x += 40;
-						tocka1.y -= 20;
+						tocka1.y -= 25;
 					}
 
 					break;
@@ -1139,7 +1157,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 					if (seznamPovezav[i][3] == 1) {
 						tocka2.x += 40;
-						tocka2.y -= 20;
+						tocka2.y -= 25;
 					}
 
 					break;
@@ -1164,16 +1182,18 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	
 	
 	//- IZRIS ELEMENTOV
+	//if (casSimulacije->GetValue() == 0) { seznamResitev[1][0] = 1; }
+	//if (casSimulacije->GetValue() == 1000) { seznamResitev[1][0] = 0; }
 	if (casSimulacije->GetValue() == 600) { seznamResitev[3][7] = 1; seznamResitev[5][7] = 1; }
 	if (casSimulacije->GetValue() == 1200) { seznamResitev[3][7] = 0; seznamResitev[5][7] = 0; }
 	if (casSimulacije->GetValue() == 1800) { seznamResitev[3][7] = 1; seznamResitev[5][7] = 1; }
 	if (casSimulacije->GetValue() == 2400) { seznamResitev[3][7] = 0; seznamResitev[5][7] = 0; }
 	if (casSimulacije->GetValue() == 3000) { seznamResitev[1][0] = 1; seznamResitev[3][0] = 0; seznamResitev[5][0] = 0; }
 	if (casSimulacije->GetValue() == 4000) { seznamResitev[1][0] = -1; seznamLastnosti[2][1] = 500000; }
-	//if (casSimulacije->GetValue() == 3600) { seznamLastnosti[2][1] = 500000; seznamResitev[3][0] = 0; seznamResitev[5][0] = 0; } //////////////// podere program èe ni varnostnega ventila
-	//if (casSimulacije->GetValue() == 4800) { seznamLastnosti[2][1] = 700000; seznamResitev[3][0] = 1; seznamResitev[5][0] = 1; }
+	if (casSimulacije->GetValue() == 3600) { seznamLastnosti[2][1] = 500000; seznamResitev[3][0] = 0; seznamResitev[5][0] = 0; } //////////////// podere program èe ni varnostnega ventila
+	if (casSimulacije->GetValue() == 4800) { seznamLastnosti[2][1] = 700000; seznamResitev[3][0] = 1; seznamResitev[5][0] = 1; }
 
-	if (simbool) seznamResitev = IzracunPovezav(pogojiOkolja, seznamElementov, seznamLastnosti, seznamResitev, seznamPovezav, korak);
+	if (simbool) for (int i = 0; i < 2; i++) seznamResitev = IzracunPovezav(pogojiOkolja, seznamElementov, seznamLastnosti, seznamResitev, seznamPovezav, korak);
 
 	for (int i = 0; i < seznamElementov.size(); i++) {
 		std::vector<int> xy = seznamElementov[i];
@@ -1367,8 +1387,8 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 			if (true) {
 				wxPoint* t1 = new wxPoint(xy[0], xy[1]);
 				wxPoint* t2 = new wxPoint(xy[0] + 80, xy[1]);
-				wxPoint* t3 = new wxPoint(xy[0] + 70, xy[1] - 10);
-				wxPoint* t4 = new wxPoint(xy[0] + 10, xy[1] - 10);
+				wxPoint* t3 = new wxPoint(xy[0] + 65, xy[1] - 15);
+				wxPoint* t4 = new wxPoint(xy[0] + 15, xy[1] - 15);
 
 				wxPointList* tocke = new wxPointList();
 				tocke->Append(t1);
@@ -1380,17 +1400,18 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
 
-				dc.DrawLine(wxPoint(xy[0] + 40, xy[1] - 10), wxPoint(xy[0] + 40, xy[1] - 20));
+				dc.DrawLine(wxPoint(xy[0] + 40, xy[1] - 15), wxPoint(xy[0] + 40, xy[1] - 25));
 
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
 				dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1]));
+				dc.DrawText(wxString::Format("p = %g bar", seznamResitev[i][2] / 100000), wxPoint(xy[0], xy[1] + 12));
 
 				if (drzanjePovezav > 0) { // Risanje povezav
 					dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
 					dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
 
-					dc.DrawRectangle(wxPoint(xy[0] + 35, xy[1] - 25), wxSize(10, 10));
+					dc.DrawRectangle(wxPoint(xy[0] + 35, xy[1] - 30), wxSize(10, 10));
 
 					dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 					dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
