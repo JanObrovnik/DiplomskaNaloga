@@ -175,9 +175,20 @@ std::vector<double> IzracunPrijemala(std::vector<double> pogojiOkolja, std::vect
 }
 
 std::vector<double> IzracunPriseska(std::vector<double> pogojiOkolja, std::vector<double> lasti, std::vector<double> resi, double korak) {
-	////////////////// da nebo tlak sou v -
+	
+	double R = pogojiOkolja[2];
+	double T = pogojiOkolja[1];
 
-	if (resi[1] < 1) resi[1] = .000001;
+	if (resi[2] < 100) {
+
+		double p = 100;
+		double V = resi[3];
+
+		double m = p * V / (R * T);
+
+		resi[2] = p;
+		resi[1] = m;
+	}
 
 	return resi;
 }
@@ -456,9 +467,9 @@ std::vector<std::vector<int>> seznamElementov;
 std::vector<std::vector<double>> seznamLastnosti;
 // mikroprocesor []
 // tlacna crpalka []
-// tlacna posoda [volumen]
-// prijemalo []
-// prisesek []
+// tlacna posoda [volumen, varnostni ventil]
+// prijemalo [/, /, D, d, l, %]
+// prisesek [D, l]
 std::vector<std::vector<double>> seznamResitevReset;
 // mikroprocesor [delovanje0 (0/1), delovanje1(0/1), delovanje2(0/1), delovanje3(0/1), delovanje4(0/1), delovanje5(0/1), delovanje6(0/1), delovanje7(0/1)]
 // tlacna crpalka [delovanje (0/1), masni_tok]
@@ -763,8 +774,8 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2 });
 		}
 		else if (choiceDod->GetSelection() == 4) {
-			seznamLastnosti.push_back({});
-			seznamResitevReset.push_back({ 0,0,0,0 });
+			seznamLastnosti.push_back({ 0.1,0.2 });
+			seznamResitevReset.push_back({ 1,-1,500000,-1, 6.9 });
 			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2 });
 		}
 		else {
@@ -1454,7 +1465,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
 				dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0] + 80, xy[1] - 32));
-				dc.DrawText(wxString::Format("p = %g bar", seznamResitev[i][1] /*/ 100000*/), wxPoint(xy[0] + 80, xy[1] - 16));
+				dc.DrawText(wxString::Format("p = %g bar", seznamResitev[i][2] / 100000), wxPoint(xy[0] + 80, xy[1] - 16));
 
 				if (drzanjePovezav > 0) { // Risanje povezav
 					dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
