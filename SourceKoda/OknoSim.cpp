@@ -203,6 +203,7 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 
 	double ti = korak; // Casovni korak [s]
 
+	double g = pogojiOkolja[3];
 	double R = pogojiOkolja[2]; // Masna plinska konstanta [J/kgK]
 	double T = pogojiOkolja[1]; // Temperatura zraka [K]
 	double gama = 1.4; // Razmerje sprecificnih toplot [/]
@@ -210,36 +211,96 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 	double d = .01; // Premer cevi [m]
 	double A = pi * d * d / 4; // Prerez cevi [m^2]
 
+
+	//- IZRACUN MASNEGA TOKA CEZ CRPALKO
+	bool crpalkaBool = false;
+	for (int i = 0; i < seznamPovezav.size(); i++) { if (seznamPovezav[i][4] == 1 && (seznamElementov[seznamPovezav[i][0]][2] == 1 || seznamElementov[seznamPovezav[i][2]][2] == 1)) { crpalkaBool = true; break; } }
+
+	if (crpalkaBool) {
+		std::vector<std::vector<int>> crpalkaElementi; // [porabnik, dovodnik, ]
+		crpalkaElementi.resize(3);
+
+
+		double V1, V2;
+		double p1, p2;
+		double m1, m2;
+		double rho1, rho2;
+
+		for (int i = 0; i < seznamPovezav.size(); i++) if (seznamPovezav[i][4] == 1) { ////////////// deluje samo za en prikljucek na vhod in izhod crpalke
+
+			if (seznamElementov[seznamPovezav[i][0]][2] == 1 && (seznamResitev[seznamPovezav[i][0]][0] == 1 || seznamResitev[seznamPovezav[i][0]][0] == -1)) {
+
+				if (seznamPovezav[i][1] == 1) crpalkaElementi[0].push_back(seznamPovezav[i][2]);
+				else if (seznamPovezav[i][1] == 2) crpalkaElementi[1].push_back(seznamPovezav[i][2]);
+			}
+			else if (seznamElementov[seznamPovezav[i][2]][2] == 1 && (seznamResitev[seznamPovezav[i][2]][0] == 1 || seznamResitev[seznamPovezav[i][2]][0] == -1)) {
+
+				if (seznamPovezav[i][3] == 1) crpalkaElementi[0].push_back(seznamPovezav[i][0]);
+				else if (seznamPovezav[i][3] == 2) crpalkaElementi[1].push_back(seznamPovezav[i][0]);
+			}
+			if ((seznamElementov[seznamPovezav[i][0]][2] == 1 && seznamResitev[seznamPovezav[i][0]][0] == 1) || (seznamElementov[seznamPovezav[i][2]][2] == 1 && seznamResitev[seznamPovezav[i][2]][0] == 1))
+				crpalkaElementi[2].push_back(-1); /////////// ustvari vec podatkov, ko bi moral biti samo eden
+			else if ((seznamElementov[seznamPovezav[i][0]][2] == 1 && seznamResitev[seznamPovezav[i][0]][0] == -1) || (seznamElementov[seznamPovezav[i][2]][2] == 1 && seznamResitev[seznamPovezav[i][2]][0] == -1))
+				crpalkaElementi[2].push_back(1); /////////// ustvari vec podatkov, ko bi moral biti samo eden
+		}
+
+		for (int i = 0; i < crpalkaElementi[0].size(); i++) {
+			if (!crpalkaElementi[0].empty()) {
+
+				V1 = seznamResitev[crpalkaElementi[0][i]][3];
+				p1 = seznamResitev[crpalkaElementi[0][i]][2];
+				m1 = seznamResitev[crpalkaElementi[0][i]][1];
+				rho1 = m1 / V1;
+			}
+			else {
+
+				p1 = pogojiOkolja[0];
+				rho1 = pogojiOkolja[4];
+			}
+			if (!crpalkaElementi[1].empty()) {
+
+				V2 = seznamResitev[crpalkaElementi[1][i]][3];
+				p2 = seznamResitev[crpalkaElementi[1][i]][2];
+				m2 = seznamResitev[crpalkaElementi[1][i]][1];
+				rho2 = m2 / V2;
+			}
+			else {
+
+				p2 = pogojiOkolja[0];
+				rho2 = pogojiOkolja[4];
+			}
+
+			double rho = (rho1 + rho2) / 2;
+			double dp = 0;
+			dp = p2 / (rho * g) - p1 / (rho * g);
+
+			double Pc = 16000;
+			double izkc = .95;
+
+			double mtok = 0;
+			mtok = (Pc * izkc) / (dp * g);
+
+
+			if (!crpalkaElementi[0].empty()) {
+
+				masniTok[crpalkaElementi[0][i]].push_back(0);
+				masniTok[crpalkaElementi[0][i]].push_back(mtok * crpalkaElementi[2][i]);
+			}
+			if (!crpalkaElementi[1].empty()) {
+
+				masniTok[crpalkaElementi[1][i]].push_back(0);
+				masniTok[crpalkaElementi[1][i]].push_back(-mtok * crpalkaElementi[2][i]);
+			}
+		}
+	}
+
 	//- IZRACUN MASNEGA TOKA
 	for (int i = 0; i < seznamPovezav.size(); i++) {
 
 		if (seznamPovezav[i][4] == 1 && (seznamResitev[seznamPovezav[i][0]][0] == 1 || seznamResitev[seznamPovezav[i][0]][0] == -1) && (seznamResitev[seznamPovezav[i][2]][0] == 1 || seznamResitev[seznamPovezav[i][2]][0] == -1)) {
 
-			if (seznamElementov[seznamPovezav[i][0]][2] == 1 || seznamElementov[seznamPovezav[i][2]][2] == 1 || seznamElementov[seznamPovezav[i][0]][2] == 4 || seznamElementov[seznamPovezav[i][2]][2] == 4) {
-				double mtok = 0;
-
-				if (seznamElementov[seznamPovezav[i][0]][2] == 1) {
-
-					mtok = .1 * seznamResitev[seznamPovezav[i][0]][0];
-					if (seznamPovezav[i][1] == 2) mtok *= -1;
-
-					if (seznamElementov[seznamPovezav[i][2]][2] == 2) masniTok[seznamPovezav[i][2]].push_back(0);
-					else if (seznamElementov[seznamPovezav[i][2]][2] == 3) masniTok[seznamPovezav[i][2]].push_back(seznamResitev[seznamPovezav[i][2]][7]);
-					else if (seznamElementov[seznamPovezav[i][2]][2] == 4) masniTok[seznamPovezav[i][2]].push_back(0);
-
-					masniTok[seznamPovezav[i][2]].push_back(mtok);
-				}
-				else if (seznamElementov[seznamPovezav[i][2]][2] == 1) {
-
-					mtok = .1 * seznamResitev[seznamPovezav[i][2]][0];
-					if (seznamPovezav[i][3] == 2) mtok *= -1;
-
-					if (seznamElementov[seznamPovezav[i][0]][2] == 2) masniTok[seznamPovezav[i][0]].push_back(0);
-					else if (seznamElementov[seznamPovezav[i][0]][2] == 3) masniTok[seznamPovezav[i][0]].push_back(seznamResitev[seznamPovezav[i][0]][7]);
-					else if (seznamElementov[seznamPovezav[i][0]][2] == 3) masniTok[seznamPovezav[i][0]].push_back(0);
-
-					masniTok[seznamPovezav[i][0]].push_back(mtok);
-				}
+			if (seznamElementov[seznamPovezav[i][0]][2] == 1 || seznamElementov[seznamPovezav[i][2]][2] == 1 || seznamElementov[seznamPovezav[i][0]][2] == 4 || seznamElementov[seznamPovezav[i][2]][2] == 4) { // Kompresor
+	
 			}
 			else {
 
@@ -299,6 +360,7 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 				masniTok[seznamPovezav[i][2]].push_back(-mtok);
 			}
 		}
+
 		//- ODZRACEVANJE
 		else if (seznamPovezav[i][4] == 2) {
 
@@ -317,7 +379,7 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 					p2 = pogojiOkolja[0];
 
 					double mtok = 0;
-					mtok = -C * 3 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
+					mtok = -C * 8 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
 
 					masniTok[seznamPovezav[i][0]].push_back(0);
 					masniTok[seznamPovezav[i][0]].push_back(mtok);
@@ -337,11 +399,11 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 
 					p2 = pogojiOkolja[0];
 
-					double rho2 = 1.293;
+					double rho2 = pogojiOkolja[4];
 
 					double mtok = 0;
-					if (seznamResitev[seznamPovezav[i][0]][5] > pogojiOkolja[0]) mtok = -C * 3 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
-					else if (seznamResitev[seznamPovezav[i][0]][5] < pogojiOkolja[0]) mtok = C * 3 * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
+					if (seznamResitev[seznamPovezav[i][0]][5] > pogojiOkolja[0]) mtok = -C * 3 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama))); //std::cout << "513, ";
+					else if (seznamResitev[seznamPovezav[i][0]][5] < pogojiOkolja[0]) mtok = C * 3 * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama))); //std::cout << "514, ";
 
 					masniTok[seznamPovezav[i][0]].push_back(1);
 					masniTok[seznamPovezav[i][0]].push_back(mtok);
@@ -359,7 +421,7 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 
 					p2 = pogojiOkolja[0];
 
-					double rho2 = 1.293;
+					double rho2 = pogojiOkolja[4];
 
 					double mtok = 0;
 					if (seznamResitev[seznamPovezav[i][0]][2] > pogojiOkolja[0]) mtok = -C * 3 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
@@ -383,7 +445,7 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 
 					p2 = pogojiOkolja[0];
 
-					double rho2 = 1.293;
+					double rho2 = pogojiOkolja[4];
 
 					double mtok = 0;
 					if (seznamResitev[seznamPovezav[i][0]][2] > pogojiOkolja[0]) mtok = -C * 5 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
@@ -395,8 +457,8 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 			}
 		}
 	}
-
-	/*for (int i = 0; i < masniTok.size(); i++) {
+	/*std::cout << std::endl;
+	for (int i = 0; i < masniTok.size(); i++) {
 		std::cout << i << ": ";
 		for (int j = 0; j < masniTok[i].size(); j++) {
 			std::cout << masniTok[i][j] << ", ";
@@ -439,7 +501,6 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 
 			seznamResitev[i][5] = p2;
 		}
-		else wxLogStatus("Mankajoce nastavitve za element");
 	}
 
 	//- IZRACUN PORABNIKOV:
@@ -486,7 +547,7 @@ wxChoice* choiceDod;
 wxGauge* casSimulacije;
 
 bool simbool = false;
-double korak = .001; // Casovni korak simulacije [s]
+double korak = .00001; // Casovni korak simulacije [s]
 
 
 OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
@@ -532,6 +593,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	pogojiOkolja.push_back(293);
 	pogojiOkolja.push_back(287);
 	pogojiOkolja.push_back(9.81);
+	pogojiOkolja.push_back(1.293);
 
 
 	seznamElementov.push_back({ 220,20,0 });
@@ -1247,9 +1309,9 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	
 	//- IZRIS ELEMENTOV
 	if (casSimulacije->GetValue() == 0) { seznamResitev[1][0] = 1; }
-	if (casSimulacije->GetValue() == 500) { seznamResitev[1][0] = -1; }
-	if (casSimulacije->GetValue() == 1000) { seznamResitev[1][0] = 1; }
-	if (casSimulacije->GetValue() == 1500) { seznamResitev[1][0] = -1; }
+	//if (casSimulacije->GetValue() == 500) { seznamResitev[1][0] = -1; }
+	//if (casSimulacije->GetValue() == 1000) { seznamResitev[1][0] = 1; }
+	//if (casSimulacije->GetValue() == 1500) { seznamResitev[1][0] = -1; }
 	//if (casSimulacije->GetValue() == 2000) { seznamResitev[1][0] = 1; }
 	//if (casSimulacije->GetValue() == 3600) { seznamLastnosti[2][1] = 500000; seznamResitev[3][0] = 0; seznamResitev[5][0] = 0; } //////////////// podere program èe ni varnostnega ventila
 
