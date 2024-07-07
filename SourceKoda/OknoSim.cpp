@@ -223,7 +223,7 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 	for (int i = 0; i < seznamPovezav.size(); i++) { if (seznamPovezav[i][4] == 1 && (seznamElementov[seznamPovezav[i][0]][2] == 1 || seznamElementov[seznamPovezav[i][2]][2] == 1)) { crpalkaBool = true; break; } }
 
 	if (crpalkaBool) {
-		std::vector<std::vector<int>> crpalkaElementi; // [porabnik, dovodnik, ]
+		std::vector<std::vector<int>> crpalkaElementi; // [porabnik, dovodnik, smer_toka, crpalka]
 		crpalkaElementi.resize(4);
 
 
@@ -247,9 +247,9 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 				crpalkaElementi[3].push_back(seznamPovezav[i][2]);
 			}
 			if ((seznamElementov[seznamPovezav[i][0]][2] == 1 && seznamResitev[seznamPovezav[i][0]][0] == 1) || (seznamElementov[seznamPovezav[i][2]][2] == 1 && seznamResitev[seznamPovezav[i][2]][0] == 1))
-				crpalkaElementi[2].push_back(-1); /////////// ustvari vec podatkov, ko bi moral biti samo eden
-			else if ((seznamElementov[seznamPovezav[i][0]][2] == 1 && seznamResitev[seznamPovezav[i][0]][0] == -1) || (seznamElementov[seznamPovezav[i][2]][2] == 1 && seznamResitev[seznamPovezav[i][2]][0] == -1))
 				crpalkaElementi[2].push_back(1); /////////// ustvari vec podatkov, ko bi moral biti samo eden
+			else if ((seznamElementov[seznamPovezav[i][0]][2] == 1 && seznamResitev[seznamPovezav[i][0]][0] == -1) || (seznamElementov[seznamPovezav[i][2]][2] == 1 && seznamResitev[seznamPovezav[i][2]][0] == -1))
+				crpalkaElementi[2].push_back(-1); /////////// ustvari vec podatkov, ko bi moral biti samo eden
 		}
 
 		for (int i = 0; i < crpalkaElementi[0].size(); i++) {
@@ -278,32 +278,47 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 				rho2 = pogojiOkolja[4];
 			}
 
+			double izkc = seznamLastnosti[crpalkaElementi[3][i]][0];
+			double T_c = seznamLastnosti[crpalkaElementi[3][i]][1] * crpalkaElementi[2][i];
+			double V_c = seznamLastnosti[crpalkaElementi[3][i]][2];
+			double A_c = seznamLastnosti[crpalkaElementi[3][i]][3];
+			double l_c = seznamLastnosti[crpalkaElementi[3][i]][4];
+
+			double mtok = 0;
+			double P_c = seznamResitev[crpalkaElementi[3][i]][2];
+			double n_c = 0;
+
+
+			double dT = (p2 - p1) * A_c * l_c;
+
+			/////////////////////
 			double rho = (rho1 + rho2) / 2;
 			double dp = 0;
-			dp = p2 / (rho * g) - p1 / (rho * g);
+			dp = abs(p2 / (rho * g) - p1 / (rho * g)) * crpalkaElementi[2][i]; //////////////////
 
 			double Pc = seznamResitev[crpalkaElementi[3][i]][2];
-			double izkc = seznamLastnosti[crpalkaElementi[3][i]][0];
+			/*double*/ izkc = seznamLastnosti[crpalkaElementi[3][i]][0];
 
 			double p0 = p1;
-			if (crpalkaElementi[2][i] == -1) p0 = p2;
+			if (crpalkaElementi[2][i] == 1) p0 = p2;
 			if (p0 < pogojiOkolja[0]) izkc = sqrt(p0 / pogojiOkolja[0]) - (1 - izkc);
 			if (izkc < 0) izkc = 0;
 
-			double mtok = 0;
+			//double mtok = 0;
 			mtok = (Pc * izkc) / (dp * g); //////////// vse narobe
 
-			seznamResitev[crpalkaElementi[3][i]][1] = abs(mtok); ///////////// mal cudn zgleda
+			seznamResitev[crpalkaElementi[3][i]][1] = mtok; ///////////// mal cudn zgleda
+			/////////////////////
 
 			if (!crpalkaElementi[0].empty()) {
 
 				masniTok[crpalkaElementi[0][i]].push_back(0);
-				masniTok[crpalkaElementi[0][i]].push_back(mtok * crpalkaElementi[2][i]);
+				masniTok[crpalkaElementi[0][i]].push_back(mtok);
 			}
 			if (!crpalkaElementi[1].empty()) {
 
 				masniTok[crpalkaElementi[1][i]].push_back(0);
-				masniTok[crpalkaElementi[1][i]].push_back(-mtok * crpalkaElementi[2][i]);
+				masniTok[crpalkaElementi[1][i]].push_back(-mtok);
 			}
 		}
 	}
@@ -544,13 +559,13 @@ std::vector<std::vector<int>> seznamElementov;
 // [x, y, element]
 std::vector<std::vector<double>> seznamLastnosti;
 // mikroprocesor []
-// tlacna crpalka []
+// tlacna crpalka [izkoristek, torzija, volumen_na_vrtljaj, povrsina_rotorja, rocica_prijemalisca_sile]
 // tlacna posoda [volumen, varnostni ventil]
 // prijemalo [/, /, D, d, l, %]
 // prisesek [D, l]
 std::vector<std::vector<double>> seznamResitevReset;
 // mikroprocesor [delovanje0 (0/1), delovanje1(0/1), delovanje2(0/1), delovanje3(0/1), delovanje4(0/1), delovanje5(0/1), delovanje6(0/1), delovanje7(0/1)]
-// tlacna crpalka [delovanje (0/1), masni_tok, moc]
+// tlacna crpalka [delovanje (0/1), masni_tok, moc, obrati]
 // tlacna posoda [delovanje (0/1), masa_zraka, tlak, volumen]
 // prijemalo [delovanje (0/1), masa_zraka1, tlak1, volumen1, masa_zraka2, tlak2, volumen2, prikljucen_ventila4/2, x, v, a]
 // prisesek [delovanje (0/1), masa_zraka, tlak, volumen, masa]
@@ -606,7 +621,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	panel->SetDoubleBuffered(true);
 
 
-	pogojiOkolja.push_back(101350);
+	pogojiOkolja.push_back(101325);
 	pogojiOkolja.push_back(293);
 	pogojiOkolja.push_back(287);
 	pogojiOkolja.push_back(9.81);
@@ -621,14 +636,14 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamElementov.push_back({ 700,250,3 });
 
 	seznamLastnosti.push_back({});
-	seznamLastnosti.push_back({ .95 });
+	seznamLastnosti.push_back({ .95,12000,0.001,0.01,0.05 });
 	seznamLastnosti.push_back({ 2,700000 });
 	seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.4,80 });
 	seznamLastnosti.push_back({ 0.1,0.2 });
 	seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.4,40 });
 
 	seznamResitevReset.push_back({ 0,0,0,0 });
-	seznamResitevReset.push_back({ 1,-1,16000,0 });
+	seznamResitevReset.push_back({ 1,-1,16000,-1 });
 	seznamResitevReset.push_back({ 1,-1,600000,-1 });
 	seznamResitevReset.push_back({ 1,-1,pogojiOkolja[0],-1,-1,pogojiOkolja[0],-1,0,0,0,0});
 	seznamResitevReset.push_back({ 1,-1,pogojiOkolja[0],-1, 6.9 });
