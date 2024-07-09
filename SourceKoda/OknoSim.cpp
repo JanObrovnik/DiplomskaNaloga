@@ -8,6 +8,7 @@
 #include <vector>
 #include <fstream>
 #include <numeric>
+#include <wx/msgdlg.h>
 
 
 
@@ -678,7 +679,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamLastnosti.push_back({ 0.1,0.2 });
 	seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.4,40 });
 
-	seznamResitevReset.push_back({ 0,0,0,0 });
+	seznamResitevReset.push_back({ 0,0,0,0,0,0,0,0 });
 	seznamResitevReset.push_back({ 1,-1,2000,0 });
 	seznamResitevReset.push_back({ 1,-1,600000,-1 });
 	seznamResitevReset.push_back({ 1,-1,pogojiOkolja[0],-1,-1,pogojiOkolja[0],-1,0,0,0,0 });
@@ -886,25 +887,25 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 
 		if (choiceDod->GetSelection() == 0) {
 			seznamLastnosti.push_back({});
-			seznamResitevReset.push_back({ 0,0,0,0 });
+			seznamResitevReset.push_back({ 0,0,0,0,0,0,0,0 });
 		}
 		else if (choiceDod->GetSelection() == 1) {
-			seznamLastnosti.push_back({ .95 });
-			seznamResitevReset.push_back({ 1,-1,16000,0 });
+			seznamLastnosti.push_back({ .95,6,0.2,0.01,0.05 });
+			seznamResitevReset.push_back({ 1,-1,2000,0 });
 		}
 		else if (choiceDod->GetSelection() == 2) {
 			seznamLastnosti.push_back({ 2,700000 });
-			seznamResitevReset.push_back({ 1,-1,600000,2 });
+			seznamResitevReset.push_back({ 1,-1,600000,-1 });
 			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2 });
 		}
 		else if (choiceDod->GetSelection() == 3) {
 			seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.4,0 });
-			seznamResitevReset.push_back({ 1,-1,100000,-1,-1,100000,-1,0,0,0,0 });
+			seznamResitevReset.push_back({ 1,-1,pogojiOkolja[0],-1,-1,pogojiOkolja[0],-1,0,0,0,0 });
 			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2 });
 		}
 		else if (choiceDod->GetSelection() == 4) {
 			seznamLastnosti.push_back({ 0.1,0.2 });
-			seznamResitevReset.push_back({ 1,-1,500000,-1, 6.9 });
+			seznamResitevReset.push_back({ 1,-1,pogojiOkolja[0],-1, 40, -1, 1 });
 			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2 });
 		}
 		else {
@@ -1085,7 +1086,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 
 	if (true) { // ADMIN LOGS
-		dc.DrawText(wxString::Format("%d ms   %d element   %d st   %d drpov", casSimulacije->GetValue() * 1, izbranElement, seznamPovezav.size(), drzanjePovezav), wxPoint(5, 304));
+		dc.DrawText(wxString::Format("%d e-4 s   %d element   %d st   %d drpov", casSimulacije->GetValue() * 1, izbranElement, seznamPovezav.size(), drzanjePovezav), wxPoint(5, 304));
 		for (int i = 0; i < seznamPovezav.size(); i++) dc.DrawText(wxString::Format("%d | %d | %d | %d | %d", seznamPovezav[i][0], seznamPovezav[i][1], seznamPovezav[i][2], seznamPovezav[i][3], seznamPovezav[i][4]), wxPoint(5, 320 + 12 * i));
 		for (int i = 0; i < seznamElementov.size(); i++) dc.DrawText(wxString::Format("%d: %d | %d | %d", i, seznamElementov[i][0], seznamElementov[i][1], seznamElementov[i][2]), wxPoint(90, 320 + 12 * i));
 	}
@@ -1672,6 +1673,16 @@ NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_A
 
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10,230), wxDefaultSize);
 
+	wxArrayString branje;
+	branje.Add("Mikroprocesor");
+	branje.Add("Elektricna Crpalka");
+	branje.Add("Tlacna Posoda");
+	branje.Add("Prijemalo");
+	branje.Add("Prisesek");
+
+	choiceDod = new wxChoice(panel, wxID_ANY, wxPoint(150, 5), wxSize(190, -1), branje/*, wxCB_SORT*/);
+	choiceDod->SetSelection(0);
+
 
 	apply->Bind(wxEVT_BUTTON, &NastavitevMikroProcesorja::OnApplyClicked, this);
 
@@ -1752,8 +1763,10 @@ void NastavitevCrpalke::OnPaint(wxPaintEvent& evt) {
 
 
 
-wxSpinCtrlDouble* tlakVarnVent;
 wxCheckBox* tlakVarnVentBool;
+wxSpinCtrlDouble* tlakVarnVent;
+wxSpinCtrlDouble* volumenTlacnePosode;
+wxSpinCtrlDouble* zacTlakTlacnePosode;
 
 NastavitevTlacnePosode::NastavitevTlacnePosode() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Tlacne posode"), wxPoint(0, 0), wxSize(360, 300)) {
 
@@ -1761,8 +1774,8 @@ NastavitevTlacnePosode::NastavitevTlacnePosode() : wxFrame(nullptr, wxID_ANY, wx
 
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
 
-	tlakVarnVent = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(170, 23), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, pogojiOkolja[0]/100000, 10, 7, .1);
 	tlakVarnVentBool = new wxCheckBox(panel, wxID_ANY, "Tlacni varnostni ventil", wxPoint(5, 5), wxDefaultSize);
+	tlakVarnVent = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(170, 23), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, pogojiOkolja[0]/100000, 10, 7, .1);
 
 	if (seznamLastnosti[izbranElement][1] >= 0) {
 		tlakVarnVent->SetValue(seznamLastnosti[izbranElement][1]/100000);
@@ -1772,6 +1785,9 @@ NastavitevTlacnePosode::NastavitevTlacnePosode() : wxFrame(nullptr, wxID_ANY, wx
 		tlakVarnVent->SetValue(0);
 		tlakVarnVentBool->SetValue(0);
 	}
+
+	volumenTlacnePosode = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(150, 53), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0.1, 10, seznamLastnosti[izbranElement][0], 0.1);
+	zacTlakTlacnePosode = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(150, 83), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, seznamLastnosti[izbranElement][1] / 100000, 0.1);
 
 
 	apply->Bind(wxEVT_BUTTON, &NastavitevTlacnePosode::OnApplyClicked, this);
@@ -1792,6 +1808,9 @@ void NastavitevTlacnePosode::OnApplyClicked(wxCommandEvent& evt) {
 		seznamLastnosti[izbranElement][1] = -1;
 		if (obstaja >= 0) seznamPovezav.erase(seznamPovezav.begin() + obstaja);
 	}
+
+	seznamLastnosti[izbranElement][0] = volumenTlacnePosode->GetValue();
+	seznamLastnosti[izbranElement][1] = zacTlakTlacnePosode->GetValue() * 100000; ///////////////// napacna stvar
 }
 
 
@@ -1802,9 +1821,16 @@ void NastavitevTlacnePosode::OnPaint(wxPaintEvent& evt) {
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 
 	dc.DrawText("Tlak varnostnega ventila [bar]:", wxPoint(5, 25));
+	dc.DrawText("Volumen Tlacne posode [m^3]: ", wxPoint(5, 55));
+	dc.DrawText("Zacetni tlak v posodi [bar]: ", wxPoint(5, 85));
 }
 
 
+
+wxSpinCtrl* premerBataPrijemalke;
+wxSpinCtrl* premerBatnicePrijemalke;
+wxSpinCtrl* dolzinaHodaPrijemalke;
+wxSpinCtrl* zacPozPrijemalke;
 
 NastavitevPrijemalke::NastavitevPrijemalke() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve prijemalke"), wxPoint(0, 0), wxSize(360, 300)) {
 
@@ -1812,8 +1838,15 @@ NastavitevPrijemalke::NastavitevPrijemalke() : wxFrame(nullptr, wxID_ANY, wxStri
 
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
 
+	premerBataPrijemalke = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(150, 3), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 10, 300, seznamLastnosti[izbranElement][2] * 1000);
+	premerBatnicePrijemalke = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(150, 33), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 10, premerBataPrijemalke->GetValue(), seznamLastnosti[izbranElement][3] * 1000);
+	dolzinaHodaPrijemalke = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(150, 63), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 10, 300, seznamLastnosti[izbranElement][4] * 1000);
+	zacPozPrijemalke = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(150, 93), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 100, seznamLastnosti[izbranElement][5]);
+
 
 	apply->Bind(wxEVT_BUTTON, &NastavitevPrijemalke::OnApplyClicked, this);
+	premerBataPrijemalke->Bind(wxEVT_SPINCTRL, &NastavitevPrijemalke::OnRefresh, this);
+	premerBatnicePrijemalke->Bind(wxEVT_SPINCTRL, &NastavitevPrijemalke::OnRefresh, this);
 
 	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevPrijemalke::OnPaint));
 }
@@ -1821,21 +1854,43 @@ NastavitevPrijemalke::NastavitevPrijemalke() : wxFrame(nullptr, wxID_ANY, wxStri
 
 void NastavitevPrijemalke::OnApplyClicked(wxCommandEvent& evt) {
 
+	seznamLastnosti[izbranElement][2] = static_cast<double> (premerBataPrijemalke->GetValue()) / 1000;
+	seznamLastnosti[izbranElement][3] = static_cast<double> (premerBatnicePrijemalke->GetValue()) / 1000;
+	seznamLastnosti[izbranElement][4] = static_cast<double> (dolzinaHodaPrijemalke->GetValue()) / 1000;
+	seznamLastnosti[izbranElement][5] = static_cast<double> (zacPozPrijemalke->GetValue());
+}
+
+void NastavitevPrijemalke::OnRefresh(wxCommandEvent& evt) {
+
+	Refresh();
 }
 
 
 void NastavitevPrijemalke::OnPaint(wxPaintEvent& evt) {
 
+	premerBatnicePrijemalke->SetRange(10, premerBataPrijemalke->GetValue());
+
 	wxPaintDC dc(this);
 	wxSize velikostOkna = this->GetSize();
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
+
+	dc.DrawText("Premer bata D [mm]: ", wxPoint(5, 5));
+	dc.DrawText("Premer batnice d [mm]: ", wxPoint(5, 35));
+	dc.DrawText("Hod bata l [mm]: ", wxPoint(5, 65));
+	dc.DrawText("Zacetna pozicija bata D [%]: ", wxPoint(5, 95));
 }
 
 
 
+wxSpinCtrl* premerPriseska;
+wxSpinCtrl* velikostPriseska;
+
 NastavitevPriseska::NastavitevPriseska() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve priseska"), wxPoint(0, 0), wxSize(360, 300)) {
 
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
+
+	premerPriseska = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(150, 3), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 5, 500, seznamLastnosti[izbranElement][0] * 1000);
+	velikostPriseska = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(150, 33), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 5, 200, seznamLastnosti[izbranElement][1] * 1000);
 
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
 
@@ -1848,6 +1903,8 @@ NastavitevPriseska::NastavitevPriseska() : wxFrame(nullptr, wxID_ANY, wxString::
 
 void NastavitevPriseska::OnApplyClicked(wxCommandEvent& evt) {
 
+	seznamLastnosti[izbranElement][0] = static_cast<double> (premerPriseska->GetValue()) / 1000;
+	seznamLastnosti[izbranElement][1] = static_cast<double> (velikostPriseska->GetValue()) / 1000;
 }
 
 
@@ -1856,4 +1913,7 @@ void NastavitevPriseska::OnPaint(wxPaintEvent& evt) {
 	wxPaintDC dc(this);
 	wxSize velikostOkna = this->GetSize();
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
+
+	dc.DrawText("Premer priseska D [mm]: ", wxPoint(5,5));
+	dc.DrawText("Velikost priseska l [mm]: ", wxPoint(5,35));
 }
