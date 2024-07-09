@@ -66,7 +66,7 @@ std::vector<std::vector<double>> IzracunMase(std::vector<double> pogojiOkolja, s
 	double R = pogojiOkolja[2];
 	double T = pogojiOkolja[1];
 
-	for (int i = 0; i < seznamResitevReset.size(); i++) if (seznamResitevReset[i][1] == -1) {
+	for (int i = 0; i < seznamResitevReset.size(); i++) if (seznamResitevReset[i][1] == -1 && (seznamElementov[i][2] == 2 || seznamElementov[i][2] == 3 || seznamElementov[i][2] == 4)) {
 		double p = seznamResitevReset[i][2];
 		double V = seznamResitevReset[i][3];
 
@@ -279,36 +279,33 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 			}
 
 			double izkc = seznamLastnosti[crpalkaElementi[3][i]][0];
-			double T_c = seznamLastnosti[crpalkaElementi[3][i]][1] * crpalkaElementi[2][i];
-			double V_c = seznamLastnosti[crpalkaElementi[3][i]][2];
-			double A_c = seznamLastnosti[crpalkaElementi[3][i]][3];
-			double l_c = seznamLastnosti[crpalkaElementi[3][i]][4];
+			double ncmax = seznamLastnosti[crpalkaElementi[3][i]][1] * (2 * pi);
+			double Vc = seznamLastnosti[crpalkaElementi[3][i]][2] / (2 * pi);
+			double Ac = seznamLastnosti[crpalkaElementi[3][i]][3];
+			double lc = seznamLastnosti[crpalkaElementi[3][i]][4];
 
 			double mtok = 0;
-			double P_c = seznamResitev[crpalkaElementi[3][i]][2];
-			double n_c = 0;
-
-
-			double dT = (p2 - p1) * A_c * l_c;
-
-			/////////////////////
-			double rho = (rho1 + rho2) / 2;
-			double dp = 0;
-			dp = abs(p2 / (rho * g) - p1 / (rho * g)) * crpalkaElementi[2][i]; //////////////////
-
 			double Pc = seznamResitev[crpalkaElementi[3][i]][2];
-			/*double*/ izkc = seznamLastnosti[crpalkaElementi[3][i]][0];
+			double nc = 0;
 
-			double p0 = p1;
-			if (crpalkaElementi[2][i] == 1) p0 = p2;
-			if (p0 < pogojiOkolja[0]) izkc = sqrt(p0 / pogojiOkolja[0]) - (1 - izkc);
-			if (izkc < 0) izkc = 0;
 
-			//double mtok = 0;
-			mtok = (Pc * izkc) / (dp * g); //////////// vse narobe
+			double dT = (p1 - p2) * Ac * lc * crpalkaElementi[2][i];
 
-			seznamResitev[crpalkaElementi[3][i]][1] = mtok; ///////////// mal cudn zgleda
-			/////////////////////
+			if (dT >= 0) {
+				nc = Pc * izkc / dT;
+				if (nc > ncmax) nc = ncmax;
+			}
+			else if (dT < 0) nc = ncmax;
+
+			nc *= crpalkaElementi[2][i];
+
+
+			if (crpalkaElementi[2][i] == 1) mtok = (m2 - m2 * (V2 / (V2 + Vc))) * nc;
+			else if (crpalkaElementi[2][i] == -1) mtok = (m1 - m1 * (V1 / (V1 + Vc))) * nc;
+			std::cout << mtok << std::endl;
+
+
+			seznamResitev[crpalkaElementi[3][i]][1] = mtok;
 
 			if (!crpalkaElementi[0].empty()) {
 
@@ -329,7 +326,7 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 		if (seznamPovezav[i][4] == 1 && (seznamResitev[seznamPovezav[i][0]][0] == 1 || seznamResitev[seznamPovezav[i][0]][0] == -1) && (seznamResitev[seznamPovezav[i][2]][0] == 1 || seznamResitev[seznamPovezav[i][2]][0] == -1)) {
 
 			if (seznamElementov[seznamPovezav[i][0]][2] == 1 || seznamElementov[seznamPovezav[i][2]][2] == 1 || seznamElementov[seznamPovezav[i][0]][2] == 4 || seznamElementov[seznamPovezav[i][2]][2] == 4) { // Kompresor
-	
+
 			}
 			else {
 
@@ -497,7 +494,7 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 		}
 		std::cout << std::endl;
 	}
-	std::cout << std::endl; */
+	std::cout << std::endl;*/
 
 	//- IZRACUN TLAKA:
 	for (int i = 0; i < masniTok.size(); i++) if (masniTok[i].size() > 0) {
