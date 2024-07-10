@@ -8,7 +8,7 @@
 #include <vector>
 #include <fstream>
 #include <numeric>
-#include <wx/msgdlg.h>
+#include <wx/msgdlg.h> // wxMessageBox(wxT("Hello World!"));
 
 
 
@@ -1667,24 +1667,90 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 
 
+wxChoice* choicePinBranje;
+wxChoice* choiceVelicinaBranje;
+wxChoice* choiceLogFun;
+wxSpinCtrlDouble* spinVrednostBranje;
+wxChoice* choicePinPisanje;
+wxChoice* choiceVelicinaPisanje;
+wxChoice* choiceVrednostPisanje;
+
 NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Mikro Procesorja"), wxPoint(0, 0), wxSize(360, 300)) {
 
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10,230), wxDefaultSize);
 
-	wxArrayString branje;
-	branje.Add("Mikroprocesor");
-	branje.Add("Elektricna Crpalka");
-	branje.Add("Tlacna Posoda");
-	branje.Add("Prijemalo");
-	branje.Add("Prisesek");
 
-	choiceDod = new wxChoice(panel, wxID_ANY, wxPoint(150, 5), wxSize(190, -1), branje/*, wxCB_SORT*/);
-	choiceDod->SetSelection(0);
+
+	wxArrayString ArPinBranje;
+	ArPinBranje.Add(" 0");
+	ArPinBranje.Add(" 1");
+	ArPinBranje.Add(" 2");
+	ArPinBranje.Add(" 3");
+	ArPinBranje.Add(" 4");
+	ArPinBranje.Add(" 5");
+	ArPinBranje.Add(" 6");
+	ArPinBranje.Add(" 7");
+
+	choicePinBranje = new wxChoice(panel, wxID_ANY, wxPoint(100, 5), wxSize(36, -1), ArPinBranje);
+
+	wxArrayString ArVelicinaBranje;
+	ArVelicinaBranje.Add(" p0");
+	ArVelicinaBranje.Add(" p1");
+
+	choiceVelicinaBranje = new wxChoice(panel, wxID_ANY, wxPoint(140, 5), wxSize(56, -1), ArVelicinaBranje);
+	choiceVelicinaBranje->Disable();
+
+	wxArrayString ArLogFun;
+	ArLogFun.Add(" <");
+	ArLogFun.Add(" =");
+	ArLogFun.Add(" >");
+	
+	choiceLogFun = new wxChoice(panel, wxID_ANY, wxPoint(200, 5), wxSize(36, -1), ArLogFun);
+	choiceLogFun->Disable();
+	
+	spinVrednostBranje = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(240, 5), wxSize(56, -1), wxSP_ARROW_KEYS | wxSP_WRAP, -1000, 1000, 0, .01);
+	spinVrednostBranje->Disable();
+
+
+	wxArrayString ArPinPisanje;
+	ArPinPisanje.Add(" 0");
+	ArPinPisanje.Add(" 1");
+	ArPinPisanje.Add(" 2");
+	ArPinPisanje.Add(" 3");
+	ArPinPisanje.Add(" 4");
+	ArPinPisanje.Add(" 5");
+	ArPinPisanje.Add(" 6");
+	ArPinPisanje.Add(" 7");
+
+	choicePinPisanje = new wxChoice(panel, wxID_ANY, wxPoint(300, 5), wxSize(36, -1), ArPinPisanje);
+	choicePinPisanje->Disable();
+
+	wxArrayString ArVelicinaPisanje;
+	ArVelicinaPisanje.Add(" delovanje");
+
+	choiceVelicinaPisanje = new wxChoice(panel, wxID_ANY, wxPoint(340, 5), wxSize(56, -1), ArVelicinaPisanje);
+	choiceVelicinaPisanje->Disable();
+
+	wxArrayString ArVrednostiPisanje;
+	ArVrednostiPisanje.Add(" -1");
+	ArVrednostiPisanje.Add(" 0");
+	ArVrednostiPisanje.Add(" 1");
+
+	choiceVrednostPisanje = new wxChoice(panel, wxID_ANY, wxPoint(400, 5), wxSize(56, -1), ArVrednostiPisanje);
+	choiceVrednostPisanje->Disable();
+
 
 
 	apply->Bind(wxEVT_BUTTON, &NastavitevMikroProcesorja::OnApplyClicked, this);
+	spinVrednostBranje->Bind(wxEVT_SPINCTRLDOUBLE, &NastavitevMikroProcesorja::OnRefresh, this);
+	choicePinBranje->Bind(wxEVT_CHOICE, &NastavitevMikroProcesorja::OnRefresh, this);
+	choiceVelicinaBranje->Bind(wxEVT_CHOICE, &NastavitevMikroProcesorja::OnRefresh, this);
+	choiceLogFun->Bind(wxEVT_CHOICE, &NastavitevMikroProcesorja::OnRefresh, this);
+	choicePinPisanje->Bind(wxEVT_CHOICE, &NastavitevMikroProcesorja::OnRefresh, this);
+	choiceVelicinaPisanje->Bind(wxEVT_CHOICE, &NastavitevMikroProcesorja::OnRefresh, this);
+	choiceVrednostPisanje->Bind(wxEVT_CHOICE, &NastavitevMikroProcesorja::OnRefresh, this);
 
 	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevMikroProcesorja::OnPaint));
 }
@@ -1694,6 +1760,17 @@ void NastavitevMikroProcesorja::OnApplyClicked(wxCommandEvent& evt) {
 
 }
 
+void NastavitevMikroProcesorja::OnRefresh(wxCommandEvent& evt) {
+
+	if (choiceVelicinaPisanje->GetSelection() >= 0) choiceVrednostPisanje->Enable();
+	else if (choicePinPisanje->GetSelection() >= 0) choiceVelicinaPisanje->Enable();
+	else if (choiceLogFun->GetSelection() >= 0) { choicePinPisanje->Enable(); spinVrednostBranje->Enable(); }
+	else if (choiceVelicinaBranje->GetSelection() >= 0) choiceLogFun->Enable();
+	else if (choicePinBranje->GetSelection() >= 0) choiceVelicinaBranje->Enable();
+
+	Refresh();
+}
+
 
 void NastavitevMikroProcesorja::OnPaint(wxPaintEvent& evt) {
 
@@ -1701,6 +1778,7 @@ void NastavitevMikroProcesorja::OnPaint(wxPaintEvent& evt) {
 	wxSize velikostOkna = this->GetSize();
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 
+	dc.DrawText(wxString::Format("%d", choicePinBranje->GetSelection()), wxPoint(200, 200));
 
 	for (int i = 0; i < 8; i++) {
 		short najdena = 0;
