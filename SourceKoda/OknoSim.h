@@ -30,6 +30,8 @@ private:
 	void OnPaint(wxPaintEvent& evt);
 
 	void OnApplyClicked(wxCommandEvent& evt);
+	void OnDodajClicked(wxCommandEvent& evt);
+	void OnIzbrisiClicked(wxCommandEvent& evt);
 
 	void OnRefresh(wxCommandEvent& evt);
 };
