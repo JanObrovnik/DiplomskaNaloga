@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <vector>
+#include <string>
 #include <fstream>
 #include <numeric>
 #include <wx/msgdlg.h> // wxMessageBox(wxT("Hello World!"));
@@ -1684,20 +1685,29 @@ NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_A
 
 
 	wxArrayString ArPinBranje;
-	ArPinBranje.Add(" 0");
-	ArPinBranje.Add(" 1");
-	ArPinBranje.Add(" 2");
-	ArPinBranje.Add(" 3");
-	ArPinBranje.Add(" 4");
-	ArPinBranje.Add(" 5");
-	ArPinBranje.Add(" 6");
-	ArPinBranje.Add(" 7");
+	wxArrayString ArPinPisanje;
+	for (int j = 0; j < seznamPovezav.size(); j++) if (seznamPovezav[j][4] == 0) {
+		if (seznamPovezav[j][0] == izbranElement) {
+
+			if (seznamElementov[seznamPovezav[j][2]][2] == 2 || seznamElementov[seznamPovezav[j][2]][2] == 3 || seznamElementov[seznamPovezav[j][2]][2] == 4)
+				ArPinBranje.Add(wxString::Format(" %d", seznamPovezav[j][1]));
+			if (seznamElementov[seznamPovezav[j][2]][2] == 1 || seznamElementov[seznamPovezav[j][2]][2] == 3 || seznamElementov[seznamPovezav[j][2]][2] == 4)
+				ArPinPisanje.Add(wxString::Format(" %d", seznamPovezav[j][1]));
+		}
+		else if (seznamPovezav[j][2] == izbranElement) {
+
+			if (seznamElementov[seznamPovezav[j][0]][2] == 2 || seznamElementov[seznamPovezav[j][0]][2] == 3 || seznamElementov[seznamPovezav[j][0]][2] == 4)
+				ArPinBranje.Add(wxString::Format(" %d", seznamPovezav[j][3]));
+			if (seznamElementov[seznamPovezav[j][0]][2] == 1 || seznamElementov[seznamPovezav[j][0]][2] == 3 || seznamElementov[seznamPovezav[j][0]][2] == 4)
+				ArPinPisanje.Add(wxString::Format(" %d", seznamPovezav[j][3]));
+		}
+	}
 
 	choicePinBranje = new wxChoice(panel, wxID_ANY, wxPoint(100, 5), wxSize(36, -1), ArPinBranje);
 
 	wxArrayString ArVelicinaBranje;
-	ArVelicinaBranje.Add(" p0");
-	ArVelicinaBranje.Add(" p1");
+	ArVelicinaBranje.Add(" ");
+	ArVelicinaBranje.Add(" ");
 
 	choiceVelicinaBranje = new wxChoice(panel, wxID_ANY, wxPoint(140, 5), wxSize(56, -1), ArVelicinaBranje);
 	choiceVelicinaBranje->Disable();
@@ -1714,31 +1724,22 @@ NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_A
 	spinVrednostBranje->Disable();
 
 
-	wxArrayString ArPinPisanje;
-	ArPinPisanje.Add(" 0");
-	ArPinPisanje.Add(" 1");
-	ArPinPisanje.Add(" 2");
-	ArPinPisanje.Add(" 3");
-	ArPinPisanje.Add(" 4");
-	ArPinPisanje.Add(" 5");
-	ArPinPisanje.Add(" 6");
-	ArPinPisanje.Add(" 7");
-
 	choicePinPisanje = new wxChoice(panel, wxID_ANY, wxPoint(300, 5), wxSize(36, -1), ArPinPisanje);
 	choicePinPisanje->Disable();
 
 	wxArrayString ArVelicinaPisanje;
-	ArVelicinaPisanje.Add(" delovanje");
+	ArVelicinaPisanje.Add(" ");
+	ArVelicinaPisanje.Add(" ");
 
-	choiceVelicinaPisanje = new wxChoice(panel, wxID_ANY, wxPoint(340, 5), wxSize(56, -1), ArVelicinaPisanje);
+	choiceVelicinaPisanje = new wxChoice(panel, wxID_ANY, wxPoint(340, 5), wxSize(96, -1), ArVelicinaPisanje);
 	choiceVelicinaPisanje->Disable();
 
 	wxArrayString ArVrednostiPisanje;
-	ArVrednostiPisanje.Add(" -1");
-	ArVrednostiPisanje.Add(" 0");
-	ArVrednostiPisanje.Add(" 1");
+	ArVrednostiPisanje.Add(" ");
+	ArVrednostiPisanje.Add(" ");
+	ArVrednostiPisanje.Add(" ");
 
-	choiceVrednostPisanje = new wxChoice(panel, wxID_ANY, wxPoint(400, 5), wxSize(56, -1), ArVrednostiPisanje);
+	choiceVrednostPisanje = new wxChoice(panel, wxID_ANY, wxPoint(440, 5), wxSize(56, -1), ArVrednostiPisanje);
 	choiceVrednostPisanje->Disable();
 
 
@@ -1762,11 +1763,104 @@ void NastavitevMikroProcesorja::OnApplyClicked(wxCommandEvent& evt) {
 
 void NastavitevMikroProcesorja::OnRefresh(wxCommandEvent& evt) {
 
-	if (choiceVelicinaPisanje->GetSelection() >= 0) choiceVrednostPisanje->Enable();
-	else if (choicePinPisanje->GetSelection() >= 0) choiceVelicinaPisanje->Enable();
-	else if (choiceLogFun->GetSelection() >= 0) { choicePinPisanje->Enable(); spinVrednostBranje->Enable(); }
-	else if (choiceVelicinaBranje->GetSelection() >= 0) choiceLogFun->Enable();
-	else if (choicePinBranje->GetSelection() >= 0) choiceVelicinaBranje->Enable();
+	if (choiceVelicinaPisanje->GetSelection() >= 0) {
+		choiceVrednostPisanje->Enable();
+
+	}
+	if (choicePinPisanje->GetSelection() >= 0) {
+		choiceVelicinaPisanje->Enable();
+
+		choiceVelicinaPisanje->SetString(0, " ");
+		choiceVelicinaPisanje->SetString(1, " ");
+
+		choiceVrednostPisanje->SetString(0, " ");
+		choiceVrednostPisanje->SetString(1, " ");
+		choiceVrednostPisanje->SetString(2, " ");
+
+		int pin = std::stoi(static_cast<std::string> (choicePinPisanje->GetString(choicePinPisanje->GetSelection())));
+		for (int i = 0; i < seznamPovezav.size(); i++) {
+			if ((seznamPovezav[i][0] == izbranElement && seznamPovezav[i][1] == pin) || (seznamPovezav[i][2] == izbranElement && seznamPovezav[i][3] == pin)) {
+				int zamik = 0;
+				if (seznamPovezav[i][2] == izbranElement && seznamPovezav[i][3] == pin) zamik = -2;
+
+				if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == 1) {
+					choiceVelicinaPisanje->SetString(0, " delovanje");
+
+					if (choiceVelicinaPisanje->GetSelection() >= 0) {
+						if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") {
+							choiceVrednostPisanje->SetString(0, " -1");
+							choiceVrednostPisanje->SetString(1, " 0");
+							choiceVrednostPisanje->SetString(2, " 1");
+						}
+					}
+				}
+				else if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == 3) {
+					choiceVelicinaPisanje->SetString(0, " delovanje");
+					choiceVelicinaPisanje->SetString(1, " pozicija");
+
+					if (choiceVelicinaPisanje->GetSelection() >= 0) {
+						if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") {
+							choiceVrednostPisanje->SetString(0, " 0");
+							choiceVrednostPisanje->SetString(1, " 1");
+						}
+						else if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " pozicija") {
+							choiceVrednostPisanje->SetString(0, " 0");
+							choiceVrednostPisanje->SetString(1, " 1");
+						}
+					}
+				}
+				else if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == 4) {
+					choiceVelicinaPisanje->SetString(0, " delovanje");
+					choiceVelicinaPisanje->SetString(1, " pozicija");
+
+					if (choiceVelicinaPisanje->GetSelection() >= 0) {
+						if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") {
+							choiceVrednostPisanje->SetString(0, " 0");
+							choiceVrednostPisanje->SetString(1, " 1");
+						}
+						else if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " pozicija") {
+							choiceVrednostPisanje->SetString(0, " 0");
+							choiceVrednostPisanje->SetString(1, " 1");
+						}
+					}
+				}
+			}
+		}
+	}
+	if (choiceLogFun->GetSelection() >= 0) {
+		choicePinPisanje->Enable();
+		spinVrednostBranje->Enable();
+
+	}
+	if (choiceVelicinaBranje->GetSelection() >= 0) {
+		choiceLogFun->Enable();
+
+	}
+	if (choicePinBranje->GetSelection() >= 0) {
+		choiceVelicinaBranje->Enable();
+
+		choiceVelicinaBranje->SetString(0, " ");
+		choiceVelicinaBranje->SetString(1, " ");
+
+		int pin = std::stoi(static_cast<std::string> (choicePinBranje->GetString(choicePinBranje->GetSelection())));
+		for (int i = 0; i < seznamPovezav.size(); i++) {
+			if ((seznamPovezav[i][0] == izbranElement && seznamPovezav[i][1] == pin) || (seznamPovezav[i][2] == izbranElement && seznamPovezav[i][3] == pin)) {
+				int zamik = 0;
+				if (seznamPovezav[i][2] == izbranElement && seznamPovezav[i][3] == pin) zamik = -2;
+
+				if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == 2) {
+					choiceVelicinaBranje->SetString(0, " p");
+				}
+				else if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == 3) {
+					choiceVelicinaBranje->SetString(0, " p0");
+					choiceVelicinaBranje->SetString(1, " p1");
+				}
+				else if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == 4) {
+					choiceVelicinaBranje->SetString(0, " p");
+				}
+			}
+		}
+	}
 
 	Refresh();
 }
@@ -1778,7 +1872,8 @@ void NastavitevMikroProcesorja::OnPaint(wxPaintEvent& evt) {
 	wxSize velikostOkna = this->GetSize();
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 
-	dc.DrawText(wxString::Format("%d", choicePinBranje->GetSelection()), wxPoint(200, 200));
+	if (choiceVelicinaBranje->GetSelection() >= 0) dc.DrawText(wxString::Format(choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection())), wxPoint(200, 200)); 
+	if (choicePinBranje->GetSelection() >= 0) dc.DrawText(wxString::Format("%d", 3*std::stoi(static_cast<std::string> (choicePinBranje->GetString(choicePinBranje->GetSelection())))),wxPoint(200,220));
 
 	for (int i = 0; i < 8; i++) {
 		short najdena = 0;
