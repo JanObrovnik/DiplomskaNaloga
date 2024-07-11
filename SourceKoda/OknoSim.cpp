@@ -683,7 +683,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 
 
 	seznamElementov.push_back({ 220,20,0 });
-	seznamElementov.push_back({ 360,490,1 });
+	seznamElementov.push_back({ 360,540,1 });
 	seznamElementov.push_back({ 510,430,2 });
 	seznamElementov.push_back({ 700,350,3 });
 	seznamElementov.push_back({ 600,540,4 });
@@ -713,6 +713,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamPovezav.push_back({ 0,1,2,0,0 });
 	seznamPovezav.push_back({ 0,2,5,0,0 });
 	seznamPovezav.push_back({ 0,3,3,0,0 });
+	seznamPovezav.push_back({ 0,4,4,0,0 });
 
 	seznamPovezav.push_back({ 1,1,2,1,1 });
 	seznamPovezav.push_back({ 2,2,3,1,1 });
@@ -848,7 +849,7 @@ void OknoSim::OnMouseDownEvent(wxMouseEvent& evt) {
 			}
 			else if (seznamElementov[i][2] == 4) { 
 				if (drzanjePovezav > 0) {
-					if (mousePos.x > seznamElementov[i][0] + 0 && mousePos.x < seznamElementov[i][0] + 0 && mousePos.y > seznamElementov[i][1] - 25 && mousePos.y < seznamElementov[i][1] - 15) { /////////// Še ne obstaja
+					if (mousePos.x > seznamElementov[i][0] + 45 && mousePos.x < seznamElementov[i][0] + 55 && mousePos.y > seznamElementov[i][1] - 40 && mousePos.y < seznamElementov[i][1] - 30) {
 						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 0; seznamPovezav[seznamPovezav.size() - 1][4] = 0; drzanjePovezav++; }
 					else if (mousePos.x > seznamElementov[i][0] + 35 && mousePos.x < seznamElementov[i][0] + 45 && mousePos.y > seznamElementov[i][1] - 30 && mousePos.y < seznamElementov[i][1] - 20) {
 						seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2] = i; seznamPovezav[seznamPovezav.size() - 1][(drzanjePovezav - 1) * 2 + 1] = 1; seznamPovezav[seznamPovezav.size() - 1][4] = 1; drzanjePovezav++; }
@@ -1240,6 +1241,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 		dc.DrawPolygon(tocke);
 
+		dc.DrawLine(wxPoint(predogled.x + 50, predogled.y - 15), wxPoint(predogled.x + 50, predogled.y - 35));
 		dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
 		dc.DrawLine(wxPoint(predogled.x + 40, predogled.y - 15), wxPoint(predogled.x + 40, predogled.y - 25));
 		dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
@@ -1311,7 +1313,11 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 				case 4:
 
-					if (seznamPovezav[i][1] == 1) {
+					if (seznamPovezav[i][1] == 0) {
+						tocka1.x += 50;
+						tocka1.y -= 35;
+					}
+					else if (seznamPovezav[i][1] == 1) {
 						tocka1.x += 40;
 						tocka1.y -= 25;
 					}
@@ -1387,7 +1393,11 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 				case 4:
 
-					if (seznamPovezav[i][3] == 1) {
+					if (seznamPovezav[i][3] == 0) {
+						tocka2.x += 50;
+						tocka2.y -= 35;
+					}
+					else if (seznamPovezav[i][3] == 1) {
 						tocka2.x += 40;
 						tocka2.y -= 25;
 					}
@@ -1492,8 +1502,9 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 				dc.DrawLine(wxPoint(xy[0] + 20, xy[1] + 10), wxPoint(xy[0] + 20, xy[1]));
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
-				dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1] - 65));
-				dc.DrawText(wxString::Format("m_tok = %g", seznamResitev[i][1]), wxPoint(xy[0], xy[1] - 50));
+				dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1] + 15));
+				dc.DrawText(wxString::Format("m_tok = %g kg/s", seznamResitev[i][1]), wxPoint(xy[0], xy[1] + 30));
+				dc.DrawText(wxString::Format("moc = %g W", seznamResitev[i][2]), wxPoint(xy[0], xy[1] + 45));
 
 				if (seznamResitev[i][0] > 0) dc.SetBrush(wxBrush(wxColour(51, 255, 51), wxBRUSHSTYLE_SOLID));
 				else if (seznamResitev[i][0] < 0) dc.SetBrush(wxBrush(wxColour(255, 51, 51), wxBRUSHSTYLE_SOLID));
@@ -1633,6 +1644,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 				dc.DrawPolygon(tocke);
 
+				dc.DrawLine(wxPoint(xy[0] + 50, xy[1] - 15 + zamik), wxPoint(xy[0] + 50, xy[1] - 35));
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
 
 				dc.DrawLine(wxPoint(xy[0] + 40, xy[1] - 15 + zamik), wxPoint(xy[0] + 40, xy[1] - 25));
@@ -1643,6 +1655,11 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 				dc.DrawText(wxString::Format("p = %g bar", seznamResitev[i][2] / 100000), wxPoint(xy[0] + 80, xy[1] - 16));
 
 				if (drzanjePovezav > 0) { // Risanje povezav
+					dc.SetPen(wxPen(wxColour(51, 51, 153), 1, wxPENSTYLE_SOLID));
+					dc.SetBrush(wxBrush(wxColour(153, 153, 255), wxBRUSHSTYLE_SOLID));
+
+					dc.DrawRectangle(wxPoint(xy[0] + 45, xy[1] - 40), wxSize(10, 10));
+
 					dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
 					dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
 
@@ -1851,6 +1868,7 @@ void NastavitevMikroProcesorja::OnDodajClicked(wxCommandEvent& evt) {
 
 				if (seznamElementov[seznamStikal[sezSize][4]][2] == 1) {
 					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") seznamStikal[sezSize][5] = 0;
+					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " moc [W]") seznamStikal[sezSize][5] = 2;
 				}
 				else if (seznamElementov[seznamStikal[sezSize][4]][2] == 3) {
 					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") seznamStikal[sezSize][5] = 0;
@@ -1900,12 +1918,18 @@ void NastavitevMikroProcesorja::OnRefresh(wxCommandEvent& evt) {
 
 				if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == 1) {
 					choiceVelicinaPisanje->SetString(0, " delovanje");
+					choiceVelicinaPisanje->SetString(1, " moc [W]");
 
 					if (choiceVelicinaPisanje->GetSelection() >= 0) {
 						if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") {
 							choiceVrednostPisanje->SetString(0, " -1");
 							choiceVrednostPisanje->SetString(1, " 0");
 							choiceVrednostPisanje->SetString(2, " 1");
+						}
+						else if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " moc [W]") {
+							choiceVrednostPisanje->SetString(0, " 2000");
+							choiceVrednostPisanje->SetString(1, " 4000");
+							choiceVrednostPisanje->SetString(2, " 6000");
 						}
 					}
 				}
