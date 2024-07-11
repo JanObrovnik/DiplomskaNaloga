@@ -683,10 +683,10 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 
 
 	seznamElementov.push_back({ 220,20,0 });
-	seznamElementov.push_back({ 380,540,1 });
-	seznamElementov.push_back({ 480,460,2 });
+	seznamElementov.push_back({ 360,490,1 });
+	seznamElementov.push_back({ 510,430,2 });
 	seznamElementov.push_back({ 700,350,3 });
-	seznamElementov.push_back({ 700,550,4 });
+	seznamElementov.push_back({ 600,540,4 });
 	seznamElementov.push_back({ 680,250,3 });
 
 	seznamLastnosti.push_back({});
@@ -725,12 +725,14 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamPovezav.push_back({ 5,3,-1,-1,2 });
 
 
-	seznamStikal.push_back({ 2,2,-1,599000,1,0,1 });
-	seznamStikal.push_back({ 5,2,1,550000,5,7,1 });
-	seznamStikal.push_back({ 5,5,1,550000,5,7,0 });
-	seznamStikal.push_back({ 5,5,1,550000,4,6,-1 });
-	seznamStikal.push_back({ 5,2,1,550000,4,6,1 });
-	seznamStikal.push_back({ 2,2,-1,580000,1,0,-1 });
+	seznamStikal.push_back({ 2,2,-1,595000,1,0,1 });
+	seznamStikal.push_back({ 5,2,1,500000,5,7,1 });
+	seznamStikal.push_back({ 5,5,1,500000,5,7,0 });
+	seznamStikal.push_back({ 5,5,1,500000,4,6,-1 });
+	seznamStikal.push_back({ 5,2,1,500000,4,6,1 });
+	seznamStikal.push_back({ 2,2,-1,588000,1,0,-1 });
+	seznamStikal.push_back({ 2,2,-1,500000,1,0,1 });
+	seznamStikal.push_back({ 2,2,-1,500000,4,0,0 });
 }
 
 
@@ -1119,7 +1121,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	wxSize velikostOkna = this->GetSize();
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 
-	dc.DrawText(wxString::Format("t = %d ms", casSimulacije->GetValue() * 1), wxPoint(5, 304));
+	dc.DrawText(wxString::Format("t = %d ms", casSimulacije->GetValue() * 1), wxPoint(10, 480));
 	if (false) { // ADMIN LOGS
 		for (int i = 0; i < seznamPovezav.size(); i++) dc.DrawText(wxString::Format("%d | %d | %d | %d | %d", seznamPovezav[i][0], seznamPovezav[i][1], seznamPovezav[i][2], seznamPovezav[i][3], seznamPovezav[i][4]), wxPoint(5, 320 + 12 * i));
 		for (int i = 0; i < seznamElementov.size(); i++) dc.DrawText(wxString::Format("%d: %d | %d | %d", i, seznamElementov[i][0], seznamElementov[i][1], seznamElementov[i][2]), wxPoint(90, 320 + 12 * i));
