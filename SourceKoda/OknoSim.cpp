@@ -643,6 +643,8 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	wxButton* izbElement = new wxButton(panel, wxID_ANY, "Izbrisi izbrani element", wxPoint(5, 220), wxSize(190, -1));
 	wxButton* izbVse = new wxButton(panel, wxID_ANY, "Izbrisi vse", wxPoint(5, 250), wxSize(190, -1));
 	wxButton* risanjePovezav = new wxButton(panel, wxID_ANY, "Risanje povezav", wxPoint(5,280), wxSize(190,-1));
+	wxButton* shrani = new wxButton(panel, wxID_ANY, "Shrani", wxPoint(5, 320), wxSize(190, -1));
+	wxButton* nalozi = new wxButton(panel, wxID_ANY, "Nalozi", wxPoint(5, 350), wxSize(190, -1));
 	wxButton* simuliraj = new wxButton(panel, wxID_ANY, "Simuliraj", wxPoint(5, 500), wxSize(190, 40));
 	wxButton* resetSim = new wxButton(panel, wxID_ANY, "Reset", wxPoint(5, 570), wxSize(190, -1));
 
@@ -667,6 +669,8 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	izbElement->Bind(wxEVT_BUTTON, &OknoSim::OnButtonIzbClicked, this);
 	izbVse->Bind(wxEVT_BUTTON, &OknoSim::OnButtonIzbVseClicked, this);
 	risanjePovezav->Bind(wxEVT_BUTTON, &OknoSim::OnRisanjePovezavClicked, this);
+	shrani->Bind(wxEVT_BUTTON, &OknoSim::OnShraniClicked, this);
+	nalozi->Bind(wxEVT_BUTTON, &OknoSim::OnNaloziClicked, this);
 	simuliraj->Bind(wxEVT_BUTTON, &OknoSim::OnSimulirajClicked, this);
 	resetSim->Bind(wxEVT_BUTTON, &OknoSim::OnResetSimClicked, this);
 	
@@ -1038,6 +1042,7 @@ void OknoSim::OnButtonIzbVseClicked(wxCommandEvent& evt) {
 
 	simbool = false;
 
+	seznamStikal.clear();
 	seznamPovezav.clear();
 	seznamElementov.clear();
 	seznamLastnosti.clear();
@@ -1074,6 +1079,156 @@ void OknoSim::OnRisanjePovezavClicked(wxCommandEvent& evt) {
 	Refresh();
 }
 
+void OknoSim::OnShraniClicked(wxCommandEvent& evt) {
+
+	simbool = false;
+	drzanjePovezav = 0;
+	seznamResitev = seznamResitevReset;
+	casSimulacije->SetValue(0);
+
+	Refresh();
+
+
+	std::ofstream shrani;
+	shrani.open("Shranjen_Primer_V2.txt", std::ios::out);
+
+	if (shrani.is_open()) {
+
+		shrani << "Zapis zacetnih podatkov simulacije" << std::endl;
+		shrani << __DATE__ << ", " << __TIME__ << std::endl << std::endl;
+
+
+		shrani << "Stevilo elementov: " << seznamElementov.size() << std::endl;
+
+		for (int i = 0; i < seznamElementov.size(); i++) {
+
+			shrani << seznamElementov[i].size() << ": ";
+			for (int j = 0; j < seznamElementov[i].size(); j++) shrani << seznamElementov[i][j] << " ";
+			shrani << std::endl;
+
+			shrani << seznamLastnosti[i].size() << ": ";
+			for (int j = 0; j < seznamLastnosti[i].size(); j++) shrani << seznamLastnosti[i][j] << " ";
+			shrani << std::endl;
+
+			shrani << seznamResitev[i].size() << ": ";
+			for (int j = 0; j < seznamResitev[i].size(); j++) shrani << seznamResitev[i][j] << " ";
+			shrani << std::endl << std::endl;
+		}
+		shrani << std::endl;
+
+
+		shrani << "Stevilo cevi: " << seznamPovezav.size() << std::endl;
+
+		for (int i = 0; i < seznamPovezav.size(); i++) {
+
+			shrani << seznamPovezav[i].size() << ": ";
+			for (int j = 0; j < seznamPovezav[i].size(); j++) shrani << seznamPovezav[i][j] << " ";
+			shrani << std::endl;
+		}
+		shrani << std::endl << std::endl;
+
+
+		shrani << "Stevilo stikal: " << seznamStikal.size() << std::endl;
+
+		for (int i = 0; i < seznamStikal.size(); i++) {
+
+			shrani << seznamStikal[i].size() << ": ";
+			for (int j = 0; j < seznamStikal[i].size(); j++) shrani << seznamStikal[i][j] << " ";
+			shrani << std::endl;
+		}
+		shrani << std::endl << std::endl;
+
+		shrani.close();
+	}
+}
+
+void OknoSim::OnNaloziClicked(wxCommandEvent& evt) {
+
+	std::ifstream nalozi;
+	nalozi.open("Shranjen_Primer_V2.txt", std::ios::in);
+
+	if (nalozi.is_open()) {
+
+		simbool = false;
+
+		seznamStikal.clear();
+		seznamPovezav.clear();
+		seznamElementov.clear();
+		seznamLastnosti.clear();
+		seznamResitevReset.clear();
+		seznamResitev = seznamResitevReset;
+
+		casSimulacije->SetValue(0);
+
+		izbranElement = -1;
+
+		Refresh();
+
+
+		std::string bes;
+		char ch;
+		int st;
+
+		nalozi >> bes >> bes >> bes >> bes;
+		nalozi >> bes >> bes >> bes >> bes;
+		nalozi >> bes >> bes;
+		nalozi >> st;
+
+		seznamElementov.resize(st);
+		seznamLastnosti.resize(st);
+		seznamResitevReset.resize(st);
+
+		for (int i = 0; i < st; i++) {
+
+			int pon;
+
+			nalozi >> pon >> ch;
+			for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamElementov[i].push_back(a); }
+
+			nalozi >> pon >> ch;
+			for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamLastnosti[i].push_back(a); }
+
+			nalozi >> pon >> ch;
+			for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamResitevReset[i].push_back(a); }
+		}
+
+
+		nalozi >> bes >> bes;
+		nalozi >> st;
+
+		seznamPovezav.resize(st);
+
+		for (int i = 0; i < st; i++) {
+
+			int pon;
+
+			nalozi >> pon >> ch;
+			for (int j = 0; j < pon; j++) { int a; nalozi >> a; seznamPovezav[i].push_back(a); }
+		}
+
+
+		nalozi >> bes >> bes;
+		nalozi >> st;
+
+		seznamStikal.resize(st);
+
+		for (int i = 0; i < st; i++) {
+
+			int pon;
+
+			nalozi >> pon >> ch;
+			for (int j = 0; j < pon; j++) { int a; nalozi >> a; seznamStikal[i].push_back(a); }
+		}
+
+
+		seznamResitev = seznamResitevReset;
+	}
+	else wxLogStatus("Datoteka ni najdena");
+
+
+	Refresh();
+}
+
 void OknoSim::OnSimulirajClicked(wxCommandEvent& evt) {
 
 	if (drzanjePovezav > 0) {
@@ -1085,7 +1240,6 @@ void OknoSim::OnSimulirajClicked(wxCommandEvent& evt) {
 	if (casSimulacije->GetValue() >= casSimulacije->GetRange() || casSimulacije->GetValue() == 0) {
 		casSimulacije->SetValue(0);
 		seznamResitev = seznamResitevReset;
-		//graf.clear();
 		Refresh();
 	}
 

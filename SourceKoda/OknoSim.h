@@ -18,6 +18,8 @@ private:
 	void OnRisanjePovezavClicked(wxCommandEvent& evt);
 	void OnSimulirajClicked(wxCommandEvent& evt);
 	void OnResetSimClicked(wxCommandEvent& evt);
+	void OnShraniClicked(wxCommandEvent& evt);
+	void OnNaloziClicked(wxCommandEvent& evt);
 	void OnButtonIzbClicked(wxCommandEvent& evt);
 	void OnButtonIzbVseClicked(wxCommandEvent& evt);
 };
