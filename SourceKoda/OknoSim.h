@@ -16,6 +16,8 @@ private:
 	void OnMouseDoubleEvent(wxMouseEvent& evt);
 
 	void OnRisanjePovezavClicked(wxCommandEvent& evt);
+	void OnSpinPovezavaChanged(wxCommandEvent& evt);
+	void OnBrisanjePovezavClicked(wxCommandEvent& evt);
 	void OnSimulirajClicked(wxCommandEvent& evt);
 	void OnResetSimClicked(wxCommandEvent& evt);
 	void OnShraniClicked(wxCommandEvent& evt);

@@ -603,6 +603,7 @@ bool drzanjeElementa = false;
 int casDrzanja = 0;
 short drzanjePovezav = 0;
 short izbranElement = -1;
+short izbranaPovezava = -1;
 
 std::vector<double> pogojiOkolja;
 // [tlak ozracja, temperatura ozracja]
@@ -631,6 +632,7 @@ std::vector<std::vector<double>> seznamStikal;
 
 wxChoice* choiceDod;
 wxGauge* casSimulacije;
+wxSpinCtrl* spinPovezava;
 
 bool simbool = false;
 double korak = .001; // Casovni korak simulacije [s]
@@ -643,8 +645,10 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	wxButton* izbElement = new wxButton(panel, wxID_ANY, "Izbrisi izbrani element", wxPoint(5, 220), wxSize(190, -1));
 	wxButton* izbVse = new wxButton(panel, wxID_ANY, "Izbrisi vse", wxPoint(5, 250), wxSize(190, -1));
 	wxButton* risanjePovezav = new wxButton(panel, wxID_ANY, "Risanje povezav", wxPoint(5,280), wxSize(190,-1));
-	wxButton* shrani = new wxButton(panel, wxID_ANY, "Shrani", wxPoint(5, 320), wxSize(190, -1));
-	wxButton* nalozi = new wxButton(panel, wxID_ANY, "Nalozi", wxPoint(5, 350), wxSize(190, -1));
+	spinPovezava = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(5, 310), wxSize(90, -1), wxSP_ARROW_KEYS | wxSP_WRAP, -1, -1, -1);
+	wxButton* brisanjePovezav = new wxButton(panel, wxID_ANY, "Brisi povezavo", wxPoint(105, 310), wxSize(90, -1));
+	wxButton* shrani = new wxButton(panel, wxID_ANY, "Shrani", wxPoint(5, 350), wxSize(190, -1));
+	wxButton* nalozi = new wxButton(panel, wxID_ANY, "Nalozi", wxPoint(5, 380), wxSize(190, -1));
 	wxButton* simuliraj = new wxButton(panel, wxID_ANY, "Simuliraj", wxPoint(5, 500), wxSize(190, 40));
 	wxButton* resetSim = new wxButton(panel, wxID_ANY, "Reset", wxPoint(5, 570), wxSize(190, -1));
 
@@ -669,6 +673,8 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	izbElement->Bind(wxEVT_BUTTON, &OknoSim::OnButtonIzbClicked, this);
 	izbVse->Bind(wxEVT_BUTTON, &OknoSim::OnButtonIzbVseClicked, this);
 	risanjePovezav->Bind(wxEVT_BUTTON, &OknoSim::OnRisanjePovezavClicked, this);
+	spinPovezava->Bind(wxEVT_SPINCTRL, &OknoSim::OnSpinPovezavaChanged, this);
+	brisanjePovezav->Bind(wxEVT_BUTTON, &OknoSim::OnBrisanjePovezavClicked, this);
 	shrani->Bind(wxEVT_BUTTON, &OknoSim::OnShraniClicked, this);
 	nalozi->Bind(wxEVT_BUTTON, &OknoSim::OnNaloziClicked, this);
 	simuliraj->Bind(wxEVT_BUTTON, &OknoSim::OnSimulirajClicked, this);
@@ -1079,6 +1085,23 @@ void OknoSim::OnRisanjePovezavClicked(wxCommandEvent& evt) {
 	Refresh();
 }
 
+void OknoSim::OnBrisanjePovezavClicked(wxCommandEvent& evt) {
+
+	if (izbranaPovezava > 0) {
+
+		seznamPovezav.erase(seznamPovezav.begin() + izbranaPovezava - 1);
+	}
+
+	Refresh();
+}
+
+void OknoSim::OnSpinPovezavaChanged(wxCommandEvent& evt) {
+
+	izbranaPovezava = spinPovezava->GetValue(); /////////////// mogoc dat v Refresh()
+
+	Refresh();
+}
+
 void OknoSim::OnShraniClicked(wxCommandEvent& evt) {
 
 	simbool = false;
@@ -1271,6 +1294,8 @@ void OknoSim::OnResetSimClicked(wxCommandEvent& evt) {
 
 
 void OknoSim::OnPaint(wxPaintEvent& evt) {
+
+	spinPovezava->SetRange(0, seznamPovezav.size());
 
 	wxPaintDC dc(this);
 	wxSize velikostOkna = this->GetSize();
@@ -1566,6 +1591,8 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 			if (seznamPovezav[i][4] == 0) dc.SetPen(wxPen(wxColour(153, 153, 153), 1, wxPENSTYLE_SOLID));
 			else if (seznamPovezav[i][4] == 1) dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
+			
+			if (i == izbranaPovezava - 1) dc.SetPen(wxPen(wxColour(0, 255, 0), 2, wxPENSTYLE_SOLID));
 
 			dc.DrawLine(tocka1, wxPoint((tocka1.x + tocka2.x) / 2, tocka1.y));
 			dc.DrawLine(wxPoint((tocka1.x + tocka2.x) / 2, tocka1.y), wxPoint((tocka1.x + tocka2.x) / 2, tocka2.y));
