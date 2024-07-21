@@ -8,8 +8,8 @@ wxIMPLEMENT_APP(App);
 
 bool App::OnInit() {
 
-	//OknoZac* oknoZac = new OknoZac("Pnevmaticni simulator"); // ustvarimo frame z imenom
-	OknoSim* oknoZac = new OknoSim("Pnevmaticni simulator");
+	OknoZac* oknoZac = new OknoZac("Pnevmaticni simulator"); // ustvarimo frame z imenom
+	//OknoSim* oknoZac = new OknoSim("Pnevmaticni simulator");
 	//MainFrame* oknoZac = new MainFrame("Pnevmaticni simulator");
 
 	oknoZac->SetClientSize(900, 600); // velikost aplikacije 180, 180

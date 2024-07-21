@@ -2,18 +2,21 @@
 #include "MainFrame.h"
 #include "OknoSim.h"
 #include <wx/wx.h>
+#include <wx/filedlg.h>
 
 
 
-OknoZac::OknoZac(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
+OknoZac::OknoZac(const wxString& title) : wxFrame(nullptr, wxID_ANY, title), m_textCtrl() {
 
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
 	wxButton* Gumb1 = new wxButton(panel, wxID_ANY, "Simulacija 1", wxPoint(40, 20), wxSize(100, 60));
 	wxButton* Gumb2 = new wxButton(panel, wxID_ANY, "Simulacija 2", wxPoint(40, 100), wxSize(100, 60));
+	wxButton* Gumb3 = new wxButton(panel, wxID_ANY, "Test", wxPoint(40, 170), wxSize(100, 60));
 
 	Gumb1->Bind(wxEVT_BUTTON, &OknoZac::OnButton1Clicked, this);
 	Gumb2->Bind(wxEVT_BUTTON, &OknoZac::OnButton2Clicked, this);
+	Gumb3->Bind(wxEVT_BUTTON, &OknoZac::OnButton3Clicked, this);
 
 	wxStatusBar* statusBar = CreateStatusBar();
 }
@@ -36,4 +39,17 @@ void OknoZac::OnButton2Clicked(wxCommandEvent& evt) {
 	oknoSim->Center();
 
 	oknoSim->Show(true);
+}
+
+void OknoZac::OnButton3Clicked(wxCommandEvent& evt) {
+
+	wxFileDialog* fileDialog = new wxFileDialog(this);
+
+	if (fileDialog->ShowModal() == wxID_OK) {
+
+		m_textCtrl = fileDialog->GetPath();
+		wxLogStatus(m_textCtrl);
+	}
+
+	fileDialog->Destroy();
 }

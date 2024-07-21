@@ -1605,14 +1605,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	
 	
 	//- IZRIS ELEMENTOV
-	/*if (casSimulacije->GetValue() == 0) { seznamResitev[1][0] = 1; }
-	if (casSimulacije->GetValue() == 1500) { seznamResitev[4][6] = -1; }
-	if (casSimulacije->GetValue() == 2000) { seznamResitev[1][0] = -1; }
-	if (casSimulacije->GetValue() == 2400) { seznamResitev[1][0] = 1; }
-	if (casSimulacije->GetValue() == 3000) { seznamResitev[4][6] = 1; }
-	if (casSimulacije->GetValue() == 3200) { seznamResitev[4][6] = -1; }
-	if (casSimulacije->GetValue() == 3400) { seznamResitev[4][6] = 1; }
-	if (casSimulacije->GetValue() == 5000) { seznamResitev[4][6] = -1; }*/
+	/*if (casSimulacije->GetValue() == 0) { seznamResitev[1][0] = 1; }*/
 	//if (casSimulacije->GetValue() == 3600) { seznamLastnosti[2][1] = 500000; seznamResitev[3][0] = 0; seznamResitev[5][0] = 0; } //////////////// podere program èe ni varnostnega ventila
 
 	if (simbool) for (int i = 0; i < 1; i++) seznamResitev = IzracunPovezav(pogojiOkolja, seznamElementov, seznamLastnosti, seznamResitev, seznamPovezav, seznamStikal, korak);
