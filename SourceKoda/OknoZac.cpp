@@ -6,7 +6,7 @@
 
 
 
-OknoZac::OknoZac(const wxString& title) : wxFrame(nullptr, wxID_ANY, title), m_textCtrl() {
+OknoZac::OknoZac(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
@@ -43,13 +43,5 @@ void OknoZac::OnButton2Clicked(wxCommandEvent& evt) {
 
 void OknoZac::OnButton3Clicked(wxCommandEvent& evt) {
 
-	wxFileDialog* fileDialog = new wxFileDialog(this);
-
-	if (fileDialog->ShowModal() == wxID_OK) {
-
-		m_textCtrl = fileDialog->GetPath();
-		wxLogStatus(m_textCtrl);
-	}
-
-	fileDialog->Destroy();
+	wxLogStatus("Test");
 }

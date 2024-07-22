@@ -1112,141 +1112,158 @@ void OknoSim::OnShraniClicked(wxCommandEvent& evt) {
 	Refresh();
 
 
-	std::ofstream shrani;
-	shrani.open("Shranjen_Primer_V2.txt", std::ios::out);
+	std::string ime = __DATE__;
+	wxFileDialog* fileDialog = new wxFileDialog(this, "Shrani", wxEmptyString, "Simulacija " + ime, "Text files (*.txt)|*.txt", wxFD_SAVE);
 
-	if (shrani.is_open()) {
+	if (fileDialog->ShowModal() == wxID_OK) {
 
-		shrani << "Zapis zacetnih podatkov simulacije" << std::endl;
-		shrani << __DATE__ << ", " << __TIME__ << std::endl << std::endl;
+		std::string pot = static_cast<std::string>(fileDialog->GetPath());
+
+		std::ofstream shrani;
+		shrani.open(pot, std::ios::out);
+
+		if (shrani.is_open()) {
+
+			shrani << "Zapis zacetnih podatkov simulacije" << std::endl;
+			shrani << __DATE__ << ", " << __TIME__ << std::endl << std::endl;
 
 
-		shrani << "Stevilo elementov: " << seznamElementov.size() << std::endl;
+			shrani << "Stevilo elementov: " << seznamElementov.size() << std::endl;
 
-		for (int i = 0; i < seznamElementov.size(); i++) {
+			for (int i = 0; i < seznamElementov.size(); i++) {
 
-			shrani << seznamElementov[i].size() << ": ";
-			for (int j = 0; j < seznamElementov[i].size(); j++) shrani << seznamElementov[i][j] << " ";
+				shrani << seznamElementov[i].size() << ": ";
+				for (int j = 0; j < seznamElementov[i].size(); j++) shrani << seznamElementov[i][j] << " ";
+				shrani << std::endl;
+
+				shrani << seznamLastnosti[i].size() << ": ";
+				for (int j = 0; j < seznamLastnosti[i].size(); j++) shrani << seznamLastnosti[i][j] << " ";
+				shrani << std::endl;
+
+				shrani << seznamResitev[i].size() << ": ";
+				for (int j = 0; j < seznamResitev[i].size(); j++) shrani << seznamResitev[i][j] << " ";
+				shrani << std::endl << std::endl;
+			}
 			shrani << std::endl;
 
-			shrani << seznamLastnosti[i].size() << ": ";
-			for (int j = 0; j < seznamLastnosti[i].size(); j++) shrani << seznamLastnosti[i][j] << " ";
-			shrani << std::endl;
 
-			shrani << seznamResitev[i].size() << ": ";
-			for (int j = 0; j < seznamResitev[i].size(); j++) shrani << seznamResitev[i][j] << " ";
+			shrani << "Stevilo cevi: " << seznamPovezav.size() << std::endl;
+
+			for (int i = 0; i < seznamPovezav.size(); i++) {
+
+				shrani << seznamPovezav[i].size() << ": ";
+				for (int j = 0; j < seznamPovezav[i].size(); j++) shrani << seznamPovezav[i][j] << " ";
+				shrani << std::endl;
+			}
 			shrani << std::endl << std::endl;
+
+
+			shrani << "Stevilo stikal: " << seznamStikal.size() << std::endl;
+
+			for (int i = 0; i < seznamStikal.size(); i++) {
+
+				shrani << seznamStikal[i].size() << ": ";
+				for (int j = 0; j < seznamStikal[i].size(); j++) shrani << seznamStikal[i][j] << " ";
+				shrani << std::endl;
+			}
+			shrani << std::endl << std::endl;
+
+			shrani.close();
 		}
-		shrani << std::endl;
-
-
-		shrani << "Stevilo cevi: " << seznamPovezav.size() << std::endl;
-
-		for (int i = 0; i < seznamPovezav.size(); i++) {
-
-			shrani << seznamPovezav[i].size() << ": ";
-			for (int j = 0; j < seznamPovezav[i].size(); j++) shrani << seznamPovezav[i][j] << " ";
-			shrani << std::endl;
-		}
-		shrani << std::endl << std::endl;
-
-
-		shrani << "Stevilo stikal: " << seznamStikal.size() << std::endl;
-
-		for (int i = 0; i < seznamStikal.size(); i++) {
-
-			shrani << seznamStikal[i].size() << ": ";
-			for (int j = 0; j < seznamStikal[i].size(); j++) shrani << seznamStikal[i][j] << " ";
-			shrani << std::endl;
-		}
-		shrani << std::endl << std::endl;
-
-		shrani.close();
 	}
 }
 
 void OknoSim::OnNaloziClicked(wxCommandEvent& evt) {
 
-	std::ifstream nalozi;
-	nalozi.open("Shranjen_Primer_V2.txt", std::ios::in);
+	wxFileDialog* fileDialog = new wxFileDialog(this, "Odpri datoteko", wxEmptyString, wxEmptyString, wxFileSelectorDefaultWildcardStr, wxFD_OPEN);
 
-	if (nalozi.is_open()) {
+	if (fileDialog->ShowModal() == wxID_OK) {
 
-		simbool = false;
+		std::string pot = static_cast<std::string>(fileDialog->GetPath());
 
-		seznamStikal.clear();
-		seznamPovezav.clear();
-		seznamElementov.clear();
-		seznamLastnosti.clear();
-		seznamResitevReset.clear();
-		seznamResitev = seznamResitevReset;
+		std::ifstream nalozi;
+		nalozi.open(pot, std::ios::in);
 
-		casSimulacije->SetValue(0);
+		if (nalozi.is_open()) {
 
-		izbranElement = -1;
+			simbool = false;
 
-		Refresh();
+			seznamStikal.clear();
+			seznamPovezav.clear();
+			seznamElementov.clear();
+			seznamLastnosti.clear();
+			seznamResitevReset.clear();
+			seznamResitev = seznamResitevReset;
+
+			casSimulacije->SetValue(0);
+
+			izbranElement = -1;
+
+			Refresh();
 
 
-		std::string bes;
-		char ch;
-		int st;
+			std::string bes;
+			char ch;
+			int st;
 
-		nalozi >> bes >> bes >> bes >> bes;
-		nalozi >> bes >> bes >> bes >> bes;
-		nalozi >> bes >> bes;
-		nalozi >> st;
+			nalozi >> bes >> bes >> bes >> bes;
+			nalozi >> bes >> bes >> bes >> bes;
+			nalozi >> bes >> bes;
+			nalozi >> st;
 
-		seznamElementov.resize(st);
-		seznamLastnosti.resize(st);
-		seznamResitevReset.resize(st);
+			seznamElementov.resize(st);
+			seznamLastnosti.resize(st);
+			seznamResitevReset.resize(st);
 
-		for (int i = 0; i < st; i++) {
+			for (int i = 0; i < st; i++) {
 
-			int pon;
+				int pon;
 
-			nalozi >> pon >> ch;
-			for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamElementov[i].push_back(a); }
+				nalozi >> pon >> ch;
+				for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamElementov[i].push_back(a); }
 
-			nalozi >> pon >> ch;
-			for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamLastnosti[i].push_back(a); }
+				nalozi >> pon >> ch;
+				for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamLastnosti[i].push_back(a); }
 
-			nalozi >> pon >> ch;
-			for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamResitevReset[i].push_back(a); }
+				nalozi >> pon >> ch;
+				for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamResitevReset[i].push_back(a); }
+			}
+
+
+			nalozi >> bes >> bes;
+			nalozi >> st;
+
+			seznamPovezav.resize(st);
+
+			for (int i = 0; i < st; i++) {
+
+				int pon;
+
+				nalozi >> pon >> ch;
+				for (int j = 0; j < pon; j++) { int a; nalozi >> a; seznamPovezav[i].push_back(a); }
+			}
+
+
+			nalozi >> bes >> bes;
+			nalozi >> st;
+
+			seznamStikal.resize(st);
+
+			for (int i = 0; i < st; i++) {
+
+				int pon;
+
+				nalozi >> pon >> ch;
+				for (int j = 0; j < pon; j++) { int a; nalozi >> a; seznamStikal[i].push_back(a); }
+			}
+
+
+			seznamResitev = seznamResitevReset;
 		}
-
-
-		nalozi >> bes >> bes;
-		nalozi >> st;
-
-		seznamPovezav.resize(st);
-
-		for (int i = 0; i < st; i++) {
-
-			int pon;
-
-			nalozi >> pon >> ch;
-			for (int j = 0; j < pon; j++) { int a; nalozi >> a; seznamPovezav[i].push_back(a); }
-		}
-
-
-		nalozi >> bes >> bes;
-		nalozi >> st;
-
-		seznamStikal.resize(st);
-
-		for (int i = 0; i < st; i++) {
-
-			int pon;
-
-			nalozi >> pon >> ch;
-			for (int j = 0; j < pon; j++) { int a; nalozi >> a; seznamStikal[i].push_back(a); }
-		}
-
-
-		seznamResitev = seznamResitevReset;
+		else wxLogStatus("Datoteka ni najdena");
 	}
-	else wxLogStatus("Datoteka ni najdena");
+
+	fileDialog->Destroy();
 
 
 	Refresh();
