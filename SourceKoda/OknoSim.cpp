@@ -1186,80 +1186,85 @@ void OknoSim::OnNaloziClicked(wxCommandEvent& evt) {
 
 		if (nalozi.is_open()) {
 
-			simbool = false;
-
-			seznamStikal.clear();
-			seznamPovezav.clear();
-			seznamElementov.clear();
-			seznamLastnosti.clear();
-			seznamResitevReset.clear();
-			seznamResitev = seznamResitevReset;
-
-			casSimulacije->SetValue(0);
-
-			izbranElement = -1;
-
-			Refresh();
-
-
 			std::string bes;
 			char ch;
 			int st;
 
 			nalozi >> bes >> bes >> bes >> bes;
-			nalozi >> bes >> bes >> bes >> bes;
-			nalozi >> bes >> bes;
-			nalozi >> st;
+			if (!(bes == "simulacije")) wxMessageBox(wxT("Neustrezna datoteka!"));
 
-			seznamElementov.resize(st);
-			seznamLastnosti.resize(st);
-			seznamResitevReset.resize(st);
+			else {
 
-			for (int i = 0; i < st; i++) {
+				simbool = false;
 
-				int pon;
+				seznamStikal.clear();
+				seznamPovezav.clear();
+				seznamElementov.clear();
+				seznamLastnosti.clear();
+				seznamResitevReset.clear();
+				seznamResitev = seznamResitevReset;
 
-				nalozi >> pon >> ch;
-				for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamElementov[i].push_back(a); }
+				casSimulacije->SetValue(0);
 
-				nalozi >> pon >> ch;
-				for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamLastnosti[i].push_back(a); }
+				izbranElement = -1;
 
-				nalozi >> pon >> ch;
-				for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamResitevReset[i].push_back(a); }
+				Refresh();
+
+
+				nalozi >> bes >> bes >> bes >> bes;
+				nalozi >> bes >> bes;
+				nalozi >> st;
+
+				seznamElementov.resize(st);
+				seznamLastnosti.resize(st);
+				seznamResitevReset.resize(st);
+
+				for (int i = 0; i < st; i++) {
+
+					int pon;
+
+					nalozi >> pon >> ch;
+					for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamElementov[i].push_back(a); }
+
+					nalozi >> pon >> ch;
+					for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamLastnosti[i].push_back(a); }
+
+					nalozi >> pon >> ch;
+					for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamResitevReset[i].push_back(a); }
+				}
+
+
+				nalozi >> bes >> bes;
+				nalozi >> st;
+
+				seznamPovezav.resize(st);
+
+				for (int i = 0; i < st; i++) {
+
+					int pon;
+
+					nalozi >> pon >> ch;
+					for (int j = 0; j < pon; j++) { int a; nalozi >> a; seznamPovezav[i].push_back(a); }
+				}
+
+
+				nalozi >> bes >> bes;
+				nalozi >> st;
+
+				seznamStikal.resize(st);
+
+				for (int i = 0; i < st; i++) {
+
+					int pon;
+
+					nalozi >> pon >> ch;
+					for (int j = 0; j < pon; j++) { int a; nalozi >> a; seznamStikal[i].push_back(a); }
+				}
 			}
-
-
-			nalozi >> bes >> bes;
-			nalozi >> st;
-
-			seznamPovezav.resize(st);
-
-			for (int i = 0; i < st; i++) {
-
-				int pon;
-
-				nalozi >> pon >> ch;
-				for (int j = 0; j < pon; j++) { int a; nalozi >> a; seznamPovezav[i].push_back(a); }
-			}
-
-
-			nalozi >> bes >> bes;
-			nalozi >> st;
-
-			seznamStikal.resize(st);
-
-			for (int i = 0; i < st; i++) {
-
-				int pon;
-
-				nalozi >> pon >> ch;
-				for (int j = 0; j < pon; j++) { int a; nalozi >> a; seznamStikal[i].push_back(a); }
-			}
-
 
 			seznamResitev = seznamResitevReset;
 		}
+
 		else wxLogStatus("Datoteka ni najdena");
 	}
 
