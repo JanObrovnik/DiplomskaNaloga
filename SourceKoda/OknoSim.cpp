@@ -209,7 +209,7 @@ std::vector<double> IzracunPriseska(std::vector<double> pogojiOkolja, std::vecto
 }
 
 
-std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja, std::vector<std::vector<int>> seznamElementov, std::vector<std::vector<double>> seznamLastnosti, std::vector<std::vector<double>> seznamResitev, std::vector<std::vector<int>> seznamPovezav, std::vector<std::vector<double>> seznamStikal, double korak) {
+std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja, std::vector<std::vector<int>> seznamElementov, std::vector<std::vector<double>> seznamLastnosti, std::vector<std::vector<double>> seznamResitev, std::vector<std::vector<int>> seznamPovezav, std::vector<std::vector<double>> seznamStikal, double korak, int cas) {
 
 	std::vector<std::vector<double>> masniTok;
 	masniTok.resize(seznamElementov.size());
@@ -230,19 +230,39 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 	//- STIKALA
 	for (int i = 0; i < seznamStikal.size(); i++) {
 
-		if (seznamStikal[i][2] < 0) {
+		if (seznamStikal[i][0] == -1) {
 
-			if (seznamResitev[seznamStikal[i][0]][seznamStikal[i][1]] < seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
+			if (seznamStikal[i][2] < 0) {
+
+				if (cas * korak < seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
+			}
+
+			else if (seznamStikal[i][2] == 0) {
+
+				if (cas * korak == seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
+			}
+
+			else if (seznamStikal[i][2] > 0) {
+
+				if (cas * korak > seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
+			}
 		}
 
-		else if (seznamStikal[i][2] == 0) {
+		else {
+			if (seznamStikal[i][2] < 0) {
 
-			if (seznamResitev[seznamStikal[i][0]][seznamStikal[i][1]] == seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
-		}
+				if (seznamResitev[seznamStikal[i][0]][seznamStikal[i][1]] < seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
+			}
 
-		else if (seznamStikal[i][2] > 0) {
+			else if (seznamStikal[i][2] == 0) {
 
-			if (seznamResitev[seznamStikal[i][0]][seznamStikal[i][1]] > seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
+				if (seznamResitev[seznamStikal[i][0]][seznamStikal[i][1]] == seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
+			}
+
+			else if (seznamStikal[i][2] > 0) {
+
+				if (seznamResitev[seznamStikal[i][0]][seznamStikal[i][1]] > seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
+			}
 		}
 	}
 
@@ -1636,7 +1656,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	/*if (casSimulacije->GetValue() == 0) { seznamResitev[1][0] = 1; }*/
 	//if (casSimulacije->GetValue() == 3600) { seznamLastnosti[2][1] = 500000; seznamResitev[3][0] = 0; seznamResitev[5][0] = 0; } //////////////// podere program èe ni varnostnega ventila
 
-	if (simbool) for (int i = 0; i < 1; i++) seznamResitev = IzracunPovezav(pogojiOkolja, seznamElementov, seznamLastnosti, seznamResitev, seznamPovezav, seznamStikal, korak);
+	if (simbool) for (int i = 0; i < 1; i++) seznamResitev = IzracunPovezav(pogojiOkolja, seznamElementov, seznamLastnosti, seznamResitev, seznamPovezav, seznamStikal, korak, casSimulacije->GetValue());
 
 	for (int i = 0; i < seznamElementov.size(); i++) {
 		std::vector<int> xy = seznamElementov[i];
@@ -1933,7 +1953,7 @@ wxChoice* choicePinPisanje;
 wxChoice* choiceVelicinaPisanje;
 wxChoice* choiceVrednostPisanje;
 
-NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Mikro Procesorja"), wxPoint(0, 0), wxSize(540, 300)) {
+NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Mikro Procesorja"), wxPoint(0, 0), wxSize(600, 300)) {
 
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
@@ -1943,6 +1963,7 @@ NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_A
 
 	wxArrayString ArPinBranje;
 	wxArrayString ArPinPisanje;
+	ArPinBranje.Add(" cas");
 	for (int j = 0; j < seznamPovezav.size(); j++) if (seznamPovezav[j][4] == 0) {
 		if (seznamPovezav[j][0] == izbranElement) {
 
@@ -1977,18 +1998,18 @@ NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_A
 	choiceLogFun = new wxChoice(panel, wxID_ANY, wxPoint(200, 5), wxSize(36, -1), ArLogFun);
 	choiceLogFun->Disable();
 	
-	spinVrednostBranje = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(240, 5), wxSize(56, -1), wxSP_ARROW_KEYS | wxSP_WRAP, -1000, 1000, 0, .01);
+	spinVrednostBranje = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(240, 5), wxSize(56, -1), wxSP_ARROW_KEYS | wxSP_WRAP, -10000, 10000, 0, .01);
 	spinVrednostBranje->Disable();
 
 
-	choicePinPisanje = new wxChoice(panel, wxID_ANY, wxPoint(300, 5), wxSize(36, -1), ArPinPisanje);
+	choicePinPisanje = new wxChoice(panel, wxID_ANY, wxPoint(370, 5), wxSize(36, -1), ArPinPisanje);
 	choicePinPisanje->Disable();
 
 	wxArrayString ArVelicinaPisanje;
 	ArVelicinaPisanje.Add(" ");
 	ArVelicinaPisanje.Add(" ");
 
-	choiceVelicinaPisanje = new wxChoice(panel, wxID_ANY, wxPoint(340, 5), wxSize(96, -1), ArVelicinaPisanje);
+	choiceVelicinaPisanje = new wxChoice(panel, wxID_ANY, wxPoint(410, 5), wxSize(96, -1), ArVelicinaPisanje);
 	choiceVelicinaPisanje->Disable();
 
 	wxArrayString ArVrednostiPisanje;
@@ -1996,7 +2017,7 @@ NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_A
 	ArVrednostiPisanje.Add(" ");
 	ArVrednostiPisanje.Add(" ");
 
-	choiceVrednostPisanje = new wxChoice(panel, wxID_ANY, wxPoint(440, 5), wxSize(56, -1), ArVrednostiPisanje);
+	choiceVrednostPisanje = new wxChoice(panel, wxID_ANY, wxPoint(510, 5), wxSize(56, -1), ArVrednostiPisanje);
 	choiceVrednostPisanje->Disable();
 
 	wxButton* dodaj = new wxButton(panel, wxID_ANY, "Dodaj ukaz", wxPoint(100, 35), wxDefaultSize);
@@ -2031,27 +2052,33 @@ void NastavitevMikroProcesorja::OnDodajClicked(wxCommandEvent& evt) {
 		seznamStikal[sezSize].resize(7);
 
 
-		int pin;
-		pin = std::stoi(static_cast<std::string> (choicePinBranje->GetString(choicePinBranje->GetSelection())));
-		for (int i = 0; i < seznamPovezav.size(); i++) {
-			if ((seznamPovezav[i][0] == izbranElement && seznamPovezav[i][1] == pin) || (seznamPovezav[i][2] == izbranElement && seznamPovezav[i][3] == pin)) {
-				int zamik = 0;
-				if (seznamPovezav[i][2] == izbranElement && seznamPovezav[i][3] == pin) zamik = -2;
+		if (choicePinBranje->GetSelection() == 0) {
+			seznamStikal[sezSize][0] = -1;
+			//seznamStikal[sezSize][1] = 2;
+		}
+		else {
+			int pin;
+			pin = std::stoi(static_cast<std::string> (choicePinBranje->GetString(choicePinBranje->GetSelection())));
+			for (int i = 0; i < seznamPovezav.size(); i++) {
+				if ((seznamPovezav[i][0] == izbranElement && seznamPovezav[i][1] == pin) || (seznamPovezav[i][2] == izbranElement && seznamPovezav[i][3] == pin)) {
+					int zamik = 0;
+					if (seznamPovezav[i][2] == izbranElement && seznamPovezav[i][3] == pin) zamik = -2;
 
-				seznamStikal[sezSize][0] = seznamPovezav[i][2 + zamik];
-				
-				if (seznamElementov[seznamStikal[sezSize][0]][2] == 2) {
-					
-					if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p") seznamStikal[sezSize][1] = 2;
+					seznamStikal[sezSize][0] = seznamPovezav[i][2 + zamik];
+
+					if (seznamElementov[seznamStikal[sezSize][0]][2] == 2) {
+
+						if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p") seznamStikal[sezSize][1] = 2;
+					}
+					else if (seznamElementov[seznamStikal[sezSize][0]][2] == 3) {
+						if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p0") seznamStikal[sezSize][1] = 2;
+						else if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p1") seznamStikal[sezSize][1] = 5;
+					}
+					else if (seznamElementov[seznamStikal[sezSize][0]][2] == 4) {
+						if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p") seznamStikal[sezSize][1] = 2;
+					}
+					//break;
 				}
-				else if (seznamElementov[seznamStikal[sezSize][0]][2] == 3) {
-					if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p0") seznamStikal[sezSize][1] = 2;
-					else if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p1") seznamStikal[sezSize][1] = 5;
-				}
-				else if (seznamElementov[seznamStikal[sezSize][0]][2] == 4) {
-					if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p") seznamStikal[sezSize][1] = 2;
-				}
-				//break;
 			}
 		}
 
@@ -2059,8 +2086,10 @@ void NastavitevMikroProcesorja::OnDodajClicked(wxCommandEvent& evt) {
 		else if (choiceLogFun->GetSelection() == 1) seznamStikal[sezSize][2] = 0;
 		else if (choiceLogFun->GetSelection() == 2) seznamStikal[sezSize][2] = 1;
 
-		seznamStikal[sezSize][3] = spinVrednostBranje->GetValue() * 100000; ///////////////// Mogoc ni za vse primere treba pretvorbe med bar in Pa
+		if (choicePinBranje->GetSelection() == 0) seznamStikal[sezSize][3] = spinVrednostBranje->GetValue() * korak;
+		else seznamStikal[sezSize][3] = spinVrednostBranje->GetValue() * 100000;
 
+		int pin;
 		pin = std::stoi(static_cast<std::string> (choicePinPisanje->GetString(choicePinPisanje->GetSelection())));
 		for (int i = 0; i < seznamPovezav.size(); i++) {
 			if ((seznamPovezav[i][0] == izbranElement && seznamPovezav[i][1] == pin) || (seznamPovezav[i][2] == izbranElement && seznamPovezav[i][3] == pin)) {
@@ -2161,7 +2190,7 @@ void NastavitevMikroProcesorja::OnRefresh(wxCommandEvent& evt) {
 							choiceVrednostPisanje->SetString(1, " 1");
 						}
 						else if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " pozicija") {
-							choiceVrednostPisanje->SetString(0, " 0");
+							choiceVrednostPisanje->SetString(0, " -1");
 							choiceVrednostPisanje->SetString(1, " 1");
 						}
 					}
@@ -2185,23 +2214,29 @@ void NastavitevMikroProcesorja::OnRefresh(wxCommandEvent& evt) {
 		choiceVelicinaBranje->SetString(0, " ");
 		choiceVelicinaBranje->SetString(1, " ");
 
-		int pin = std::stoi(static_cast<std::string> (choicePinBranje->GetString(choicePinBranje->GetSelection())));
-		for (int i = 0; i < seznamPovezav.size(); i++) {
-			if ((seznamPovezav[i][0] == izbranElement && seznamPovezav[i][1] == pin) || (seznamPovezav[i][2] == izbranElement && seznamPovezav[i][3] == pin)) {
-				int zamik = 0;
-				if (seznamPovezav[i][2] == izbranElement && seznamPovezav[i][3] == pin) zamik = -2;
+		if (choicePinBranje->GetSelection() == 0) {
+			choiceVelicinaBranje->SetString(0, " t");
+		}
 
-				if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == 2) {
-					choiceVelicinaBranje->SetString(0, " p");
+		else {
+			int pin = std::stoi(static_cast<std::string> (choicePinBranje->GetString(choicePinBranje->GetSelection())));
+			for (int i = 0; i < seznamPovezav.size(); i++) {
+				if ((seznamPovezav[i][0] == izbranElement && seznamPovezav[i][1] == pin) || (seznamPovezav[i][2] == izbranElement && seznamPovezav[i][3] == pin)) {
+					int zamik = 0;
+					if (seznamPovezav[i][2] == izbranElement && seznamPovezav[i][3] == pin) zamik = -2;
+
+					if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == 2) {
+						choiceVelicinaBranje->SetString(0, " p");
+					}
+					else if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == 3) {
+						choiceVelicinaBranje->SetString(0, " p0");
+						choiceVelicinaBranje->SetString(1, " p1");
+					}
+					else if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == 4) {
+						choiceVelicinaBranje->SetString(0, " p");
+					}
+					//break;
 				}
-				else if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == 3) {
-					choiceVelicinaBranje->SetString(0, " p0");
-					choiceVelicinaBranje->SetString(1, " p1");
-				}
-				else if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == 4) {
-					choiceVelicinaBranje->SetString(0, " p");
-				}
-				//break;
 			}
 		}
 	}
@@ -2221,26 +2256,38 @@ void NastavitevMikroProcesorja::OnPaint(wxPaintEvent& evt) {
 		for (int i = 0; i < seznamStikal.size(); i++) dc.DrawText(wxString::Format("%g | %g | %g | %g | %g | %g | %g", seznamStikal[i][0], seznamStikal[i][1], seznamStikal[i][2], seznamStikal[i][3], seznamStikal[i][4], seznamStikal[i][5], seznamStikal[i][6]), wxPoint(200, 100 + 20 * i));
 	} //////////////// Za izris stikal daj wxArray
 
+
+	dc.DrawText("If pin", wxPoint(70, 8));
+	dc.DrawText("--> pin", wxPoint(330, 8));
+
+	wxString enota;
+	if (choicePinBranje->GetSelection() == 0) enota = "ms:";
+	else if (choicePinBranje->GetSelection() > 0) enota = "bar:";
+	else enota = "/:";
+	dc.DrawText(enota, wxPoint(300, 8));
+
+	dc.DrawText(wxString::Format("choicePinBranje %d", choicePinBranje->GetSelection()), wxPoint(200, 40));
+
 	for (int i = 0; i < 8; i++) {
 		short najdena = 0;
 		for(int j = 0; j < seznamPovezav.size(); j++) {
 			if (seznamPovezav[j][0] == izbranElement && seznamPovezav[j][1] == i) {
 				
-				if (seznamElementov[seznamPovezav[j][2]][2] == 2) dc.DrawText(wxString::Format("%d: Branje", i), wxPoint(5, 5 + 15 * i));
-				else if (seznamElementov[seznamPovezav[j][2]][2] == 1) dc.DrawText(wxString::Format("%d: Pisanje", i), wxPoint(5, 5 + 15 * i));
-				else dc.DrawText(wxString::Format("%d: /", i), wxPoint(5, 5 + 15 * i));
+				if (seznamElementov[seznamPovezav[j][2]][2] == 2) dc.DrawText(wxString::Format("%d: Branje", i), wxPoint(5, 100 + 15 * i));
+				else if (seznamElementov[seznamPovezav[j][2]][2] == 1) dc.DrawText(wxString::Format("%d: Pisanje", i), wxPoint(5, 100 + 15 * i));
+				else dc.DrawText(wxString::Format("%d: Branje/Pisanje", i), wxPoint(5, 100 + 15 * i));
 				
 			}
 			else if (seznamPovezav[j][2] == izbranElement && seznamPovezav[j][3] == i) {
 				
-				if (seznamElementov[seznamPovezav[j][0]][2] == 2) dc.DrawText(wxString::Format("%d: Branje", i), wxPoint(5, 5 + 15 * i));
-				else if (seznamElementov[seznamPovezav[j][0]][2] == 1) dc.DrawText(wxString::Format("%d: Pisanje", i), wxPoint(5, 5 + 15 * i));
-				else dc.DrawText(wxString::Format("%d: /", i), wxPoint(5, 5 + 15 * i));
+				if (seznamElementov[seznamPovezav[j][0]][2] == 2) dc.DrawText(wxString::Format("%d: Branje", i), wxPoint(5, 100 + 15 * i));
+				else if (seznamElementov[seznamPovezav[j][0]][2] == 1) dc.DrawText(wxString::Format("%d: Pisanje", i), wxPoint(5, 100 + 15 * i));
+				else dc.DrawText(wxString::Format("%d: Branje/Pisanje", i), wxPoint(5, 100 + 15 * i));
 				
 			}
 			else najdena++;
 		}
-		if (najdena == seznamPovezav.size()) dc.DrawText(wxString::Format("%d: -", i), wxPoint(5, 5 + 15 * i));
+		if (najdena == seznamPovezav.size()) dc.DrawText(wxString::Format("%d: -", i), wxPoint(5, 100 + 15 * i));
 	}
 }
 
@@ -2329,7 +2376,7 @@ void NastavitevTlacnePosode::OnApplyClicked(wxCommandEvent& evt) {
 	}
 
 	seznamLastnosti[izbranElement][0] = volumenTlacnePosode->GetValue();
-	seznamResitevReset[izbranElement][2] = zacTlakTlacnePosode->GetValue() * 100000; ///////////////// napacna stvar
+	seznamResitevReset[izbranElement][2] = zacTlakTlacnePosode->GetValue() * 100000;
 	
 	seznamResitev = seznamResitevReset;
 }
