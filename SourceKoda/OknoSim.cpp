@@ -1664,25 +1664,25 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 		switch (xy[2]) {
 
-		case 0:
+		case 0: //- Mikrokrmilnik
 
 			dc.DrawRectangle(wxPoint(xy[0], xy[1]), wxSize(100, 140));
 			dc.DrawText("0", wxPoint(xy[0] + 88, xy[1] + 5));
-			dc.DrawLine(wxPoint(xy[0] + 100, xy[1] + 10), wxPoint(xy[0] + 110, xy[1] + 10));
+			dc.DrawLine(wxPoint(xy[0] + 110, xy[1] + 10), wxPoint(xy[0] + 100, xy[1] + 10));
 			dc.DrawText("1", wxPoint(xy[0] + 88, xy[1] + 20));
-			dc.DrawLine(wxPoint(xy[0] + 100, xy[1] + 25), wxPoint(xy[0] + 110, xy[1] + 25));
+			dc.DrawLine(wxPoint(xy[0] + 110, xy[1] + 25), wxPoint(xy[0] + 100, xy[1] + 25));
 			dc.DrawText("2", wxPoint(xy[0] + 88, xy[1] + 35));
-			dc.DrawLine(wxPoint(xy[0] + 100, xy[1] + 40), wxPoint(xy[0] + 110, xy[1] + 40));
+			dc.DrawLine(wxPoint(xy[0] + 110, xy[1] + 40), wxPoint(xy[0] + 100, xy[1] + 40));
 			dc.DrawText("3", wxPoint(xy[0] + 88, xy[1] + 50));
-			dc.DrawLine(wxPoint(xy[0] + 100, xy[1] + 55), wxPoint(xy[0] + 110, xy[1] + 55));
+			dc.DrawLine(wxPoint(xy[0] + 110, xy[1] + 55), wxPoint(xy[0] + 100, xy[1] + 55));
 			dc.DrawText("4", wxPoint(xy[0] + 88, xy[1] + 65));
-			dc.DrawLine(wxPoint(xy[0] + 100, xy[1] + 70), wxPoint(xy[0] + 110, xy[1] + 70));
+			dc.DrawLine(wxPoint(xy[0] + 110, xy[1] + 70), wxPoint(xy[0] + 100, xy[1] + 70));
 			dc.DrawText("5", wxPoint(xy[0] + 88, xy[1] + 80));
-			dc.DrawLine(wxPoint(xy[0] + 100, xy[1] + 85), wxPoint(xy[0] + 110, xy[1] + 85));
+			dc.DrawLine(wxPoint(xy[0] + 110, xy[1] + 85), wxPoint(xy[0] + 100, xy[1] + 85));
 			dc.DrawText("6", wxPoint(xy[0] + 88, xy[1] + 95));
-			dc.DrawLine(wxPoint(xy[0] + 100, xy[1] + 100), wxPoint(xy[0] + 110, xy[1] + 100));
+			dc.DrawLine(wxPoint(xy[0] + 110, xy[1] + 100), wxPoint(xy[0] + 100, xy[1] + 100));
 			dc.DrawText("7", wxPoint(xy[0] + 88, xy[1] + 110));
-			dc.DrawLine(wxPoint(xy[0] + 100, xy[1] + 115), wxPoint(xy[0] + 110, xy[1] + 115));
+			dc.DrawLine(wxPoint(xy[0] + 110, xy[1] + 115), wxPoint(xy[0] + 100, xy[1] + 115));
 
 			dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1] - 16));
 
@@ -1705,7 +1705,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 			break;
 
-		case 1:
+		case 1: //- Kompresor
 
 			if (true) {
 				wxPoint* t1 = new wxPoint(xy[0], xy[1]);
@@ -1755,7 +1755,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 			break;
 
-		case 2:
+		case 2: //- Tlacna posoda
 
 			dc.DrawRoundedRectangle(wxPoint(xy[0], xy[1]), wxSize(120, 40), 20);
 			dc.DrawLine(wxPoint(xy[0] + 30, xy[1] - 10), wxPoint(xy[0] + 30, xy[1]));
@@ -1763,7 +1763,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
 
 			dc.DrawLine(wxPoint(xy[0] - 10, xy[1] + 20), wxPoint(xy[0], xy[1] + 20));
-			dc.DrawLine(wxPoint(xy[0] + 120, xy[1] + 20), wxPoint(xy[0] + 130, xy[1] + 20));
+			dc.DrawLine(wxPoint(xy[0] + 130, xy[1] + 20), wxPoint(xy[0] + 120, xy[1] + 20));
 
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
@@ -1802,7 +1802,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 			break;
 
-		case 3:
+		case 3: //- Prijemalka
 
 			zamik = seznamResitev[i][8] / seznamLastnosti[i][4] * 10;
 			
@@ -1810,11 +1810,11 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 			dc.DrawRectangle(wxPoint(xy[0] + 40, xy[1] + zamik), wxSize(50, 10));
 			dc.DrawRectangle(wxPoint(xy[0] + 40, xy[1] + 40 - zamik), wxSize(50, 10));
 
-			dc.DrawLine(wxPoint(xy[0] - 10, xy[1] + 10), wxPoint(xy[0], xy[1] + 10));
+			dc.DrawLine(wxPoint(xy[0] - 0, xy[1] + 10), wxPoint(xy[0] - 10, xy[1] + 10));
 
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
 
-			dc.DrawLine(wxPoint(xy[0] - 10, xy[1] + 40), wxPoint(xy[0], xy[1] + 40));
+			dc.DrawLine(wxPoint(xy[0] - 0, xy[1] + 40), wxPoint(xy[0] - 10, xy[1] + 40));
 
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
@@ -1847,7 +1847,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 			break;
 
-		case 4:
+		case 4: //- Prisesek
 
 			if (true) {
 				int zamik = 10;
@@ -1866,10 +1866,10 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 				dc.DrawPolygon(tocke);
 
-				dc.DrawLine(wxPoint(xy[0] + 50, xy[1] - 15 + zamik), wxPoint(xy[0] + 50, xy[1] - 35));
+				dc.DrawLine(wxPoint(xy[0] + 50, xy[1] - 35), wxPoint(xy[0] + 50, xy[1] - 15 + zamik));
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
 
-				dc.DrawLine(wxPoint(xy[0] + 40, xy[1] - 15 + zamik), wxPoint(xy[0] + 40, xy[1] - 25));
+				dc.DrawLine(wxPoint(xy[0] + 40, xy[1] - 25), wxPoint(xy[0] + 40, xy[1] - 15 + zamik));
 
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
@@ -1953,7 +1953,7 @@ wxChoice* choicePinPisanje;
 wxChoice* choiceVelicinaPisanje;
 wxChoice* choiceVrednostPisanje;
 
-NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Mikro Procesorja"), wxPoint(0, 0), wxSize(600, 300)) {
+NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Mikro Procesorja"), wxPoint(0, 0), wxSize(525, 300)) {
 
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
@@ -1981,13 +1981,13 @@ NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_A
 		}
 	}
 
-	choicePinBranje = new wxChoice(panel, wxID_ANY, wxPoint(85, 5), wxSize(51, -1), ArPinBranje);
+	choicePinBranje = new wxChoice(panel, wxID_ANY, wxPoint(20, 5), wxSize(51, -1), ArPinBranje);
 
 	wxArrayString ArVelicinaBranje;
 	ArVelicinaBranje.Add(" ");
 	ArVelicinaBranje.Add(" ");
 
-	choiceVelicinaBranje = new wxChoice(panel, wxID_ANY, wxPoint(140, 5), wxSize(56, -1), ArVelicinaBranje);
+	choiceVelicinaBranje = new wxChoice(panel, wxID_ANY, wxPoint(75, 5), wxSize(56, -1), ArVelicinaBranje);
 	choiceVelicinaBranje->Disable();
 
 	wxArrayString ArLogFun;
@@ -1995,21 +1995,21 @@ NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_A
 	ArLogFun.Add(" =");
 	ArLogFun.Add(" >");
 	
-	choiceLogFun = new wxChoice(panel, wxID_ANY, wxPoint(200, 5), wxSize(36, -1), ArLogFun);
+	choiceLogFun = new wxChoice(panel, wxID_ANY, wxPoint(135, 5), wxSize(36, -1), ArLogFun);
 	choiceLogFun->Disable();
 	
-	spinVrednostBranje = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(240, 5), wxSize(56, -1), wxSP_ARROW_KEYS | wxSP_WRAP, -10000, 10000, 0, .01);
+	spinVrednostBranje = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(175, 5), wxSize(56, -1), wxSP_ARROW_KEYS | wxSP_WRAP, -10000, 10000, 0, .01);
 	spinVrednostBranje->Disable();
 
 
-	choicePinPisanje = new wxChoice(panel, wxID_ANY, wxPoint(355, 5), wxSize(51, -1), ArPinPisanje);
+	choicePinPisanje = new wxChoice(panel, wxID_ANY, wxPoint(290, 5), wxSize(51, -1), ArPinPisanje);
 	choicePinPisanje->Disable();
 
 	wxArrayString ArVelicinaPisanje;
 	ArVelicinaPisanje.Add(" ");
 	ArVelicinaPisanje.Add(" ");
 
-	choiceVelicinaPisanje = new wxChoice(panel, wxID_ANY, wxPoint(410, 5), wxSize(96, -1), ArVelicinaPisanje);
+	choiceVelicinaPisanje = new wxChoice(panel, wxID_ANY, wxPoint(345, 5), wxSize(96, -1), ArVelicinaPisanje);
 	choiceVelicinaPisanje->Disable();
 
 	wxArrayString ArVrednostiPisanje;
@@ -2017,11 +2017,11 @@ NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_A
 	ArVrednostiPisanje.Add(" ");
 	ArVrednostiPisanje.Add(" ");
 
-	choiceVrednostPisanje = new wxChoice(panel, wxID_ANY, wxPoint(510, 5), wxSize(56, -1), ArVrednostiPisanje);
+	choiceVrednostPisanje = new wxChoice(panel, wxID_ANY, wxPoint(445, 5), wxSize(56, -1), ArVrednostiPisanje);
 	choiceVrednostPisanje->Disable();
 
-	wxButton* dodaj = new wxButton(panel, wxID_ANY, "Dodaj ukaz", wxPoint(100, 35), wxDefaultSize);
-	wxButton* izbrisi = new wxButton(panel, wxID_ANY, "Izbrisi vse", wxPoint(100, 60), wxDefaultSize);
+	wxButton* dodaj = new wxButton(panel, wxID_ANY, "Dodaj ukaz", wxPoint(5, 35), wxDefaultSize);
+	wxButton* izbrisi = new wxButton(panel, wxID_ANY, "Izbrisi vse", wxPoint(5, 60), wxDefaultSize);
 
 
 
@@ -2255,43 +2255,65 @@ void NastavitevMikroProcesorja::OnPaint(wxPaintEvent& evt) {
 	wxSize velikostOkna = this->GetSize();
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 
-	if (true) { // ADMIN LOGS
-		dc.DrawText("Zapis vseh ukazov:", wxPoint(200, 80));
-		for (int i = 0; i < seznamStikal.size(); i++) dc.DrawText(wxString::Format("%g | %g | %g | %g | %g | %g | %g", seznamStikal[i][0], seznamStikal[i][1], seznamStikal[i][2], seznamStikal[i][3], seznamStikal[i][4], seznamStikal[i][5], seznamStikal[i][6]), wxPoint(200, 100 + 20 * i));
-	} //////////////// Za izris stikal daj wxArray
+	if (false) { // ADMIN LOGS
+		dc.DrawText("Zapis vseh ukazov:", wxPoint(400, 80));
+		for (int i = 0; i < seznamStikal.size(); i++) dc.DrawText(wxString::Format("%g | %g | %g | %g | %g | %g | %g", seznamStikal[i][0], seznamStikal[i][1], seznamStikal[i][2], seznamStikal[i][3], seznamStikal[i][4], seznamStikal[i][5], seznamStikal[i][6]), wxPoint(400, 100 + 20 * i));
+		dc.DrawText(wxString::Format("choicePinBranje %d", choicePinBranje->GetSelection()), wxPoint(400, 40));
+	}
 
+	wxPoint predogled(130, 100);
+	dc.DrawRectangle(predogled, wxSize(100, 140));
+	dc.DrawText("0", wxPoint(predogled.x + 88, predogled.y + 5));
+	dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 10), wxPoint(predogled.x + 110, predogled.y + 10));
+	dc.DrawText("1", wxPoint(predogled.x + 88, predogled.y + 20));
+	dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 25), wxPoint(predogled.x + 110, predogled.y + 25));
+	dc.DrawText("2", wxPoint(predogled.x + 88, predogled.y + 35));
+	dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 40), wxPoint(predogled.x + 110, predogled.y + 40));
+	dc.DrawText("3", wxPoint(predogled.x + 88, predogled.y + 50));
+	dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 55), wxPoint(predogled.x + 110, predogled.y + 55));
+	dc.DrawText("4", wxPoint(predogled.x + 88, predogled.y + 65));
+	dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 70), wxPoint(predogled.x + 110, predogled.y + 70));
+	dc.DrawText("5", wxPoint(predogled.x + 88, predogled.y + 80));
+	dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 85), wxPoint(predogled.x + 110, predogled.y + 85));
+	dc.DrawText("6", wxPoint(predogled.x + 88, predogled.y + 95));
+	dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 100), wxPoint(predogled.x + 110, predogled.y + 100));
+	dc.DrawText("7", wxPoint(predogled.x + 88, predogled.y + 110));
+	dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 115), wxPoint(predogled.x + 110, predogled.y + 115));
 
-	dc.DrawText("If", wxPoint(70, 8));
-	dc.DrawText("-->", wxPoint(330, 8));
+	dc.DrawText("If", wxPoint(5, 8));
+	dc.DrawText("-->", wxPoint(265, 8));
 
 	wxString enota;
 	if (choicePinBranje->GetSelection() == 0) enota = "ms:";
 	else if (choicePinBranje->GetSelection() > 0) enota = "bar:";
 	else enota = "/:";
-	dc.DrawText(enota, wxPoint(300, 8));
+	dc.DrawText(enota, wxPoint(235, 8));
 
-	dc.DrawText(wxString::Format("choicePinBranje %d", choicePinBranje->GetSelection()), wxPoint(200, 40));
 
 	for (int i = 0; i < 8; i++) {
 		short najdena = 0;
 		for(int j = 0; j < seznamPovezav.size(); j++) {
 			if (seznamPovezav[j][0] == izbranElement && seznamPovezav[j][1] == i) {
 				
-				if (seznamElementov[seznamPovezav[j][2]][2] == 2) dc.DrawText(wxString::Format("%d: Branje", i), wxPoint(5, 100 + 15 * i));
-				else if (seznamElementov[seznamPovezav[j][2]][2] == 1) dc.DrawText(wxString::Format("%d: Pisanje", i), wxPoint(5, 100 + 15 * i));
-				else dc.DrawText(wxString::Format("%d: Branje/Pisanje", i), wxPoint(5, 100 + 15 * i));
-				
+				if (seznamElementov[seznamPovezav[j][2]][2] == 2) dc.DrawText(wxString::Format("pin %d: Branje", i), wxPoint(250, 103 + 15 * i));
+				else if (seznamElementov[seznamPovezav[j][2]][2] == 1) dc.DrawText(wxString::Format("pin %d: Pisanje", i), wxPoint(250, 103 + 15 * i));
+				else if (seznamElementov[seznamPovezav[j][2]][2] == 3) dc.DrawText(wxString::Format("pin %d: Branje/Pisanje", i), wxPoint(250, 103 + 15 * i));
+				else if (seznamElementov[seznamPovezav[j][2]][2] == 4) dc.DrawText(wxString::Format("pin %d: Branje/Pisanje", i), wxPoint(250, 103 + 15 * i));
+				else dc.DrawText(wxString::Format("pin %d: /", i), wxPoint(250, 103 + 15 * i));
+
 			}
 			else if (seznamPovezav[j][2] == izbranElement && seznamPovezav[j][3] == i) {
 				
-				if (seznamElementov[seznamPovezav[j][0]][2] == 2) dc.DrawText(wxString::Format("%d: Branje", i), wxPoint(5, 100 + 15 * i));
-				else if (seznamElementov[seznamPovezav[j][0]][2] == 1) dc.DrawText(wxString::Format("%d: Pisanje", i), wxPoint(5, 100 + 15 * i));
-				else dc.DrawText(wxString::Format("%d: Branje/Pisanje", i), wxPoint(5, 100 + 15 * i));
-				
+				if (seznamElementov[seznamPovezav[j][0]][2] == 2) dc.DrawText(wxString::Format("pin %d: Branje", i), wxPoint(250, 103 + 15 * i));
+				else if (seznamElementov[seznamPovezav[j][0]][2] == 1) dc.DrawText(wxString::Format("pin %d: Pisanje", i), wxPoint(250, 103 + 15 * i));
+				else if (seznamElementov[seznamPovezav[j][0]][2] == 3) dc.DrawText(wxString::Format("pin %d: Branje/Pisanje", i), wxPoint(250, 103 + 15 * i));
+				else if (seznamElementov[seznamPovezav[j][0]][2] == 4) dc.DrawText(wxString::Format("pin %d: Branje/Pisanje", i), wxPoint(250, 103 + 15 * i));
+				else dc.DrawText(wxString::Format("pin %d: /", i), wxPoint(250, 103 + 15 * i));
+
 			}
 			else najdena++;
 		}
-		if (najdena == seznamPovezav.size()) dc.DrawText(wxString::Format("%d: -", i), wxPoint(5, 100 + 15 * i));
+		if (najdena == seznamPovezav.size()) dc.DrawText(wxString::Format("pin %d: -", i), wxPoint(250, 103 + 15 * i));
 	}
 }
 
@@ -2326,6 +2348,24 @@ void NastavitevCrpalke::OnPaint(wxPaintEvent& evt) {
 	wxPaintDC dc(this);
 	wxSize velikostOkna = this->GetSize();
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
+
+
+	wxPoint predogled(60, 80);
+	wxPoint* t1 = new wxPoint(predogled.x, predogled.y);
+	wxPoint* t2 = new wxPoint(predogled.x + 40, predogled.y);
+	wxPoint* t3 = new wxPoint(predogled.x + 20, predogled.y - 34);
+
+	wxPointList* tocke = new wxPointList();
+	tocke->Append(t1);
+	tocke->Append(t2);
+	tocke->Append(t3);
+
+	dc.DrawPolygon(tocke);
+
+	dc.DrawLine(wxPoint(predogled.x + 10, predogled.y + 10), wxPoint(predogled.x + 10, predogled.y));
+	dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
+	dc.DrawLine(wxPoint(predogled.x + 20, predogled.y + 10), wxPoint(predogled.x + 20, predogled.y));
+	dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
 
 	dc.DrawText("Masni tok: ", wxPoint(5, 5));
@@ -2392,6 +2432,17 @@ void NastavitevTlacnePosode::OnPaint(wxPaintEvent& evt) {
 	wxSize velikostOkna = this->GetSize();
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 
+
+	wxPoint predogled(60, 125);
+	dc.DrawRoundedRectangle(wxPoint(predogled.x, predogled.y), wxSize(120, 40), 20);
+	dc.DrawLine(wxPoint(predogled.x + 30, predogled.y - 10), wxPoint(predogled.x + 30, predogled.y));
+
+	dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
+	dc.DrawLine(wxPoint(predogled.x - 10, predogled.y + 20), wxPoint(predogled.x, predogled.y + 20));
+	dc.DrawLine(wxPoint(predogled.x + 120, predogled.y + 20), wxPoint(predogled.x + 130, predogled.y + 20));
+	dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+
+
 	dc.DrawText("Tlak varnostnega ventila [bar]:", wxPoint(5, 25));
 	dc.DrawText("Volumen Tlacne posode [m^3]: ", wxPoint(5, 55));
 	dc.DrawText("Zacetni tlak v posodi [bar]: ", wxPoint(5, 85));
@@ -2446,6 +2497,18 @@ void NastavitevPrijemalke::OnPaint(wxPaintEvent& evt) {
 	wxSize velikostOkna = this->GetSize();
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 
+
+	wxPoint predogled(60, 130);
+	dc.DrawRectangle(wxPoint(predogled.x, predogled.y), wxSize(65, 50));
+	dc.DrawRectangle(wxPoint(predogled.x + 40, predogled.y), wxSize(50, 10));
+	dc.DrawRectangle(wxPoint(predogled.x + 40, predogled.y + 40), wxSize(50, 10));
+
+	dc.DrawLine(wxPoint(predogled.x - 10, predogled.y + 10), wxPoint(predogled.x, predogled.y + 10));
+	dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
+	dc.DrawLine(wxPoint(predogled.x - 10, predogled.y + 40), wxPoint(predogled.x, predogled.y + 40));
+	dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+
+
 	dc.DrawText("Premer bata D [mm]: ", wxPoint(5, 5));
 	dc.DrawText("Premer batnice d [mm]: ", wxPoint(5, 35));
 	dc.DrawText("Hod bata l [mm]: ", wxPoint(5, 65));
@@ -2485,6 +2548,27 @@ void NastavitevPriseska::OnPaint(wxPaintEvent& evt) {
 	wxPaintDC dc(this);
 	wxSize velikostOkna = this->GetSize();
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
+
+
+	wxPoint predogled(60, 100);
+	wxPoint* t1 = new wxPoint(predogled.x, predogled.y);
+	wxPoint* t2 = new wxPoint(predogled.x + 80, predogled.y);
+	wxPoint* t3 = new wxPoint(predogled.x + 65, predogled.y - 15);
+	wxPoint* t4 = new wxPoint(predogled.x + 15, predogled.y - 15);
+
+	wxPointList* tocke = new wxPointList();
+	tocke->Append(t1);
+	tocke->Append(t2);
+	tocke->Append(t3);
+	tocke->Append(t4);
+
+	dc.DrawPolygon(tocke);
+
+	dc.DrawLine(wxPoint(predogled.x + 50, predogled.y - 15), wxPoint(predogled.x + 50, predogled.y - 35));
+	dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
+	dc.DrawLine(wxPoint(predogled.x + 40, predogled.y - 15), wxPoint(predogled.x + 40, predogled.y - 25));
+	dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+
 
 	dc.DrawText("Premer priseska D [mm]: ", wxPoint(5,5));
 	dc.DrawText("Velikost priseska l [mm]: ", wxPoint(5,35));
