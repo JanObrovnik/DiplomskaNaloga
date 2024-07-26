@@ -632,9 +632,9 @@ std::vector<std::vector<int>> seznamElementov;
 // [x, y, element]
 std::vector<std::vector<double>> seznamLastnosti;
 // mikroprocesor []
-// tlacna crpalka [izkoristek, torzija, volumen_na_vrtljaj, povrsina_rotorja, rocica_prijemalisca_sile]
+// tlacna crpalka [izkoristek, notranja_torzija, volumen_na_vrtljaj, povrsina_rotorja, rocica_prijemalisca_sile]
 // tlacna posoda [volumen, varnostni ventil]
-// prijemalo [/, /, D, d, l, %]
+// prijemalo [/OUTDATED/, /OUTDATED/, D, d, l, %]
 // prisesek [D, l]
 std::vector<std::vector<double>> seznamResitevReset;
 // mikroprocesor [delovanje0 (0/1), delovanje1(0/1), delovanje2(0/1), delovanje3(0/1), delovanje4(0/1), delovanje5(0/1), delovanje6(0/1), delovanje7(0/1)]
@@ -1953,7 +1953,7 @@ wxChoice* choicePinPisanje;
 wxChoice* choiceVelicinaPisanje;
 wxChoice* choiceVrednostPisanje;
 
-NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Mikro Procesorja"), wxPoint(0, 0), wxSize(525, 300)) {
+NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Mikro Procesorja"), wxPoint(0, 0), wxSize(555, 300)) {
 
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
@@ -1998,18 +1998,18 @@ NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_A
 	choiceLogFun = new wxChoice(panel, wxID_ANY, wxPoint(135, 5), wxSize(36, -1), ArLogFun);
 	choiceLogFun->Disable();
 	
-	spinVrednostBranje = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(175, 5), wxSize(56, -1), wxSP_ARROW_KEYS | wxSP_WRAP, -10000, 10000, 0, .01);
+	spinVrednostBranje = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(175, 5), wxSize(86, -1), wxSP_ARROW_KEYS | wxSP_WRAP, -10000, 10000, 0, .01);
 	spinVrednostBranje->Disable();
 
 
-	choicePinPisanje = new wxChoice(panel, wxID_ANY, wxPoint(290, 5), wxSize(51, -1), ArPinPisanje);
+	choicePinPisanje = new wxChoice(panel, wxID_ANY, wxPoint(320, 5), wxSize(51, -1), ArPinPisanje);
 	choicePinPisanje->Disable();
 
 	wxArrayString ArVelicinaPisanje;
 	ArVelicinaPisanje.Add(" ");
 	ArVelicinaPisanje.Add(" ");
 
-	choiceVelicinaPisanje = new wxChoice(panel, wxID_ANY, wxPoint(345, 5), wxSize(96, -1), ArVelicinaPisanje);
+	choiceVelicinaPisanje = new wxChoice(panel, wxID_ANY, wxPoint(375, 5), wxSize(96, -1), ArVelicinaPisanje);
 	choiceVelicinaPisanje->Disable();
 
 	wxArrayString ArVrednostiPisanje;
@@ -2017,7 +2017,7 @@ NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_A
 	ArVrednostiPisanje.Add(" ");
 	ArVrednostiPisanje.Add(" ");
 
-	choiceVrednostPisanje = new wxChoice(panel, wxID_ANY, wxPoint(445, 5), wxSize(56, -1), ArVrednostiPisanje);
+	choiceVrednostPisanje = new wxChoice(panel, wxID_ANY, wxPoint(475, 5), wxSize(56, -1), ArVrednostiPisanje);
 	choiceVrednostPisanje->Disable();
 
 	wxButton* dodaj = new wxButton(panel, wxID_ANY, "Dodaj ukaz", wxPoint(5, 35), wxDefaultSize);
@@ -2281,13 +2281,13 @@ void NastavitevMikroProcesorja::OnPaint(wxPaintEvent& evt) {
 	dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 115), wxPoint(predogled.x + 110, predogled.y + 115));
 
 	dc.DrawText("If", wxPoint(5, 8));
-	dc.DrawText("-->", wxPoint(265, 8));
+	dc.DrawText("-->", wxPoint(295, 8));
 
 	wxString enota;
 	if (choicePinBranje->GetSelection() == 0) enota = "ms:";
 	else if (choicePinBranje->GetSelection() > 0) enota = "bar:";
 	else enota = "/:";
-	dc.DrawText(enota, wxPoint(235, 8));
+	dc.DrawText(enota, wxPoint(265, 8));
 
 
 	for (int i = 0; i < 8; i++) {
@@ -2319,7 +2319,12 @@ void NastavitevMikroProcesorja::OnPaint(wxPaintEvent& evt) {
 
 
 
-wxSpinCtrlDouble* masTokCrpalke;
+// tlacna crpalka [izkoristek, notranja_torzija, volumen_na_vrtljaj, povrsina_rotorja, rocica_prijemalisca_sile]
+wxSpinCtrlDouble* izkCrpalke;
+wxSpinCtrlDouble* notTorCrpalke;
+wxSpinCtrlDouble* volVrtCrpalke;
+wxSpinCtrlDouble* povRotCrpalke;
+wxSpinCtrlDouble* rocPriSilCrpalke;
 
 NastavitevCrpalke::NastavitevCrpalke() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Crpalke"), wxPoint(0, 0), wxSize(360, 300)) {
 
@@ -2327,7 +2332,11 @@ NastavitevCrpalke::NastavitevCrpalke() : wxFrame(nullptr, wxID_ANY, wxString::Fo
 
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
 
-	masTokCrpalke = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(100, 5), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 20, 0, .1); ///////////// odstanit
+	izkCrpalke = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(100, 5), wxSize(80, -1), wxSP_ARROW_KEYS | wxSP_WRAP, 0, 100, seznamLastnosti[izbranElement][0] * 100, .01);
+	notTorCrpalke = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(100, 35), wxSize(80, -1), wxSP_ARROW_KEYS | wxSP_WRAP, 0, 100, seznamLastnosti[izbranElement][1], .1);
+	volVrtCrpalke = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(100, 65), wxSize(80, -1), wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, seznamLastnosti[izbranElement][2], .01);
+	povRotCrpalke = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(100, 95), wxSize(80, -1), wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, seznamLastnosti[izbranElement][3], .01);
+	rocPriSilCrpalke = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(100, 125), wxSize(80, -1), wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, seznamLastnosti[izbranElement][4], .01);
 
 
 	apply->Bind(wxEVT_BUTTON, &NastavitevCrpalke::OnApplyClicked, this);
@@ -2338,8 +2347,11 @@ NastavitevCrpalke::NastavitevCrpalke() : wxFrame(nullptr, wxID_ANY, wxString::Fo
 
 void NastavitevCrpalke::OnApplyClicked(wxCommandEvent& evt) {
 
-	seznamResitevReset[izbranElement][1] = masTokCrpalke->GetValue();
-	seznamResitev = seznamResitevReset;
+	seznamLastnosti[izbranElement][0] = izkCrpalke->GetValue() / 100;
+	seznamLastnosti[izbranElement][1] = notTorCrpalke->GetValue();
+	seznamLastnosti[izbranElement][2] = volVrtCrpalke->GetValue();
+	seznamLastnosti[izbranElement][3] = povRotCrpalke->GetValue();
+	seznamLastnosti[izbranElement][4] = rocPriSilCrpalke->GetValue();
 }
 
 
@@ -2350,7 +2362,7 @@ void NastavitevCrpalke::OnPaint(wxPaintEvent& evt) {
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 
 
-	wxPoint predogled(60, 80);
+	wxPoint predogled(80, 200);
 	wxPoint* t1 = new wxPoint(predogled.x, predogled.y);
 	wxPoint* t2 = new wxPoint(predogled.x + 40, predogled.y);
 	wxPoint* t3 = new wxPoint(predogled.x + 20, predogled.y - 34);
@@ -2368,7 +2380,17 @@ void NastavitevCrpalke::OnPaint(wxPaintEvent& evt) {
 	dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
 
-	dc.DrawText("Masni tok: ", wxPoint(5, 5));
+	dc.DrawText("Izkoristek: ", wxPoint(5, 8));
+	dc.DrawText("Notranja torzija: ", wxPoint(5, 38));
+	dc.DrawText("Volumen na vrt.: ", wxPoint(5, 68));
+	dc.DrawText("Povrsina rotorja: ", wxPoint(5, 98));
+	dc.DrawText("Rocica rotorja: ", wxPoint(5, 128));
+
+	dc.DrawText("%", wxPoint(185, 8));
+	dc.DrawText("Nm", wxPoint(185, 38));
+	dc.DrawText("m^3", wxPoint(185, 68));
+	dc.DrawText("m^2", wxPoint(185, 98));
+	dc.DrawText("m", wxPoint(185, 128));
 }
 
 
