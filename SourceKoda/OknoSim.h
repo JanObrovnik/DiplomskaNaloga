@@ -80,4 +80,6 @@ private:
 	void OnPaint(wxPaintEvent& evt);
 
 	void OnApplyClicked(wxCommandEvent& evt);
+
+	void OnRefresh(wxCommandEvent& evt);
 };

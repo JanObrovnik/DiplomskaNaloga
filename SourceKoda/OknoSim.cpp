@@ -514,7 +514,7 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 				}
 			}
 			else if (seznamElementov[seznamPovezav[i][0]][2] == 4) {
-				if (seznamResitev[seznamPovezav[i][0]][4] == 0 || (seznamResitev[seznamPovezav[i][0]][5] == -1 && seznamResitev[seznamPovezav[i][0]][6] == -1)) {
+				if (seznamResitev[seznamPovezav[i][0]][4] < 0 || (seznamResitev[seznamPovezav[i][0]][5] == -1 && seznamResitev[seznamPovezav[i][0]][6] == -1)) {
 					double V1;
 					double p1, p2;
 					double m1;
@@ -2319,7 +2319,6 @@ void NastavitevMikroProcesorja::OnPaint(wxPaintEvent& evt) {
 
 
 
-// tlacna crpalka [izkoristek, notranja_torzija, volumen_na_vrtljaj, povrsina_rotorja, rocica_prijemalisca_sile]
 wxSpinCtrlDouble* izkCrpalke;
 wxSpinCtrlDouble* notTorCrpalke;
 wxSpinCtrlDouble* volVrtCrpalke;
@@ -2539,6 +2538,8 @@ void NastavitevPrijemalke::OnPaint(wxPaintEvent& evt) {
 
 
 
+wxCheckBox* masaPriseskaBool;
+wxSpinCtrlDouble* velikostMasePriseska;
 wxSpinCtrl* premerPriseska;
 wxSpinCtrl* velikostPriseska;
 
@@ -2546,22 +2547,43 @@ NastavitevPriseska::NastavitevPriseska() : wxFrame(nullptr, wxID_ANY, wxString::
 
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
-	premerPriseska = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(150, 3), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 5, 500, seznamLastnosti[izbranElement][0] * 1000);
-	velikostPriseska = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(150, 33), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 5, 200, seznamLastnosti[izbranElement][1] * 1000);
+	masaPriseskaBool = new wxCheckBox(panel, wxID_ANY, "Tlacni varnostni ventil", wxPoint(5, 5), wxDefaultSize);
+	if (seznamResitevReset[izbranElement][4] >= 0) masaPriseskaBool->SetValue(true);
+	velikostMasePriseska = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(150, 25), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 100, seznamResitevReset[izbranElement][4], .1);
+	if (!masaPriseskaBool->IsChecked()) velikostMasePriseska->Disable();
+
+	premerPriseska = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(150, 55), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 5, 500, seznamLastnosti[izbranElement][0] * 1000);
+	velikostPriseska = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(150, 85), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 5, 200, seznamLastnosti[izbranElement][1] * 1000);
 
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
 
 
+	masaPriseskaBool->Bind(wxEVT_CHECKBOX, &NastavitevPriseska::OnRefresh, this);
+	velikostMasePriseska->Bind(wxEVT_SPINCTRLDOUBLE, &NastavitevPriseska::OnRefresh, this);
 	apply->Bind(wxEVT_BUTTON, &NastavitevPriseska::OnApplyClicked, this);
 
 	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevPriseska::OnPaint));
 }
 
 
+void NastavitevPriseska::OnRefresh(wxCommandEvent& evt) {
+
+	if (masaPriseskaBool->IsChecked()) velikostMasePriseska->Enable();
+	else velikostMasePriseska->Disable();
+
+	Refresh();
+}
+
 void NastavitevPriseska::OnApplyClicked(wxCommandEvent& evt) {
 
 	seznamLastnosti[izbranElement][0] = static_cast<double> (premerPriseska->GetValue()) / 1000;
 	seznamLastnosti[izbranElement][1] = static_cast<double> (velikostPriseska->GetValue()) / 1000;
+
+	if (masaPriseskaBool->IsChecked()) seznamResitevReset[izbranElement][4] = velikostMasePriseska->GetValue();
+	else seznamResitevReset[izbranElement][4] = -1;
+	seznamResitev = seznamResitevReset;
+
+	Refresh();
 }
 
 
@@ -2572,7 +2594,7 @@ void NastavitevPriseska::OnPaint(wxPaintEvent& evt) {
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 
 
-	wxPoint predogled(60, 100);
+	wxPoint predogled(60, 150);
 	wxPoint* t1 = new wxPoint(predogled.x, predogled.y);
 	wxPoint* t2 = new wxPoint(predogled.x + 80, predogled.y);
 	wxPoint* t3 = new wxPoint(predogled.x + 65, predogled.y - 15);
@@ -2591,7 +2613,13 @@ void NastavitevPriseska::OnPaint(wxPaintEvent& evt) {
 	dc.DrawLine(wxPoint(predogled.x + 40, predogled.y - 15), wxPoint(predogled.x + 40, predogled.y - 25));
 	dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
+	if (masaPriseskaBool->IsChecked()) {
+		dc.DrawRoundedRectangle(wxPoint(predogled.x - 10, predogled.y), wxSize(100, 30), 5);
+		dc.DrawText(wxString::Format("%g kg", velikostMasePriseska->GetValue()), wxPoint(predogled.x + 25, predogled.y + 9));
+	}
 
-	dc.DrawText("Premer priseska D [mm]: ", wxPoint(5,5));
-	dc.DrawText("Velikost priseska l [mm]: ", wxPoint(5,35));
+
+	dc.DrawText("Masa utezi [kg]: ", wxPoint(5, 28));
+	dc.DrawText("Premer priseska D [mm]: ", wxPoint(5, 58));
+	dc.DrawText("Velikost priseska l [mm]: ", wxPoint(5, 88));
 }
