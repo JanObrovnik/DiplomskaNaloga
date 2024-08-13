@@ -39,7 +39,7 @@ std::vector<double> izracun3(int n, int element, std::vector<double> last, std::
 	double d_l = last[14]; //- premer leve batnice [mm]
 	double d_d = last[15]; //- premer desne batnice [mm]
 	double l = last[11]; //- hod bata [mm]
-	double x0 = last[10] / 100 * l; //- zaèetna pozicija bata [mm]
+	double x0 = last[10] / 100 * l; //- zacetna pozicija bata [mm]
 	double V_0_krmilni = 10000; //- krmilni volumen na zacetni strani [mm^3]
 	double V_1_krmilni = 10000; //- krmilni volumen na koncni strani [mm^3]
 	double m = .8 / 1000; //- masa batnice in bata [t] // m = 2. / 1000 -> pika zlo pomembna
@@ -50,9 +50,9 @@ std::vector<double> izracun3(int n, int element, std::vector<double> last, std::
 
 	//Ftr_s = 100; Ftr_d = 20;
 
-	double A0 = pi * pow(D, 2) / 4; //- površina celega bata [mm^2]
-	double A1_l = pi * pow(d_l, 2) / 4; //- površina batnice [mm^2]
-	double A2_l = A0 - A1_l; //- površina bata - batnice [mm^2]
+	double A0 = pi * pow(D, 2) / 4; //- povrsina celega bata [mm^2]
+	double A1_l = pi * pow(d_l, 2) / 4; //- povrsina batnice [mm^2]
+	double A2_l = A0 - A1_l; //- povrsina bata - batnice [mm^2]
 	double A1_d = pi * pow(d_d, 2) / 4;
 	double A2_d = A0 - A1_d;
 	double A_l, A_d;
@@ -61,8 +61,8 @@ std::vector<double> izracun3(int n, int element, std::vector<double> last, std::
 	if (last[1] < 0) A_d = A0;
 	else A_d = A2_d;
 
-	double V_l0 = x0 * A0 + V_0_krmilni; //- zaèetni volumen na levi strani
-	double V_d0 = (l - x0) * A0 + V_1_krmilni; //- zaèetni volumen na desni strani
+	double V_l0 = x0 * A0 + V_0_krmilni; //- zacetni volumen na levi strani
+	double V_d0 = (l - x0) * A0 + V_1_krmilni; //- zacetni volumen na desni strani
 
 
 	double p_l = res[0]/10;
@@ -1106,7 +1106,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 	dc.DrawRectangle(x_okno, y_okno, sirina, visina);
 
-	/*int ris_x = x_okno + 10; // Glavni razlog za poèasno delovanje programa
+	/*int ris_x = x_okno + 10; // Glavni razlog za pocasno delovanje programa
 	int ris_y = y_okno + 10;
 	while (ris_x <= sirina + x_okno) {
 
@@ -1129,7 +1129,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 	case 0: // Valj
 
-		dc.DrawRectangle(wxPoint(54, visina_panel - visina_prikaza + 36), wxSize(deb + 1, vis + 1)); // Ohišje
+		dc.DrawRectangle(wxPoint(54, visina_panel - visina_prikaza + 36), wxSize(deb + 1, vis + 1)); // Ohisje
 		dc.DrawLine(wxPoint(54, visina_panel - visina_prikaza + vis + 36), wxPoint(54 + deb / 16 * 1 + 1, visina_panel - visina_prikaza + vis + 36 - deb / 16 * 1 - 1));
 		dc.DrawLine(wxPoint(54 + deb / 8 * 1, visina_panel - visina_prikaza + vis + 36), wxPoint(54 + deb / 16 * 1 - 1, visina_panel - visina_prikaza + vis + 36 - deb / 16 * 1 - 1));
 		dc.DrawLine(wxPoint(54 + deb / 8 * 7, visina_panel - visina_prikaza + vis + 36), wxPoint(54 + deb / 16 * 1 + deb / 8 * 7 + 1, visina_panel - visina_prikaza + vis + 36 - deb / 16 * 1 - 1));
@@ -1201,7 +1201,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 	//-
 
 
-	//- OZNAÈITEV ELEMENTA
+	//- OZNACITEV ELEMENTA
 	if (oznacitev >= 0) {
 
 		dc.SetPen(wxPen(wxColour(153, 153, 255), 1, wxPENSTYLE_LONG_DASH));
@@ -1364,7 +1364,7 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 			graf[i].push_back(res[i]); /////////////// bat in graf sta nesinhronizirana ////////////////// zaradi Refresh(); ko je sim == false, se ustvarijo praznine nekje v Graf
 			
 
-			dc.DrawRectangle(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1]), wxSize(deb + 1, vis + 1)); // Ohišje
+			dc.DrawRectangle(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1]), wxSize(deb + 1, vis + 1)); // Ohisje
 
 			if (seznam_lastnosti[i][4] < 0) {
 				dc.DrawLine(wxPoint(seznam_valjev[i][0], seznam_valjev[i][1] + vis), wxPoint(seznam_valjev[i][0] + deb / 16 * 1 + 1, seznam_valjev[i][1] + vis - deb / 16 * 1 - 1)); // Priklucki
@@ -1752,7 +1752,7 @@ PomoznoOkno::PomoznoOkno() : wxFrame(nullptr, wxID_ANY, wxString::Format("Zacetn
 	wxArrayString lastnosti;
 	lastnosti.Add("Batnica");
 	lastnosti.Add("Vzmet");
-	lastnosti.Add("Tlaèno izoliran");
+	lastnosti.Add("Tlacno izoliran");
 	lastnosti.Add("Masa");
 	lastnosti.Add("Koncno stikalo");
 
@@ -1951,13 +1951,13 @@ void PomoznoOkno::OnPaint(wxPaintEvent& evt) {
 
 	dc.DrawText("Leva stran valja:", wxPoint(10, 4));
 	dc.DrawText("Lastnosti:", wxPoint(10, 30));
-	dc.DrawText("Zraèni prikljuèek:", wxPoint(10, 140));
+	dc.DrawText("Zracni prikljucek:", wxPoint(10, 140));
 	dc.DrawText("Masa [kg] =", wxPoint(10, 210));
 	dc.DrawText("Batnica [mm] =", wxPoint(10, 240));
 
 	dc.DrawText("Desna stran valja:", wxPoint(size.x / 2 + 10, 4));
 	dc.DrawText("Lastnosti:", wxPoint(size.x / 2 + 10, 30));
-	dc.DrawText("Zraèni prikljuèek:", wxPoint(size.x / 2 + 10, 140));
+	dc.DrawText("Zracni prikljucek:", wxPoint(size.x / 2 + 10, 140));
 	dc.DrawText("Masa [kg] =", wxPoint(size.x / 2 + 10, 210));
 	dc.DrawText("Batnica [mm] =", wxPoint(size.x / 2 + 10, 240));
 
@@ -1981,7 +1981,7 @@ void PomoznoOkno::OnPaint(wxPaintEvent& evt) {
 	int zacPom = zacPoz->GetValue() * (deb * 5 / 8) / 100;
 
 
-	dc.DrawRectangle(wxPoint(zamik, visina_panel - visina_prikaza + 36), wxSize(deb + 1, vis + 1)); // Ohišje
+	dc.DrawRectangle(wxPoint(zamik, visina_panel - visina_prikaza + 36), wxSize(deb + 1, vis + 1)); // Ohisje
 
 	if (levaLastnost->IsChecked(2) == false) {
 		dc.DrawLine(wxPoint(zamik, visina_panel - visina_prikaza + vis + 36), wxPoint(zamik + deb / 16 * 1 + 1, visina_panel - visina_prikaza + vis + 36 - deb / 16 * 1 - 1)); // Priklucki
@@ -2108,7 +2108,7 @@ void StikaloNastavitev::OnPaint(wxPaintEvent& evt) {
 
 	int pomik = stikaloSlider->GetValue() * (deb / 8 * 5) / seznam_lastnosti[oznacitev][11];
 
-	dc.DrawRectangle(wxPoint(size.x / 2 - deb / 2, size.y / 6.7 * 1), wxSize(deb + 1, vis + 1)); // Ohišje
+	dc.DrawRectangle(wxPoint(size.x / 2 - deb / 2, size.y / 6.7 * 1), wxSize(deb + 1, vis + 1)); // Ohisje
 	dc.DrawLine(wxPoint(size.x / 2 - deb / 2, size.y / 6.7 * 1 + vis), wxPoint(size.x / 2 - deb / 2 + 5, size.y / 6.7 * 1 + vis - 5)); // Ventili
 	dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + 5, size.y / 6.7 * 1 + vis - 5), wxPoint(size.x / 2 - deb / 2 + deb / 8 * 1, size.y / 6.7 * 1 + vis));
 	dc.DrawLine(wxPoint(size.x / 2 - deb / 2 + deb / 8 * 7, size.y / 6.7 * 1 + vis), wxPoint(size.x / 2 - deb / 2 + deb / 8 * 7 + deb / 16, size.y / 6.7 * 1 + vis - deb / 16));

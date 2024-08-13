@@ -626,8 +626,6 @@ short izbranElement = -1;
 short izbranaPovezava = -1;
 
 PogojiOkolja pogojiOkolja;
-//std::vector<double> pogojiOkolja;
-// [tlak ozracja, temperatura ozracja, plinska konst., gravitacijski posp., gostota okoljskega zraka]
  
 std::vector<std::vector<int>> seznamElementov;
 // [x, y, element]
@@ -647,7 +645,7 @@ std::vector<std::vector<double>> seznamResitev;
 // seznamResitev = seznamResitevReset
 
 std::vector<std::vector<int>> seznamPovezav;
-// [element1, prikljucen1, element2, prikljucek2, kabl/cev (0/1)]
+// [element1, prikljucen1, element2, prikljucek2, kabl/cev/odzracitev (0/1/2)]
 std::vector<std::vector<double>> seznamStikal;
 // [element1, velicina1, logicna_funkcija, vrednost1, element2, velicina2, vrednost2]
 
@@ -665,11 +663,14 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 
 	wxButton* izbElement = new wxButton(panel, wxID_ANY, "Izbrisi izbrani element", wxPoint(5, 220), wxSize(190, -1));
 	wxButton* izbVse = new wxButton(panel, wxID_ANY, "Izbrisi vse", wxPoint(5, 250), wxSize(190, -1));
+	
 	wxButton* risanjePovezav = new wxButton(panel, wxID_ANY, "Risanje povezav", wxPoint(5,280), wxSize(190,-1));
 	spinPovezava = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(5, 310), wxSize(90, -1), wxSP_ARROW_KEYS | wxSP_WRAP, -1, -1, -1);
 	wxButton* brisanjePovezav = new wxButton(panel, wxID_ANY, "Brisi povezavo", wxPoint(105, 310), wxSize(90, -1));
+	
 	wxButton* shrani = new wxButton(panel, wxID_ANY, "Shrani", wxPoint(5, 350), wxSize(190, -1));
 	wxButton* nalozi = new wxButton(panel, wxID_ANY, "Nalozi", wxPoint(5, 380), wxSize(190, -1));
+	
 	wxButton* simuliraj = new wxButton(panel, wxID_ANY, "Simuliraj", wxPoint(5, 500), wxSize(190, 40));
 	wxButton* resetSim = new wxButton(panel, wxID_ANY, "Reset", wxPoint(5, 570), wxSize(190, -1));
 
@@ -923,6 +924,14 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 	wxSize oknoSize = this->GetSize();
+
+
+	if (drzanje && drzanjePovezav > 0) {
+
+		drzanjePovezav = 0;
+		seznamPovezav.erase(seznamPovezav.begin() + seznamPovezav.size() - 1);
+	}
+
 	
 	if (izbranElement >= 0 && casDrzanja > 2 && mousePos.x > oknoSize.x - 115 && mousePos.y < 60 && drzanjeElementa) {
 		
@@ -1119,7 +1128,15 @@ void OknoSim::OnBrisanjePovezavClicked(wxCommandEvent& evt) {
 
 void OknoSim::OnSpinPovezavaChanged(wxCommandEvent& evt) {
 
+	while (seznamPovezav[spinPovezava->GetValue()][4] == 2) {
+
+		spinPovezava->SetValue(spinPovezava->GetValue() + 1);
+
+		if (spinPovezava->GetValue() >= seznamPovezav.size()) spinPovezava->SetValue(0);
+	}
+
 	izbranaPovezava = spinPovezava->GetValue(); /////////////// mogoc dat v Refresh()
+
 
 	Refresh();
 }
@@ -1652,7 +1669,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 	
 	//- IZRIS ELEMENTOV
 	/*if (casSimulacije->GetValue() == 0) { seznamResitev[1][0] = 1; }*/
-	//if (casSimulacije->GetValue() == 3600) { seznamLastnosti[2][1] = 500000; seznamResitev[3][0] = 0; seznamResitev[5][0] = 0; } //////////////// podere program èe ni varnostnega ventila
+	//if (casSimulacije->GetValue() == 3600) { seznamLastnosti[2][1] = 500000; seznamResitev[3][0] = 0; seznamResitev[5][0] = 0; } //////////////// podere program ce ni varnostnega ventila
 
 	if (simbool) for (int i = 0; i < 1; i++) seznamResitev = IzracunPovezav(pogojiOkolja, seznamElementov, seznamLastnosti, seznamResitev, seznamPovezav, seznamStikal, korak, casSimulacije->GetValue());
 
