@@ -83,3 +83,13 @@ private:
 
 	void OnRefresh(wxCommandEvent& evt);
 };
+
+
+struct PogojiOkolja {
+
+	double tlakOzracja = 101325; // [Pa]
+	double temperaturaOzracja = 293; // [K]
+	double plinskaKonstanta = 287; // [J/kgK]
+	double gravitacijskiPospesek = 9.81; // [m/s2]
+	double gostotaOkoljskegaZraka = 1.2928; // [kg/m3]
+};

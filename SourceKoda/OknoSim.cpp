@@ -63,10 +63,10 @@ std::vector<std::vector<double>> IzracunVolumna(std::vector<std::vector<int>> se
 	return seznamResitevReset;
 }
 
-std::vector<std::vector<double>> IzracunMase(std::vector<double> pogojiOkolja, std::vector<std::vector<int>> seznamElementov, std::vector<std::vector<double>> seznamResitevReset) {
+std::vector<std::vector<double>> IzracunMase(PogojiOkolja pogojiOkolja, std::vector<std::vector<int>> seznamElementov, std::vector<std::vector<double>> seznamResitevReset) {
 
-	double R = pogojiOkolja[2];
-	double T = pogojiOkolja[1];
+	double R = pogojiOkolja.plinskaKonstanta;
+	double T = pogojiOkolja.temperaturaOzracja;
 
 	for (int i = 0; i < seznamResitevReset.size(); i++) if (seznamResitevReset[i][1] == -1 && (seznamElementov[i][2] == 2 || seznamElementov[i][2] == 3 || seznamElementov[i][2] == 4)) {
 		double p = seznamResitevReset[i][2];
@@ -88,13 +88,13 @@ std::vector<std::vector<double>> IzracunMase(std::vector<double> pogojiOkolja, s
 //lasti[bat_premer, batnica_premer, hod_bata, zacetna_poz]
 //resi[deluje, p_d, x, v, a, V_l, V_d, n]
 //pogojiOkolja[p_ok, T, R, g]
-std::vector<double> IzracunPrijemala(std::vector<double> pogojiOkolja, std::vector<double> lasti, std::vector<double> resi, double korak) {
+std::vector<double> IzracunPrijemala(PogojiOkolja pogojiOkolja, std::vector<double> lasti, std::vector<double> resi, double korak) {
 
 
 	const double pi = 3.14159265358979;
 
-	double g = pogojiOkolja[3];
-	double pok = pogojiOkolja[0];
+	double g = pogojiOkolja.gravitacijskiPospesek;
+	double pok = pogojiOkolja.tlakOzracja;
 
 	double ti = korak;
 
@@ -182,19 +182,19 @@ std::vector<double> IzracunPrijemala(std::vector<double> pogojiOkolja, std::vect
 	return resi;
 }
 
-std::vector<double> IzracunPriseska(std::vector<double> pogojiOkolja, std::vector<double> lasti, std::vector<double> resi, double korak) {
+std::vector<double> IzracunPriseska(PogojiOkolja pogojiOkolja, std::vector<double> lasti, std::vector<double> resi, double korak) {
 	
 	double pi = 3.14159265358979;
 
 
-	double g = pogojiOkolja[3];
+	double g = pogojiOkolja.gravitacijskiPospesek;
 	double m = resi[4];
 
 	double Fg = m * g;
 
 
 	double p = resi[2];
-	double pok = pogojiOkolja[0];
+	double pok = pogojiOkolja.tlakOzracja;
 	double d = lasti[0];
 
 	double A = d * d * pi / 4;
@@ -209,7 +209,7 @@ std::vector<double> IzracunPriseska(std::vector<double> pogojiOkolja, std::vecto
 }
 
 
-std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja, std::vector<std::vector<int>> seznamElementov, std::vector<std::vector<double>> seznamLastnosti, std::vector<std::vector<double>> seznamResitev, std::vector<std::vector<int>> seznamPovezav, std::vector<std::vector<double>> seznamStikal, double korak, int cas) {
+std::vector<std::vector<double>> IzracunPovezav(PogojiOkolja pogojiOkolja, std::vector<std::vector<int>> seznamElementov, std::vector<std::vector<double>> seznamLastnosti, std::vector<std::vector<double>> seznamResitev, std::vector<std::vector<int>> seznamPovezav, std::vector<std::vector<double>> seznamStikal, double korak, int cas) {
 
 	std::vector<std::vector<double>> masniTok;
 	masniTok.resize(seznamElementov.size());
@@ -218,9 +218,9 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 
 	double ti = korak; // Casovni korak [s]
 
-	double g = pogojiOkolja[3];
-	double R = pogojiOkolja[2]; // Masna plinska konstanta [J/kgK]
-	double T = pogojiOkolja[1]; // Temperatura zraka [K]
+	double g = pogojiOkolja.gravitacijskiPospesek;
+	double R = pogojiOkolja.plinskaKonstanta; // Masna plinska konstanta [J/kgK]
+	double T = pogojiOkolja.temperaturaOzracja; // Temperatura zraka [K]
 	double gama = 1.4; // Razmerje sprecificnih toplot [/]
 	double C = .6; // Koeficient prretoka [/]
 	double d = .01; // Premer cevi [m]
@@ -313,8 +313,8 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 			}
 			else {
 
-				p1 = pogojiOkolja[0];
-				rho1 = pogojiOkolja[4];
+				p1 = pogojiOkolja.tlakOzracja;
+				rho1 = pogojiOkolja.gostotaOkoljskegaZraka;
 			}
 			if (!crpalkaElementi[1].empty()) {
 
@@ -325,8 +325,8 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 			}
 			else {
 
-				p2 = pogojiOkolja[0];
-				rho2 = pogojiOkolja[4];
+				p2 = pogojiOkolja.tlakOzracja;
+				rho2 = pogojiOkolja.gostotaOkoljskegaZraka;
 			}
 
 			double izkc = seznamLastnosti[crpalkaElementi[3][i]][0];
@@ -458,7 +458,7 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 
 					double rho1 = m1 / V1;
 
-					p2 = pogojiOkolja[0];
+					p2 = pogojiOkolja.tlakOzracja;
 
 					double mtok = 0;
 					mtok = -C * 8 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
@@ -468,7 +468,7 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 				}
 			}
 			else if (seznamElementov[seznamPovezav[i][0]][2] == 3) {
-				if (seznamResitev[seznamPovezav[i][0]][7] == 0 && (seznamResitev[seznamPovezav[i][0]][5] > pogojiOkolja[0] || seznamResitev[seznamPovezav[i][0]][5] < pogojiOkolja[0])) {
+				if (seznamResitev[seznamPovezav[i][0]][7] == 0 && (seznamResitev[seznamPovezav[i][0]][5] > pogojiOkolja.tlakOzracja || seznamResitev[seznamPovezav[i][0]][5] < pogojiOkolja.tlakOzracja)) {
 					double V1;
 					double p1, p2;
 					double m1;
@@ -479,18 +479,18 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 
 					double rho1 = m1 / V1;
 
-					p2 = pogojiOkolja[0];
+					p2 = pogojiOkolja.tlakOzracja;
 
-					double rho2 = pogojiOkolja[4];
+					double rho2 = pogojiOkolja.gostotaOkoljskegaZraka;
 
 					double mtok = 0;
-					if (seznamResitev[seznamPovezav[i][0]][5] > pogojiOkolja[0]) mtok = -C * 3 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama))); //std::cout << "513, ";
-					else if (seznamResitev[seznamPovezav[i][0]][5] < pogojiOkolja[0]) mtok = C * 3 * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama))); //std::cout << "514, ";
+					if (seznamResitev[seznamPovezav[i][0]][5] > pogojiOkolja.tlakOzracja) mtok = -C * 3 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama))); //std::cout << "513, ";
+					else if (seznamResitev[seznamPovezav[i][0]][5] < pogojiOkolja.tlakOzracja) mtok = C * 3 * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama))); //std::cout << "514, ";
 
 					masniTok[seznamPovezav[i][0]].push_back(1);
 					masniTok[seznamPovezav[i][0]].push_back(mtok);
 				}
-				else if (seznamResitev[seznamPovezav[i][0]][7] == 1 && (seznamResitev[seznamPovezav[i][0]][2] > pogojiOkolja[0] || seznamResitev[seznamPovezav[i][0]][2] < pogojiOkolja[0])) {
+				else if (seznamResitev[seznamPovezav[i][0]][7] == 1 && (seznamResitev[seznamPovezav[i][0]][2] > pogojiOkolja.tlakOzracja || seznamResitev[seznamPovezav[i][0]][2] < pogojiOkolja.tlakOzracja)) {
 					double V1;
 					double p1, p2;
 					double m1;
@@ -501,13 +501,13 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 
 					double rho1 = m1 / V1;
 
-					p2 = pogojiOkolja[0];
+					p2 = pogojiOkolja.tlakOzracja;
 
-					double rho2 = pogojiOkolja[4];
+					double rho2 = pogojiOkolja.gostotaOkoljskegaZraka;
 
 					double mtok = 0;
-					if (seznamResitev[seznamPovezav[i][0]][2] > pogojiOkolja[0]) mtok = -C * 3 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
-					else if (seznamResitev[seznamPovezav[i][0]][2] < pogojiOkolja[0]) mtok = C * 3 * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
+					if (seznamResitev[seznamPovezav[i][0]][2] > pogojiOkolja.tlakOzracja) mtok = -C * 3 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
+					else if (seznamResitev[seznamPovezav[i][0]][2] < pogojiOkolja.tlakOzracja) mtok = C * 3 * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
 
 					masniTok[seznamPovezav[i][0]].push_back(0);
 					masniTok[seznamPovezav[i][0]].push_back(mtok);
@@ -525,13 +525,13 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 
 					double rho1 = m1 / V1;
 
-					p2 = pogojiOkolja[0];
+					p2 = pogojiOkolja.tlakOzracja;
 
-					double rho2 = pogojiOkolja[4];
+					double rho2 = pogojiOkolja.gostotaOkoljskegaZraka;
 
 					double mtok = 0;
-					if (seznamResitev[seznamPovezav[i][0]][2] > pogojiOkolja[0]) mtok = -C * 20 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
-					else if (seznamResitev[seznamPovezav[i][0]][2] < pogojiOkolja[0]) mtok = C * 20 * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
+					if (seznamResitev[seznamPovezav[i][0]][2] > pogojiOkolja.tlakOzracja) mtok = -C * 20 * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
+					else if (seznamResitev[seznamPovezav[i][0]][2] < pogojiOkolja.tlakOzracja) mtok = C * 20 * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
 
 					masniTok[seznamPovezav[i][0]].push_back(0);
 					masniTok[seznamPovezav[i][0]].push_back(mtok);
@@ -547,13 +547,13 @@ std::vector<std::vector<double>> IzracunPovezav(std::vector<double> pogojiOkolja
 
 					double rho1 = m1 / V1;
 
-					p2 = pogojiOkolja[0];
+					p2 = pogojiOkolja.tlakOzracja;
 
-					double rho2 = pogojiOkolja[4];
+					double rho2 = pogojiOkolja.gostotaOkoljskegaZraka;
 
 					double mtok = 0;
-					if (seznamResitev[seznamPovezav[i][0]][2] > pogojiOkolja[0]) mtok = -C * (A / 20) * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
-					else if (seznamResitev[seznamPovezav[i][0]][2] < pogojiOkolja[0]) mtok = C * (A / 20) * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
+					if (seznamResitev[seznamPovezav[i][0]][2] > pogojiOkolja.tlakOzracja) mtok = -C * (A / 20) * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
+					else if (seznamResitev[seznamPovezav[i][0]][2] < pogojiOkolja.tlakOzracja) mtok = C * (A / 20) * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
 
 					masniTok[seznamPovezav[i][0]].push_back(0);
 					masniTok[seznamPovezav[i][0]].push_back(mtok);
@@ -625,8 +625,9 @@ short drzanjePovezav = 0;
 short izbranElement = -1;
 short izbranaPovezava = -1;
 
-std::vector<double> pogojiOkolja;
-// [tlak ozracja, temperatura ozracja]
+PogojiOkolja pogojiOkolja;
+//std::vector<double> pogojiOkolja;
+// [tlak ozracja, temperatura ozracja, plinska konst., gravitacijski posp., gostota okoljskega zraka]
  
 std::vector<std::vector<int>> seznamElementov;
 // [x, y, element]
@@ -705,12 +706,6 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	panel->SetDoubleBuffered(true);
 
 
-	pogojiOkolja.push_back(101325);
-	pogojiOkolja.push_back(293);
-	pogojiOkolja.push_back(287);
-	pogojiOkolja.push_back(9.81);
-	pogojiOkolja.push_back(1.293);
-
 
 	seznamElementov.push_back({ 220,20,0 });
 	seznamElementov.push_back({ 360,540,1 });
@@ -729,9 +724,9 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamResitevReset.push_back({ 0,0,0,0,0,0,0,0 });
 	seznamResitevReset.push_back({ 0,0,2000,0 });
 	seznamResitevReset.push_back({ 1,-1,600000,-1 });
-	seznamResitevReset.push_back({ 1,-1,pogojiOkolja[0],-1,-1,pogojiOkolja[0],-1,0,0,0,0 });
-	seznamResitevReset.push_back({ 1,-1,pogojiOkolja[0],-1, 40, -1, 1 });
-	seznamResitevReset.push_back({ 1,-1,pogojiOkolja[0],-1,-1,pogojiOkolja[0],-1,0,0,0,0 });
+	seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1,-1,pogojiOkolja.tlakOzracja,-1,0,0,0,0 });
+	seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1, 40, -1, 1 });
+	seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1,-1,pogojiOkolja.tlakOzracja,-1,0,0,0,0 });
 
 	seznamResitevReset = IzracunVolumna(seznamElementov, seznamResitevReset, seznamLastnosti);
 	seznamResitevReset = IzracunMase(pogojiOkolja, seznamElementov, seznamResitevReset);
@@ -971,12 +966,12 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 		}
 		else if (choiceDod->GetSelection() == 3) {
 			seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.4,0 });
-			seznamResitevReset.push_back({ 1,-1,pogojiOkolja[0],-1,-1,pogojiOkolja[0],-1,0,0,0,0 });
+			seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1,-1,pogojiOkolja.tlakOzracja,-1,0,0,0,0 });
 			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2 });
 		}
 		else if (choiceDod->GetSelection() == 4) {
 			seznamLastnosti.push_back({ 0.1,0.2 });
-			seznamResitevReset.push_back({ 1,-1,pogojiOkolja[0],-1, 40, -1, 1 });
+			seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1, 40, -1, 1 });
 			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2 });
 		}
 		else {
@@ -1114,6 +1109,9 @@ void OknoSim::OnBrisanjePovezavClicked(wxCommandEvent& evt) {
 	if (izbranaPovezava > 0) {
 
 		seznamPovezav.erase(seznamPovezav.begin() + izbranaPovezava - 1);
+
+		spinPovezava->SetValue(0);
+		izbranaPovezava = spinPovezava->GetValue();
 	}
 
 	Refresh();
@@ -2406,7 +2404,7 @@ NastavitevTlacnePosode::NastavitevTlacnePosode() : wxFrame(nullptr, wxID_ANY, wx
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
 
 	tlakVarnVentBool = new wxCheckBox(panel, wxID_ANY, "Tlacni varnostni ventil", wxPoint(5, 5), wxDefaultSize);
-	tlakVarnVent = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(180, 23), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, pogojiOkolja[0]/100000, 10, 7, .1);
+	tlakVarnVent = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(180, 23), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, pogojiOkolja.tlakOzracja / 100000, 10, 7, .1);
 
 	if (seznamLastnosti[izbranElement][1] >= 0) {
 		tlakVarnVent->SetValue(seznamLastnosti[izbranElement][1]/100000);
