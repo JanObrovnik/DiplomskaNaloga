@@ -948,6 +948,9 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 			if (seznamStikal[i][4] > izbranElement) seznamStikal[i][4]--;
 		}
 
+		if (seznamElementov[izbranElement][2] == 0) seznamStikal.clear();
+
+
 		seznamElementov.erase(seznamElementov.begin() + izbranElement);
 		seznamLastnosti.erase(seznamLastnosti.begin() + izbranElement);
 		seznamResitevReset.erase(seznamResitevReset.begin() + izbranElement);
@@ -1053,11 +1056,19 @@ void OknoSim::OnButtonIzbClicked(wxCommandEvent& evt) {
 		simbool = false;
 
 		for (int i = seznamPovezav.size() - 1; i >= 0; i--) if (seznamPovezav[i][0] == izbranElement || seznamPovezav[i][2] == izbranElement) seznamPovezav.erase(seznamPovezav.begin() + i); // brisanje cevi
+		for (int i = seznamStikal.size() - 1; i >= 0; i--) if (seznamStikal[i][0] == izbranElement || seznamStikal[i][4] == izbranElement) seznamStikal.erase(seznamStikal.begin() + i); // brisanje stikal
 
 		for (int i = 0; i < seznamPovezav.size(); i++) {
 			if (seznamPovezav[i][0] > izbranElement) seznamPovezav[i][0]--;
 			if (seznamPovezav[i][2] > izbranElement) seznamPovezav[i][2]--;
 		}
+
+		for (int i = 0; i < seznamStikal.size(); i++) {
+			if (seznamStikal[i][0] > izbranElement) seznamStikal[i][0]--;
+			if (seznamStikal[i][4] > izbranElement) seznamStikal[i][4]--;
+		}
+
+		if (seznamElementov[izbranElement][2] == 0) seznamStikal.clear();
 
 
 		seznamElementov.erase(seznamElementov.begin() + izbranElement);
