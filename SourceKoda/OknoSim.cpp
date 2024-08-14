@@ -752,14 +752,14 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamPovezav.push_back({ 5,3,-1,-1,2 });
 
 
-	seznamStikal.push_back({ 2,2,-1,595000,1,0,1 });
-	seznamStikal.push_back({ 5,2,1,500000,5,7,1 });
-	seznamStikal.push_back({ 5,5,1,500000,5,7,0 });
-	seznamStikal.push_back({ 5,5,1,500000,4,6,-1 });
-	seznamStikal.push_back({ 5,2,1,500000,4,6,1 });
-	seznamStikal.push_back({ 2,2,-1,588000,1,0,-1 });
-	seznamStikal.push_back({ 2,2,-1,500000,1,0,1 });
-	seznamStikal.push_back({ 2,2,-1,500000,4,0,0 });
+	seznamStikal.push_back({ 2,2,-1,595000,1,0,1,0 });
+	seznamStikal.push_back({ 5,2,1,500000,5,7,1,0 });
+	seznamStikal.push_back({ 5,5,1,500000,5,7,0,0 });
+	seznamStikal.push_back({ 5,5,1,500000,4,6,-1,0 });
+	seznamStikal.push_back({ 5,2,1,500000,4,6,1,0 });
+	seznamStikal.push_back({ 2,2,-1,588000,1,0,-1,0 });
+	seznamStikal.push_back({ 2,2,-1,500000,1,0,1,0 });
+	seznamStikal.push_back({ 2,2,-1,500000,4,0,0,0 });
 
 	wxStatusBar* statusBar = CreateStatusBar();
 }
@@ -935,6 +935,8 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 	
 	if (izbranElement >= 0 && casDrzanja > 2 && mousePos.x > oknoSize.x - 115 && mousePos.y < 60 && drzanjeElementa) {
 		
+		casSimulacije->SetValue(0);
+
 		for (int i = seznamPovezav.size() - 1; i >= 0; i--) if (seznamPovezav[i][0] == izbranElement || seznamPovezav[i][2] == izbranElement) seznamPovezav.erase(seznamPovezav.begin() + i); // brisanje cevi
 		for (int i = seznamStikal.size() - 1; i >= 0; i--) if (seznamStikal[i][0] == izbranElement || seznamStikal[i][4] == izbranElement) seznamStikal.erase(seznamStikal.begin() + i); // brisanje stikal
 
@@ -946,9 +948,10 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 		for (int i = 0; i < seznamStikal.size(); i++) {
 			if (seznamStikal[i][0] > izbranElement) seznamStikal[i][0]--;
 			if (seznamStikal[i][4] > izbranElement) seznamStikal[i][4]--;
+			if (seznamStikal[i][7] > izbranElement) seznamStikal[i][7]--;
 		}
 
-		if (seznamElementov[izbranElement][2] == 0) seznamStikal.clear();
+		if (seznamElementov[izbranElement][2] == 0) for (int i = seznamStikal.size() - 1; i >= 0; i--) if (seznamStikal[i][seznamStikal[i].size() - 1] == izbranElement) seznamStikal.erase(seznamStikal.begin() + i);
 
 
 		seznamElementov.erase(seznamElementov.begin() + izbranElement);
@@ -956,7 +959,6 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 		seznamResitevReset.erase(seznamResitevReset.begin() + izbranElement);
 		seznamResitev = seznamResitevReset;
 
-		casSimulacije->SetValue(0);
 		izbranElement = -1;
 	}
 	else if (drzanje && mousePos.x > 200) {
@@ -1054,6 +1056,7 @@ void OknoSim::OnButtonIzbClicked(wxCommandEvent& evt) {
 	if (izbranElement >= 0) {
 
 		simbool = false;
+		casSimulacije->SetValue(0);
 
 		for (int i = seznamPovezav.size() - 1; i >= 0; i--) if (seznamPovezav[i][0] == izbranElement || seznamPovezav[i][2] == izbranElement) seznamPovezav.erase(seznamPovezav.begin() + i); // brisanje cevi
 		for (int i = seznamStikal.size() - 1; i >= 0; i--) if (seznamStikal[i][0] == izbranElement || seznamStikal[i][4] == izbranElement) seznamStikal.erase(seznamStikal.begin() + i); // brisanje stikal
@@ -1066,9 +1069,10 @@ void OknoSim::OnButtonIzbClicked(wxCommandEvent& evt) {
 		for (int i = 0; i < seznamStikal.size(); i++) {
 			if (seznamStikal[i][0] > izbranElement) seznamStikal[i][0]--;
 			if (seznamStikal[i][4] > izbranElement) seznamStikal[i][4]--;
+			if (seznamStikal[i][7] > izbranElement) seznamStikal[i][7]--;
 		}
 
-		if (seznamElementov[izbranElement][2] == 0) seznamStikal.clear();
+		if (seznamElementov[izbranElement][2] == 0) for (int i = seznamStikal.size() - 1; i >= 0; i--) if (seznamStikal[i][seznamStikal[i].size() - 1] == izbranElement) seznamStikal.erase(seznamStikal.begin() + i);
 
 
 		seznamElementov.erase(seznamElementov.begin() + izbranElement);
@@ -1076,7 +1080,6 @@ void OknoSim::OnButtonIzbClicked(wxCommandEvent& evt) {
 		seznamResitevReset.erase(seznamResitevReset.begin() + izbranElement);
 		seznamResitev = seznamResitevReset;
 
-		casSimulacije->SetValue(0);
 		izbranElement = -1;
 
 		Refresh();
@@ -2075,7 +2078,7 @@ void NastavitevMikroProcesorja::OnDodajClicked(wxCommandEvent& evt) {
 	if (choiceVrednostPisanje->GetSelection() >= 0) {
 		int sezSize = seznamStikal.size();
 		seznamStikal.resize(sezSize + 1);
-		seznamStikal[sezSize].resize(7);
+		seznamStikal[sezSize].resize(8);
 
 
 		if (choicePinBranje->GetSelection() == 0) {
@@ -2143,13 +2146,15 @@ void NastavitevMikroProcesorja::OnDodajClicked(wxCommandEvent& evt) {
 		}
 
 		seznamStikal[sezSize][6] = std::stoi(static_cast<std::string> (choiceVrednostPisanje->GetString(choiceVrednostPisanje->GetSelection())));
+
+		seznamStikal[sezSize][7] = izbranElement;
 	}
 	Refresh();
 }
 
 void NastavitevMikroProcesorja::OnIzbrisiClicked(wxCommandEvent& evt) {
 
-	seznamStikal.clear();
+	for (int i = seznamStikal.size() - 1; i >= 0; i--) if (seznamStikal[i][seznamStikal[i].size() - 1] == izbranElement) seznamStikal.erase(seznamStikal.begin() + i);
 
 	Refresh();
 }
@@ -2281,10 +2286,10 @@ void NastavitevMikroProcesorja::OnPaint(wxPaintEvent& evt) {
 	wxSize velikostOkna = this->GetSize();
 	wxPoint mousePos = this->ScreenToClient(wxGetMousePosition());
 
-	if (false) { // ADMIN LOGS
-		dc.DrawText("Zapis vseh ukazov:", wxPoint(400, 80));
-		for (int i = 0; i < seznamStikal.size(); i++) dc.DrawText(wxString::Format("%g | %g | %g | %g | %g | %g | %g", seznamStikal[i][0], seznamStikal[i][1], seznamStikal[i][2], seznamStikal[i][3], seznamStikal[i][4], seznamStikal[i][5], seznamStikal[i][6]), wxPoint(400, 100 + 20 * i));
-		dc.DrawText(wxString::Format("choicePinBranje %d", choicePinBranje->GetSelection()), wxPoint(400, 40));
+	if (true) { // ADMIN LOGS
+		dc.DrawText("Zapis vseh ukazov:", wxPoint(380, 80));
+		for (int i = 0; i < seznamStikal.size(); i++) dc.DrawText(wxString::Format("%g | %g | %g | %g | %g | %g | %g | %g", seznamStikal[i][0], seznamStikal[i][1], seznamStikal[i][2], seznamStikal[i][3], seznamStikal[i][4], seznamStikal[i][5], seznamStikal[i][6], seznamStikal[i][7]), wxPoint(380, 100 + 20 * i));
+		dc.DrawText(wxString::Format("choicePinBranje %d", choicePinBranje->GetSelection()), wxPoint(380, 40));
 	}
 
 	wxPoint predogled(130, 100);
