@@ -17,6 +17,17 @@
 #define PRIJEMALO 3
 #define PRISESEK 4
 
+#define MANJ -1
+#define ENAKO 0
+#define VECJE 1
+
+#define TLAK0_LOG 2
+#define TLAK1_LOG 5
+#define DELOVANJE_LOG 0
+#define MOC_LOG 2
+#define POZ_PRIJEMALO_LOG 7
+#define POZ_PRISESEK_LOG 6
+
 
 
 
@@ -239,34 +250,34 @@ std::vector<std::vector<double>> IzracunPovezav(PogojiOkolja pogojiOkolja, std::
 
 		if (seznamStikal[i][0] == -1) {
 
-			if (seznamStikal[i][2] < 0) {
+			if (seznamStikal[i][2] == MANJ) {
 
 				if (cas * korak < seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
 			}
 
-			else if (seznamStikal[i][2] == 0) {
+			else if (seznamStikal[i][2] == ENAKO) {
 
 				if (cas * korak == seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
 			}
 
-			else if (seznamStikal[i][2] > 0) {
+			else if (seznamStikal[i][2] == VECJE) {
 
 				if (cas * korak > seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
 			}
 		}
 
 		else {
-			if (seznamStikal[i][2] < 0) {
+			if (seznamStikal[i][2] == MANJ) {
 
 				if (seznamResitev[seznamStikal[i][0]][seznamStikal[i][1]] < seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
 			}
 
-			else if (seznamStikal[i][2] == 0) {
+			else if (seznamStikal[i][2] == ENAKO) {
 
 				if (seznamResitev[seznamStikal[i][0]][seznamStikal[i][1]] == seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
 			}
 
-			else if (seznamStikal[i][2] > 0) {
+			else if (seznamStikal[i][2] == VECJE) {
 
 				if (seznamResitev[seznamStikal[i][0]][seznamStikal[i][1]] > seznamStikal[i][3]) seznamResitev[seznamStikal[i][4]][seznamStikal[i][5]] = seznamStikal[i][6];
 			}
@@ -2105,23 +2116,22 @@ void NastavitevMikroProcesorja::OnDodajClicked(wxCommandEvent& evt) {
 
 					if (seznamElementov[seznamStikal[sezSize][0]][2] == TLACNAPOSODA) {
 
-						if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p") seznamStikal[sezSize][1] = 2;
+						if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p") seznamStikal[sezSize][1] = TLAK0_LOG;
 					}
 					else if (seznamElementov[seznamStikal[sezSize][0]][2] == PRIJEMALO) {
-						if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p0") seznamStikal[sezSize][1] = 2;
-						else if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p1") seznamStikal[sezSize][1] = 5;
+						if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p0") seznamStikal[sezSize][1] = TLAK0_LOG;
+						else if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p1") seznamStikal[sezSize][1] = TLAK1_LOG;
 					}
 					else if (seznamElementov[seznamStikal[sezSize][0]][2] == PRISESEK) {
-						if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p") seznamStikal[sezSize][1] = 2;
+						if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p") seznamStikal[sezSize][1] = TLAK0_LOG;
 					}
-					//break;
 				}
 			}
 		}
 
-		if (choiceLogFun->GetSelection() == 0) seznamStikal[sezSize][2] = -1;
-		else if (choiceLogFun->GetSelection() == 1) seznamStikal[sezSize][2] = 0;
-		else if (choiceLogFun->GetSelection() == 2) seznamStikal[sezSize][2] = 1;
+		if (choiceLogFun->GetSelection() == 0) seznamStikal[sezSize][2] = MANJ;
+		else if (choiceLogFun->GetSelection() == 1) seznamStikal[sezSize][2] = ENAKO;
+		else if (choiceLogFun->GetSelection() == 2) seznamStikal[sezSize][2] = VECJE;
 
 		if (choicePinBranje->GetSelection() == 0) seznamStikal[sezSize][3] = spinVrednostBranje->GetValue() * korak;
 		else seznamStikal[sezSize][3] = spinVrednostBranje->GetValue() * 100000;
@@ -2137,18 +2147,17 @@ void NastavitevMikroProcesorja::OnDodajClicked(wxCommandEvent& evt) {
 				seznamStikal[sezSize][4] = seznamPovezav[i][2 + zamik];
 
 				if (seznamElementov[seznamStikal[sezSize][4]][2] == ELEKTRICNACRPALKA) {
-					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") seznamStikal[sezSize][5] = 0;
-					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " moc [W]") seznamStikal[sezSize][5] = 2;
+					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") seznamStikal[sezSize][5] = DELOVANJE_LOG;
+					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " moc [W]") seznamStikal[sezSize][5] = MOC_LOG;
 				}
 				else if (seznamElementov[seznamStikal[sezSize][4]][2] == PRIJEMALO) {
-					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") seznamStikal[sezSize][5] = 0;
-					else if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " pozicija") seznamStikal[sezSize][5] = 7;
+					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") seznamStikal[sezSize][5] = DELOVANJE_LOG;
+					else if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " pozicija") seznamStikal[sezSize][5] = POZ_PRIJEMALO_LOG;
 				}
 				else if (seznamElementov[seznamStikal[sezSize][4]][2] == PRISESEK) {
-					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") seznamStikal[sezSize][5] = 0;
-					else if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " pozicija") seznamStikal[sezSize][5] = 6;
+					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") seznamStikal[sezSize][5] = DELOVANJE_LOG;
+					else if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " pozicija") seznamStikal[sezSize][5] = POZ_PRISESEK_LOG;
 				}
-				//break;
 			}
 		}
 
@@ -2236,7 +2245,6 @@ void NastavitevMikroProcesorja::OnRefresh(wxCommandEvent& evt) {
 						}
 					}
 				}
-				//break;
 			}
 		}
 	}
@@ -2277,7 +2285,6 @@ void NastavitevMikroProcesorja::OnRefresh(wxCommandEvent& evt) {
 					else if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == PRISESEK) {
 						choiceVelicinaBranje->SetString(0, " p");
 					}
-					//break;
 				}
 			}
 		}
