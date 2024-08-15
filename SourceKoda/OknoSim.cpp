@@ -25,8 +25,12 @@
 #define TLAK1_LOG 5
 #define DELOVANJE_LOG 0
 #define MOC_LOG 2
+#define VRTLJAJI_LOG 3
 #define POZ_PRIJEMALO_LOG 7
 #define POZ_PRISESEK_LOG 6
+
+#define KONST_MOC 0
+#define KONST_VRTLJAJI 1
 
 
 
@@ -353,20 +357,27 @@ std::vector<std::vector<double>> IzracunPovezav(PogojiOkolja pogojiOkolja, std::
 			double Ac = seznamLastnosti[crpalkaElementi[3][i]][3];
 			double lc = seznamLastnosti[crpalkaElementi[3][i]][4];
 
-			double mtok = 0;
+			double mtok = seznamResitev[crpalkaElementi[3][i]][1]; ///////////////////// koznost za konst. vrt.
 			double Pc = seznamResitev[crpalkaElementi[3][i]][2];
-			double nc = 0;
+			double nc = seznamResitev[crpalkaElementi[3][i]][3];
 
 
 			double dT = (p1 - p2) * Ac * lc * crpalkaElementi[2][i];
 
-			if (dT >= 0) {
-				nc = Pc * izkc / dT;
-				if (nc > ncmax) nc = ncmax;
-			}
-			else if (dT < 0) nc = ncmax;
+			if (seznamLastnosti[crpalkaElementi[3][i]][5] == KONST_MOC) {
 
-			nc *= crpalkaElementi[2][i];
+				if (dT >= 0) {
+					nc = Pc * izkc / dT;
+					if (nc > ncmax) nc = ncmax;
+				}
+				else if (dT < 0) nc = ncmax;
+
+				nc *= crpalkaElementi[2][i];
+			}
+			else if (seznamLastnosti[crpalkaElementi[3][i]][5] == KONST_VRTLJAJI) {
+
+				Pc = abs(nc * dT / izkc);
+			}
 
 
 			if (crpalkaElementi[2][i] == 1) {
@@ -380,6 +391,8 @@ std::vector<std::vector<double>> IzracunPovezav(PogojiOkolja pogojiOkolja, std::
 
 
 			seznamResitev[crpalkaElementi[3][i]][1] = mtok;
+			seznamResitev[crpalkaElementi[3][i]][2] = Pc;
+			seznamResitev[crpalkaElementi[3][i]][3] = nc;
 
 			if (!crpalkaElementi[0].empty()) {
 
@@ -649,7 +662,7 @@ std::vector<std::vector<int>> seznamElementov;
 // [x, y, element]
 std::vector<std::vector<double>> seznamLastnosti;
 // mikroprocesor []
-// tlacna crpalka [izkoristek, notranja_torzija, volumen_na_vrtljaj, povrsina_rotorja, rocica_prijemalisca_sile]
+// tlacna crpalka [izkoristek, notranja_torzija, volumen_na_vrtljaj, povrsina_rotorja, rocica_prijemalisca_sile, konst. moc/vrtljaji]
 // tlacna posoda [volumen, varnostni ventil]
 // prijemalo [/OUTDATED/, /OUTDATED/, D, d, l, %]
 // prisesek [D, l]
@@ -727,21 +740,21 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 
 
 	seznamElementov.push_back({ 220,20,MIKROPROCESOR });
-	seznamElementov.push_back({ 360,540,ELEKTRICNACRPALKA });
+	seznamElementov.push_back({ 360,520,ELEKTRICNACRPALKA });
 	seznamElementov.push_back({ 510,430,TLACNAPOSODA });
 	seznamElementov.push_back({ 700,350,PRIJEMALO });
 	seznamElementov.push_back({ 600,540,PRISESEK });
 	seznamElementov.push_back({ 680,250,PRIJEMALO });
 
 	seznamLastnosti.push_back({});
-	seznamLastnosti.push_back({ .95,6,0.2,0.01,0.05 });
+	seznamLastnosti.push_back({ .95,6,0.2,0.01,0.05,1 });
 	seznamLastnosti.push_back({ 2,700000 });
 	seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.4,80 });
 	seznamLastnosti.push_back({ 0.1,0.2 });
 	seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.4,40 });
 
 	seznamResitevReset.push_back({ 0,0,0,0,0,0,0,0 });
-	seznamResitevReset.push_back({ 0,0,2000,0 });
+	seznamResitevReset.push_back({ 0,0,2000,20 });
 	seznamResitevReset.push_back({ 1,-1,600000,-1 });
 	seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1,-1,pogojiOkolja.tlakOzracja,-1,0,0,0,0 });
 	seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1, 40, -1, 1 });
@@ -770,14 +783,17 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamPovezav.push_back({ 5,3,-1,-1,2 });
 
 
-	seznamStikal.push_back({ 2,2,-1,595000,1,0,1,0 });
+	/*seznamStikal.push_back({2,2,-1,595000,1,0,1,0});
 	seznamStikal.push_back({ 5,2,1,500000,5,7,1,0 });
 	seznamStikal.push_back({ 5,5,1,500000,5,7,0,0 });
 	seznamStikal.push_back({ 5,5,1,500000,4,6,-1,0 });
 	seznamStikal.push_back({ 5,2,1,500000,4,6,1,0 });
 	seznamStikal.push_back({ 2,2,-1,588000,1,0,-1,0 });
 	seznamStikal.push_back({ 2,2,-1,500000,1,0,1,0 });
-	seznamStikal.push_back({ 2,2,-1,500000,4,0,0,0 });
+	seznamStikal.push_back({ 2,2,-1,500000,4,0,0,0 });*/
+
+	seznamStikal.push_back({ -1,0,VECJE,0,1,DELOVANJE_LOG,1,0 });
+	seznamStikal.push_back({ -1,0,VECJE,0,4,POZ_PRISESEK_LOG,-1,0 });
 
 	wxStatusBar* statusBar = CreateStatusBar();
 }
@@ -981,27 +997,27 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 	}
 	else if (drzanje && mousePos.x > 200) {
 
-		seznamElementov.push_back({ mousePos.x / 10 * 10,mousePos.y / 10 * 10,choiceDod->GetSelection() }); ////////////// treba dodat vse
+		seznamElementov.push_back({ mousePos.x / 10 * 10,mousePos.y / 10 * 10,choiceDod->GetSelection() });
 
-		if (choiceDod->GetSelection() == 0) {
+		if (choiceDod->GetSelection() == MIKROPROCESOR) {
 			seznamLastnosti.push_back({});
 			seznamResitevReset.push_back({ 0,0,0,0,0,0,0,0 });
 		}
-		else if (choiceDod->GetSelection() == 1) {
-			seznamLastnosti.push_back({ .95,6,0.2,0.01,0.05 });
+		else if (choiceDod->GetSelection() == ELEKTRICNACRPALKA) {
+			seznamLastnosti.push_back({ .95,6,0.2,0.01,0.05,1 });
 			seznamResitevReset.push_back({ 1,0,2000,0 });
 		}
-		else if (choiceDod->GetSelection() == 2) {
+		else if (choiceDod->GetSelection() == TLACNAPOSODA) {
 			seznamLastnosti.push_back({ 2,700000 });
 			seznamResitevReset.push_back({ 1,-1,600000,-1 });
 			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2 });
 		}
-		else if (choiceDod->GetSelection() == 3) {
+		else if (choiceDod->GetSelection() == PRIJEMALO) {
 			seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.4,0 });
 			seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1,-1,pogojiOkolja.tlakOzracja,-1,0,0,0,0 });
 			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2 });
 		}
-		else if (choiceDod->GetSelection() == 4) {
+		else if (choiceDod->GetSelection() == PRISESEK) {
 			seznamLastnosti.push_back({ 0.1,0.2 });
 			seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1, 40, -1, 1 });
 			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2 });
@@ -1774,6 +1790,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 				dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0], xy[1] + 15));
 				dc.DrawText(wxString::Format("m_tok = %g kg/s", seznamResitev[i][1]), wxPoint(xy[0], xy[1] + 30));
 				dc.DrawText(wxString::Format("moc = %g W", seznamResitev[i][2]), wxPoint(xy[0], xy[1] + 45));
+				dc.DrawText(wxString::Format("vrt = %g s-1", seznamResitev[i][3]), wxPoint(xy[0], xy[1] + 60));
 
 				if (seznamResitev[i][0] > 0) dc.SetBrush(wxBrush(wxColour(51, 255, 51), wxBRUSHSTYLE_SOLID));
 				else if (seznamResitev[i][0] < 0) dc.SetBrush(wxBrush(wxColour(255, 51, 51), wxBRUSHSTYLE_SOLID));
@@ -2115,7 +2132,6 @@ void NastavitevMikroProcesorja::OnDodajClicked(wxCommandEvent& evt) {
 					seznamStikal[sezSize][0] = seznamPovezav[i][2 + zamik];
 
 					if (seznamElementov[seznamStikal[sezSize][0]][2] == TLACNAPOSODA) {
-
 						if (choiceVelicinaBranje->GetString(choiceVelicinaBranje->GetSelection()) == " p") seznamStikal[sezSize][1] = TLAK0_LOG;
 					}
 					else if (seznamElementov[seznamStikal[sezSize][0]][2] == PRIJEMALO) {
@@ -2149,6 +2165,7 @@ void NastavitevMikroProcesorja::OnDodajClicked(wxCommandEvent& evt) {
 				if (seznamElementov[seznamStikal[sezSize][4]][2] == ELEKTRICNACRPALKA) {
 					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") seznamStikal[sezSize][5] = DELOVANJE_LOG;
 					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " moc [W]") seznamStikal[sezSize][5] = MOC_LOG;
+					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " vrtljaji [s-1]") seznamStikal[sezSize][5] = VRTLJAJI_LOG;
 				}
 				else if (seznamElementov[seznamStikal[sezSize][4]][2] == PRIJEMALO) {
 					if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") seznamStikal[sezSize][5] = DELOVANJE_LOG;
@@ -2200,7 +2217,8 @@ void NastavitevMikroProcesorja::OnRefresh(wxCommandEvent& evt) {
 
 				if (seznamElementov[seznamPovezav[i][2 + zamik]][2] == ELEKTRICNACRPALKA) {
 					choiceVelicinaPisanje->SetString(0, " delovanje");
-					choiceVelicinaPisanje->SetString(1, " moc [W]");
+					if (seznamLastnosti[seznamPovezav[i][2 + zamik]][5] == KONST_MOC) choiceVelicinaPisanje->SetString(1, " moc [W]");
+					else if (seznamLastnosti[seznamPovezav[i][2 + zamik]][5] == KONST_VRTLJAJI) choiceVelicinaPisanje->SetString(1, " vrtljaji [s-1]");
 
 					if (choiceVelicinaPisanje->GetSelection() >= 0) {
 						if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " delovanje") {
@@ -2212,6 +2230,11 @@ void NastavitevMikroProcesorja::OnRefresh(wxCommandEvent& evt) {
 							choiceVrednostPisanje->SetString(0, " 2000");
 							choiceVrednostPisanje->SetString(1, " 4000");
 							choiceVrednostPisanje->SetString(2, " 6000");
+						}
+						else if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " vrtljaji [s-1]") {
+							choiceVrednostPisanje->SetString(0, " 10");
+							choiceVrednostPisanje->SetString(1, " 20");
+							choiceVrednostPisanje->SetString(2, " 30");
 						}
 					}
 				}
@@ -2369,8 +2392,9 @@ wxSpinCtrlDouble* notTorCrpalke;
 wxSpinCtrlDouble* volVrtCrpalke;
 wxSpinCtrlDouble* povRotCrpalke;
 wxSpinCtrlDouble* rocPriSilCrpalke;
+wxRadioBox* konstParameterCrpalke;
 
-NastavitevCrpalke::NastavitevCrpalke() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Crpalke"), wxPoint(0, 0), wxSize(360, 300)) {
+NastavitevCrpalke::NastavitevCrpalke() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Crpalke"), wxPoint(0, 0), wxSize(400, 300)) {
 
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
@@ -2381,6 +2405,12 @@ NastavitevCrpalke::NastavitevCrpalke() : wxFrame(nullptr, wxID_ANY, wxString::Fo
 	volVrtCrpalke = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(100, 65), wxSize(80, -1), wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, seznamLastnosti[izbranElement][2], .01);
 	povRotCrpalke = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(100, 95), wxSize(80, -1), wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, seznamLastnosti[izbranElement][3], .01);
 	rocPriSilCrpalke = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(100, 125), wxSize(80, -1), wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, seznamLastnosti[izbranElement][4], .01);
+
+	wxArrayString konstPar;
+	konstPar.Add("Konst. moc");
+	konstPar.Add("Konst. vrtljaji");
+	konstParameterCrpalke = new wxRadioBox(panel, wxID_ANY, "Konstantna velicina:", wxPoint(250, 5), wxDefaultSize, konstPar, 1, wxRA_SPECIFY_COLS);
+	konstParameterCrpalke->Select(seznamLastnosti[izbranElement][5]);
 
 
 	apply->Bind(wxEVT_BUTTON, &NastavitevCrpalke::OnApplyClicked, this);
@@ -2396,6 +2426,7 @@ void NastavitevCrpalke::OnApplyClicked(wxCommandEvent& evt) {
 	seznamLastnosti[izbranElement][2] = volVrtCrpalke->GetValue();
 	seznamLastnosti[izbranElement][3] = povRotCrpalke->GetValue();
 	seznamLastnosti[izbranElement][4] = rocPriSilCrpalke->GetValue();
+	seznamLastnosti[izbranElement][5] = konstParameterCrpalke->GetSelection();
 }
 
 
