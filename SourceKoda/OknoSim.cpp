@@ -676,7 +676,7 @@ std::vector<std::vector<double>> seznamResitev;
 // seznamResitev = seznamResitevReset
 
 std::vector<std::vector<int>> seznamPovezav;
-// [element1, prikljucen1, element2, prikljucek2, kabl/cev/odzracitev (0/1/2)]
+// [element1, prikljucen1, element2, prikljucek2, kabl/cev/odzracitev (0/1/2), regulator_tlaka(Pa)]
 std::vector<std::vector<double>> seznamStikal;
 // [element1, velicina1, logicna_funkcija, vrednost1, element2, velicina2, vrednost2]
 
@@ -696,11 +696,12 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	wxButton* izbVse = new wxButton(panel, wxID_ANY, "Izbrisi vse", wxPoint(5, 250), wxSize(190, -1));
 	
 	wxButton* risanjePovezav = new wxButton(panel, wxID_ANY, "Risanje povezav", wxPoint(5,280), wxSize(190,-1));
-	spinPovezava = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(5, 310), wxSize(90, -1), wxSP_ARROW_KEYS | wxSP_WRAP, -1, -1, -1);
-	wxButton* brisanjePovezav = new wxButton(panel, wxID_ANY, "Brisi povezavo", wxPoint(105, 310), wxSize(90, -1));
+	spinPovezava = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(5, 310), wxSize(90, 60), wxSP_ARROW_KEYS | wxSP_WRAP, -1, -1, -1);
+	wxButton* nastavitevPovezav = new wxButton(panel, wxID_ANY, "Nastavitve", wxPoint(105, 310), wxSize(90, -1));
+	wxButton* brisanjePovezav = new wxButton(panel, wxID_ANY, "Brisi povezavo", wxPoint(105, 340), wxSize(90, -1));
 	
-	wxButton* shrani = new wxButton(panel, wxID_ANY, "Shrani", wxPoint(5, 350), wxSize(190, -1));
-	wxButton* nalozi = new wxButton(panel, wxID_ANY, "Nalozi", wxPoint(5, 380), wxSize(190, -1));
+	wxButton* shrani = new wxButton(panel, wxID_ANY, "Shrani", wxPoint(5, 380), wxSize(190, -1));
+	wxButton* nalozi = new wxButton(panel, wxID_ANY, "Nalozi", wxPoint(5, 410), wxSize(190, -1));
 	
 	wxButton* simuliraj = new wxButton(panel, wxID_ANY, "Simuliraj", wxPoint(5, 500), wxSize(190, 40));
 	wxButton* resetSim = new wxButton(panel, wxID_ANY, "Reset", wxPoint(5, 570), wxSize(190, -1));
@@ -727,6 +728,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	izbVse->Bind(wxEVT_BUTTON, &OknoSim::OnButtonIzbVseClicked, this);
 	risanjePovezav->Bind(wxEVT_BUTTON, &OknoSim::OnRisanjePovezavClicked, this);
 	spinPovezava->Bind(wxEVT_SPINCTRL, &OknoSim::OnSpinPovezavaChanged, this);
+	nastavitevPovezav->Bind(wxEVT_BUTTON, &OknoSim::OnNastavitevPovezavClicked, this);
 	brisanjePovezav->Bind(wxEVT_BUTTON, &OknoSim::OnBrisanjePovezavClicked, this);
 	shrani->Bind(wxEVT_BUTTON, &OknoSim::OnShraniClicked, this);
 	nalozi->Bind(wxEVT_BUTTON, &OknoSim::OnNaloziClicked, this);
@@ -742,7 +744,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamElementov.push_back({ 220,20,MIKROPROCESOR });
 	seznamElementov.push_back({ 360,520,ELEKTRICNACRPALKA });
 	seznamElementov.push_back({ 510,430,TLACNAPOSODA });
-	seznamElementov.push_back({ 700,350,PRIJEMALO });
+	seznamElementov.push_back({ 730,350,PRIJEMALO });
 	seznamElementov.push_back({ 600,540,PRISESEK });
 	seznamElementov.push_back({ 680,250,PRIJEMALO });
 
@@ -766,21 +768,21 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamResitev = seznamResitevReset;
 
 
-	seznamPovezav.push_back({ 0,0,1,0,0 });
-	seznamPovezav.push_back({ 0,1,2,0,0 });
-	seznamPovezav.push_back({ 0,2,5,0,0 });
-	seznamPovezav.push_back({ 0,3,3,0,0 });
-	seznamPovezav.push_back({ 0,4,4,0,0 });
+	seznamPovezav.push_back({ 0,0,1,0,0,-1 });
+	seznamPovezav.push_back({ 0,1,2,0,0,-1 });
+	seznamPovezav.push_back({ 0,2,5,0,0,-1 });
+	seznamPovezav.push_back({ 0,3,3,0,0,-1 });
+	seznamPovezav.push_back({ 0,4,4,0,0,-1 });
 
-	seznamPovezav.push_back({ 1,1,2,1,1 });
-	seznamPovezav.push_back({ 2,2,3,1,1 });
-	seznamPovezav.push_back({ 5,1,2,2,1 });
-	seznamPovezav.push_back({ 1,2,4,1,1 });
+	seznamPovezav.push_back({ 1,1,2,1,1,-1 });
+	seznamPovezav.push_back({ 2,2,3,1,1,0 });
+	seznamPovezav.push_back({ 5,1,2,2,1,450000 });
+	seznamPovezav.push_back({ 1,2,4,1,1,-1 });
 
-	seznamPovezav.push_back({ 2,3,-1,-1,2 });
-	seznamPovezav.push_back({ 3,3,-1,-1,2 });
-	seznamPovezav.push_back({ 4,3,-1,-1,2 });
-	seznamPovezav.push_back({ 5,3,-1,-1,2 });
+	seznamPovezav.push_back({ 2,3,-1,-1,2,-1 });
+	seznamPovezav.push_back({ 3,3,-1,-1,2,-1 });
+	seznamPovezav.push_back({ 4,3,-1,-1,2,-1 });
+	seznamPovezav.push_back({ 5,3,-1,-1,2,-1 });
 
 
 	/*seznamStikal.push_back({2,2,-1,595000,1,0,1,0});
@@ -944,7 +946,7 @@ void OknoSim::OnMouseDownEvent(wxMouseEvent& evt) {
 			izbranElement = -1;
 		}
 		if (drzanjePovezav == 3) {
-			seznamPovezav.push_back({ -1,-1,-1,-1,-1 });
+			seznamPovezav.push_back({ -1,-1,-1,-1,-1,-1 });
 			drzanjePovezav = 1;
 		}
 	}
@@ -1010,17 +1012,17 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 		else if (choiceDod->GetSelection() == TLACNAPOSODA) {
 			seznamLastnosti.push_back({ 2,700000 });
 			seznamResitevReset.push_back({ 1,-1,600000,-1 });
-			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2 });
+			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2,-1 });
 		}
 		else if (choiceDod->GetSelection() == PRIJEMALO) {
 			seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.4,0 });
 			seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1,-1,pogojiOkolja.tlakOzracja,-1,0,0,0,0 });
-			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2 });
+			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2,-1 });
 		}
 		else if (choiceDod->GetSelection() == PRISESEK) {
 			seznamLastnosti.push_back({ 0.1,0.2 });
 			seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1, 40, -1, 1 });
-			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2 });
+			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2,-1 });
 		}
 		else {
 			seznamLastnosti.push_back({});
@@ -1147,7 +1149,7 @@ void OknoSim::OnRisanjePovezavClicked(wxCommandEvent& evt) {
 
 	if (drzanjePovezav == 0) {
 
-		seznamPovezav.push_back({ -1,-1,-1,-1,-1 });
+		seznamPovezav.push_back({ -1,-1,-1,-1,-1,-1 });
 
 		drzanjePovezav = 1;
 	}
@@ -1183,10 +1185,21 @@ void OknoSim::OnSpinPovezavaChanged(wxCommandEvent& evt) {
 		if (spinPovezava->GetValue() >= seznamPovezav.size()) spinPovezava->SetValue(0);
 	}
 
-	izbranaPovezava = spinPovezava->GetValue(); /////////////// mogoc dat v Refresh()
+	izbranaPovezava = spinPovezava->GetValue();
 
 
 	Refresh();
+}
+
+void OknoSim::OnNastavitevPovezavClicked(wxCommandEvent& evt) {
+
+	if (seznamPovezav[izbranaPovezava - 1][4] == 1) {
+
+		NastavitevPovezav* povNast = new NastavitevPovezav();
+		povNast->Show();
+	}
+
+	else wxLogStatus("Kabel nima nastavitev");
 }
 
 void OknoSim::OnShraniClicked(wxCommandEvent& evt) {
@@ -1351,8 +1364,6 @@ void OknoSim::OnNaloziClicked(wxCommandEvent& evt) {
 
 			seznamResitev = seznamResitevReset;
 		}
-
-		else wxLogStatus("Datoteka ni najdena");
 	}
 
 	fileDialog->Destroy();
@@ -1709,9 +1720,13 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 			dc.DrawLine(wxPoint((tocka1.x + tocka2.x) / 2, tocka1.y), wxPoint((tocka1.x + tocka2.x) / 2, tocka2.y));
 			dc.DrawLine(wxPoint((tocka1.x + tocka2.x) / 2, tocka2.y), tocka2);
 
+			if (!(seznamPovezav[i][5] == -1)) {
+				dc.DrawCircle((tocka1 + tocka2) / 2, 7);
+				dc.DrawText(wxString::Format("%g bar", static_cast<double>(seznamPovezav[i][5])/100000), (tocka1 + tocka2) / 2 - wxPoint(-10, 7));
+			}
+
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 		}
-
 	}
 	
 	
@@ -2005,6 +2020,57 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 		}
 	}
 	
+}
+
+
+
+
+
+wxSpinCtrl* spinPremerPovezav;
+wxCheckBox* checkRegulatorPovetav;
+wxSpinCtrlDouble* spinRegulatorPovezav;
+
+NastavitevPovezav::NastavitevPovezav() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Mikro Procesorja"), wxPoint(0, 0), wxSize(280, 360)) {
+
+	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
+
+	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(5, 290), wxDefaultSize);
+
+	spinPremerPovezav = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(160,5), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 5, 36, 12); /////////////////// Nikamor se ne zapise
+
+	checkRegulatorPovetav = new wxCheckBox(panel, wxID_ANY, "Regulator tlaka", wxPoint(5, 60), wxDefaultSize);
+	if (seznamPovezav[izbranaPovezava - 1][5] >= 0) checkRegulatorPovetav->SetValue(true);
+	spinRegulatorPovezav = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(160, 60), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, 0, .1);
+	if (!(checkRegulatorPovetav->IsChecked())) spinRegulatorPovezav->Disable();
+	else { 
+		spinRegulatorPovezav->Enable(); 
+		spinRegulatorPovezav->SetValue(static_cast<double>(seznamPovezav[izbranaPovezava - 1][5]) / 100000);
+	}
+
+
+	apply->Bind(wxEVT_BUTTON, &NastavitevPovezav::OnApplyClicked, this);
+	checkRegulatorPovetav->Bind(wxEVT_CHECKBOX, &NastavitevPovezav::OnRefresh, this);
+
+	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevPovezav::OnPaint));
+}
+
+
+void NastavitevPovezav::OnApplyClicked(wxCommandEvent& evt) {
+
+	if (checkRegulatorPovetav->IsChecked()) seznamPovezav[izbranaPovezava - 1][5] = spinRegulatorPovezav->GetValue() * 100000;
+	else seznamPovezav[izbranaPovezava - 1][5] = -1;
+}
+
+void NastavitevPovezav::OnRefresh(wxCommandEvent& evt) {
+
+	if (checkRegulatorPovetav->IsChecked()) spinRegulatorPovezav->Enable();
+	else spinRegulatorPovezav->Disable();
+}
+
+
+void NastavitevPovezav::OnPaint(wxPaintEvent& evt) {
+
+	wxPaintDC dc(this);
 }
 
 

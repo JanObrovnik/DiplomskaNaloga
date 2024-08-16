@@ -17,6 +17,7 @@ private:
 
 	void OnRisanjePovezavClicked(wxCommandEvent& evt);
 	void OnSpinPovezavaChanged(wxCommandEvent& evt);
+	void OnNastavitevPovezavClicked(wxCommandEvent& evt);
 	void OnBrisanjePovezavClicked(wxCommandEvent& evt);
 	void OnSimulirajClicked(wxCommandEvent& evt);
 	void OnResetSimClicked(wxCommandEvent& evt);
@@ -24,6 +25,19 @@ private:
 	void OnNaloziClicked(wxCommandEvent& evt);
 	void OnButtonIzbClicked(wxCommandEvent& evt);
 	void OnButtonIzbVseClicked(wxCommandEvent& evt);
+};
+
+
+class NastavitevPovezav : public wxFrame {
+
+public:
+	NastavitevPovezav();
+private:
+	void OnPaint(wxPaintEvent& evt);
+
+	void OnApplyClicked(wxCommandEvent& evt);
+
+	void OnRefresh(wxCommandEvent& evt);
 };
 
 class NastavitevMikroProcesorja : public wxFrame {
