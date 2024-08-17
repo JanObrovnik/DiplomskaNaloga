@@ -659,6 +659,8 @@ std::vector<std::vector<double>> IzracunPovezav(PogojiOkolja pogojiOkolja, std::
 
 
 
+
+bool shranjeno = true;
 bool drzanje = false;
 bool drzanjeElementa = false;
 int casDrzanja = 0;
@@ -729,6 +731,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	choiceDod->SetSelection(0);
 
 
+	this->Bind(wxEVT_CLOSE_WINDOW, &OknoSim::OnClose, this);
 	panel->Bind(wxEVT_SIZE, &OknoSim::OnSizeChanged, this);
 	panel->Bind(wxEVT_MOTION, &OknoSim::RefreshEvent, this);
 	panel->Bind(wxEVT_LEFT_DOWN, &OknoSim::OnMouseDownEvent, this);
@@ -785,7 +788,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamPovezav.push_back({ 0,4,4,0,0,-1,-1 });
 
 	seznamPovezav.push_back({ 1,1,2,1,1,-1,12 });
-	seznamPovezav.push_back({ 2,2,3,1,1,600000,12 });
+	seznamPovezav.push_back({ 2,2,3,1,1,300000,12 });
 	seznamPovezav.push_back({ 5,1,2,2,1,450000,12 });
 	seznamPovezav.push_back({ 1,2,4,1,1,-1,12 });
 
@@ -808,6 +811,21 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamStikal.push_back({ -1,0,VECJE,0,4,POZ_PRISESEK_LOG,-1,0 });
 
 	wxStatusBar* statusBar = CreateStatusBar();
+}
+
+
+void OknoSim::OnClose(wxCloseEvent& evt) {
+
+	if (evt.CanVeto() && shranjeno == false) {
+
+		if (wxMessageBox("Dokument ni shranjen...\nCe zaprete aplikacijo boste izgubili svoje delo.", "Neshranjeno delo", wxICON_WARNING | wxOK | wxCANCEL) != wxOK) { //////////////// Mal grdo napisan
+
+			evt.Veto();
+			return;
+		}
+	}
+
+	evt.Skip(); // Ali 'Destroy()'
 }
 
 
@@ -1006,6 +1024,8 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 		seznamResitev = seznamResitevReset;
 
 		izbranElement = -1;
+
+		shranjeno = false;
 	}
 	else if (drzanje && mousePos.x > 200) {
 
@@ -1042,6 +1062,8 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 		seznamResitevReset = IzracunVolumna(seznamElementov, seznamResitevReset, seznamLastnosti);
 		seznamResitevReset = IzracunMase(pogojiOkolja, seznamElementov, seznamResitevReset);
 		seznamResitev = seznamResitevReset;
+
+		shranjeno = false;
 	}
 	else if (izbranElement >= 0 && casDrzanja > 2 && mousePos.x > 200 && drzanjeElementa) {
 
@@ -1049,6 +1071,8 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 		seznamElementov[izbranElement][1] = mousePos.y / 10 * 10;
 
 		izbranElement = -1;
+
+		shranjeno = false;
 	}
 
 	drzanje = false;
@@ -1128,6 +1152,8 @@ void OknoSim::OnButtonIzbClicked(wxCommandEvent& evt) {
 
 		izbranElement = -1;
 
+		shranjeno = false;
+
 		Refresh();
 	}
 }
@@ -1145,6 +1171,8 @@ void OknoSim::OnButtonIzbVseClicked(wxCommandEvent& evt) {
 
 	casSimulacije->SetValue(0);
 	izbranElement = -1;
+
+	shranjeno = false;
 
 	Refresh();
 }
@@ -1181,6 +1209,8 @@ void OknoSim::OnBrisanjePovezavClicked(wxCommandEvent& evt) {
 
 		spinPovezava->SetValue(0);
 		izbranaPovezava = spinPovezava->GetValue();
+
+		shranjeno = false;
 	}
 
 	Refresh();
@@ -1277,6 +1307,9 @@ void OknoSim::OnShraniClicked(wxCommandEvent& evt) {
 				shrani << std::endl;
 			}
 			shrani << std::endl << std::endl;
+
+
+			shranjeno = true;
 
 			shrani.close();
 		}
@@ -2045,11 +2078,12 @@ NastavitevPovezav::NastavitevPovezav() : wxFrame(nullptr, wxID_ANY, wxString::Fo
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(5, 170), wxDefaultSize);
+	wxButton* close = new wxButton(panel, wxID_ANY, "Close", wxPoint(90, 170), wxDefaultSize);
 
 	spinPremerPovezav = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(150,5), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 5, 36, 12);
 
 	checkRegulatorPovetav = new wxCheckBox(panel, wxID_ANY, "Regulator tlaka:", wxPoint(5, 53), wxDefaultSize);
-	if (seznamPovezav[izbranaPovezava - 1][5] >= 0) checkRegulatorPovetav->SetValue(true);
+	if (!(seznamPovezav[izbranaPovezava - 1][5] == NI_REGULATORJA_TLAKA)) checkRegulatorPovetav->SetValue(true);
 	spinRegulatorPovezav = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(112, 50), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, 0, .1);
 	if (!(checkRegulatorPovetav->IsChecked())) spinRegulatorPovezav->Disable();
 	else { 
@@ -2059,6 +2093,7 @@ NastavitevPovezav::NastavitevPovezav() : wxFrame(nullptr, wxID_ANY, wxString::Fo
 
 	
 	apply->Bind(wxEVT_BUTTON, &NastavitevPovezav::OnApplyClicked, this);
+	close->Bind(wxEVT_BUTTON, &NastavitevPovezav::OnCloseClicked, this);
 	checkRegulatorPovetav->Bind(wxEVT_CHECKBOX, &NastavitevPovezav::OnRefresh, this);
 	///////////////////// Dodat 'Bind' za 'wxEVT_CLOSE_WINDOW'
 	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevPovezav::OnPaint));
@@ -2071,6 +2106,11 @@ void NastavitevPovezav::OnApplyClicked(wxCommandEvent& evt) {
 	else seznamPovezav[izbranaPovezava - 1][5] = NI_REGULATORJA_TLAKA;
 
 	seznamPovezav[izbranaPovezava - 1][6] = spinPremerPovezav->GetValue();
+
+	shranjeno = false;
+}
+
+void NastavitevPovezav::OnCloseClicked(wxCommandEvent& evt) {
 
 	Destroy(); /////////////// Ali 'Close()' - Posebi gumb za to
 }
@@ -2108,7 +2148,7 @@ NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_A
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10,230), wxDefaultSize);
-
+	wxButton* close = new wxButton(panel, wxID_ANY, "Close", wxPoint(90, 230), wxDefaultSize);
 
 
 	wxArrayString ArPinBranje;
@@ -2176,6 +2216,7 @@ NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_A
 
 
 	apply->Bind(wxEVT_BUTTON, &NastavitevMikroProcesorja::OnApplyClicked, this);
+	close->Bind(wxEVT_BUTTON, &NastavitevMikroProcesorja::OnCloseClicked, this);
 	choicePinBranje->Bind(wxEVT_CHOICE, &NastavitevMikroProcesorja::OnRefresh, this);
 	choiceVelicinaBranje->Bind(wxEVT_CHOICE, &NastavitevMikroProcesorja::OnRefresh, this);
 	choiceLogFun->Bind(wxEVT_CHOICE, &NastavitevMikroProcesorja::OnRefresh, this);
@@ -2192,6 +2233,12 @@ NastavitevMikroProcesorja::NastavitevMikroProcesorja() : wxFrame(nullptr, wxID_A
 
 void NastavitevMikroProcesorja::OnApplyClicked(wxCommandEvent& evt) {
 
+	shranjeno = false;
+}
+
+void NastavitevMikroProcesorja::OnCloseClicked(wxCommandEvent& evt) {
+
+	Destroy();
 }
 
 void NastavitevMikroProcesorja::OnDodajClicked(wxCommandEvent& evt) {
@@ -2267,13 +2314,20 @@ void NastavitevMikroProcesorja::OnDodajClicked(wxCommandEvent& evt) {
 		seznamStikal[sezSize][6] = std::stoi(static_cast<std::string> (choiceVrednostPisanje->GetString(choiceVrednostPisanje->GetSelection())));
 
 		seznamStikal[sezSize][7] = izbranElement;
+
+		shranjeno = false;
+
+		Refresh();
 	}
-	Refresh();
+
+	else wxMessageBox("Dolocite vse vrednosti", "Opomba", wxICON_WARNING | wxOK);
 }
 
 void NastavitevMikroProcesorja::OnIzbrisiClicked(wxCommandEvent& evt) {
 
 	for (int i = seznamStikal.size() - 1; i >= 0; i--) if (seznamStikal[i][seznamStikal[i].size() - 1] == izbranElement) seznamStikal.erase(seznamStikal.begin() + i);
+
+	shranjeno = false;
 
 	Refresh();
 }
@@ -2411,11 +2465,13 @@ void NastavitevMikroProcesorja::OnPaint(wxPaintEvent& evt) {
 
 	if (true) { // ADMIN LOGS
 		dc.DrawText("Zapis vseh ukazov:", wxPoint(380, 80));
-		for (int i = 0; i < seznamStikal.size(); i++) dc.DrawText(wxString::Format("%g | %g | %g | %g | %g | %g | %g | %g", seznamStikal[i][0], seznamStikal[i][1], seznamStikal[i][2], seznamStikal[i][3], seznamStikal[i][4], seznamStikal[i][5], seznamStikal[i][6], seznamStikal[i][7]), wxPoint(380, 100 + 20 * i));
+		for (int i = 0; i < seznamStikal.size(); i++) 
+			if (seznamStikal[i][7] == izbranElement)
+				dc.DrawText(wxString::Format("%g | %g | %g | %g | %g | %g | %g | %g", seznamStikal[i][0], seznamStikal[i][1], seznamStikal[i][2], seznamStikal[i][3], seznamStikal[i][4], seznamStikal[i][5], seznamStikal[i][6], seznamStikal[i][7]), wxPoint(380, 100 + 20 * i));
 		dc.DrawText(wxString::Format("choicePinBranje %d", choicePinBranje->GetSelection()), wxPoint(380, 40));
 	}
 
-	wxPoint predogled(130, 100);
+	wxPoint predogled(130, 100); /////////////////////// Spremenit visino
 	dc.DrawRectangle(predogled, wxSize(100, 140));
 	dc.DrawText("0", wxPoint(predogled.x + 88, predogled.y + 5));
 	dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 10), wxPoint(predogled.x + 110, predogled.y + 10));
@@ -2485,6 +2541,7 @@ NastavitevCrpalke::NastavitevCrpalke() : wxFrame(nullptr, wxID_ANY, wxString::Fo
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
+	wxButton* close = new wxButton(panel, wxID_ANY, "Close", wxPoint(90, 230), wxDefaultSize);
 
 	izkCrpalke = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(100, 5), wxSize(80, -1), wxSP_ARROW_KEYS | wxSP_WRAP, 0, 100, seznamLastnosti[izbranElement][0] * 100, .01);
 	notTorCrpalke = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(100, 35), wxSize(80, -1), wxSP_ARROW_KEYS | wxSP_WRAP, 0, 100, seznamLastnosti[izbranElement][1], .1);
@@ -2500,6 +2557,7 @@ NastavitevCrpalke::NastavitevCrpalke() : wxFrame(nullptr, wxID_ANY, wxString::Fo
 
 
 	apply->Bind(wxEVT_BUTTON, &NastavitevCrpalke::OnApplyClicked, this);
+	close->Bind(wxEVT_BUTTON, &NastavitevCrpalke::OnCloseClicked, this);
 
 	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevCrpalke::OnPaint));
 }
@@ -2513,6 +2571,13 @@ void NastavitevCrpalke::OnApplyClicked(wxCommandEvent& evt) {
 	seznamLastnosti[izbranElement][3] = povRotCrpalke->GetValue();
 	seznamLastnosti[izbranElement][4] = rocPriSilCrpalke->GetValue();
 	seznamLastnosti[izbranElement][5] = konstParameterCrpalke->GetSelection();
+
+	shranjeno = false;
+}
+
+void NastavitevCrpalke::OnCloseClicked(wxCommandEvent& evt) {
+
+	Destroy();
 }
 
 
@@ -2566,6 +2631,7 @@ NastavitevTlacnePosode::NastavitevTlacnePosode() : wxFrame(nullptr, wxID_ANY, wx
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
+	wxButton* close = new wxButton(panel, wxID_ANY, "Close", wxPoint(90, 230), wxDefaultSize);
 
 	tlakVarnVentBool = new wxCheckBox(panel, wxID_ANY, "Tlacni varnostni ventil", wxPoint(5, 5), wxDefaultSize);
 	tlakVarnVent = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(180, 23), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, pogojiOkolja.tlakOzracja / 100000, 10, 7, .1);
@@ -2584,6 +2650,7 @@ NastavitevTlacnePosode::NastavitevTlacnePosode() : wxFrame(nullptr, wxID_ANY, wx
 
 
 	apply->Bind(wxEVT_BUTTON, &NastavitevTlacnePosode::OnApplyClicked, this);
+	close->Bind(wxEVT_BUTTON, &NastavitevTlacnePosode::OnCloseClicked, this);
 
 	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevTlacnePosode::OnPaint));
 }
@@ -2606,6 +2673,13 @@ void NastavitevTlacnePosode::OnApplyClicked(wxCommandEvent& evt) {
 	seznamResitevReset[izbranElement][2] = zacTlakTlacnePosode->GetValue() * 100000;
 	
 	seznamResitev = seznamResitevReset;
+
+	shranjeno = false;
+}
+
+void NastavitevTlacnePosode::OnCloseClicked(wxCommandEvent& evt) {
+
+	Destroy();
 }
 
 
@@ -2643,6 +2717,7 @@ NastavitevPrijemalke::NastavitevPrijemalke() : wxFrame(nullptr, wxID_ANY, wxStri
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
+	wxButton* close = new wxButton(panel, wxID_ANY, "Close", wxPoint(90, 230), wxDefaultSize);
 
 	premerBataPrijemalke = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(160, 3), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 10, 300, seznamLastnosti[izbranElement][2] * 1000);
 	premerBatnicePrijemalke = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(160, 33), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 10, premerBataPrijemalke->GetValue(), seznamLastnosti[izbranElement][3] * 1000);
@@ -2651,6 +2726,7 @@ NastavitevPrijemalke::NastavitevPrijemalke() : wxFrame(nullptr, wxID_ANY, wxStri
 
 
 	apply->Bind(wxEVT_BUTTON, &NastavitevPrijemalke::OnApplyClicked, this);
+	close->Bind(wxEVT_BUTTON, &NastavitevPrijemalke::OnCloseClicked, this);
 	premerBataPrijemalke->Bind(wxEVT_SPINCTRL, &NastavitevPrijemalke::OnRefresh, this);
 	premerBatnicePrijemalke->Bind(wxEVT_SPINCTRL, &NastavitevPrijemalke::OnRefresh, this);
 
@@ -2664,6 +2740,13 @@ void NastavitevPrijemalke::OnApplyClicked(wxCommandEvent& evt) {
 	seznamLastnosti[izbranElement][3] = static_cast<double> (premerBatnicePrijemalke->GetValue()) / 1000;
 	seznamLastnosti[izbranElement][4] = static_cast<double> (dolzinaHodaPrijemalke->GetValue()) / 1000;
 	seznamLastnosti[izbranElement][5] = static_cast<double> (zacPozPrijemalke->GetValue());
+
+	shranjeno = false;
+}
+
+void NastavitevPrijemalke::OnCloseClicked(wxCommandEvent& evt) {
+
+	Destroy();
 }
 
 void NastavitevPrijemalke::OnRefresh(wxCommandEvent& evt) {
@@ -2709,6 +2792,9 @@ NastavitevPriseska::NastavitevPriseska() : wxFrame(nullptr, wxID_ANY, wxString::
 
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
+	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
+	wxButton* close = new wxButton(panel, wxID_ANY, "Close", wxPoint(90, 230), wxDefaultSize);
+
 	masaPriseskaBool = new wxCheckBox(panel, wxID_ANY, "Tlacni varnostni ventil", wxPoint(5, 5), wxDefaultSize);
 	if (seznamResitevReset[izbranElement][4] >= 0) masaPriseskaBool->SetValue(true);
 	velikostMasePriseska = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(150, 25), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 100, seznamResitevReset[izbranElement][4], .1);
@@ -2717,12 +2803,11 @@ NastavitevPriseska::NastavitevPriseska() : wxFrame(nullptr, wxID_ANY, wxString::
 	premerPriseska = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(150, 55), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 5, 500, seznamLastnosti[izbranElement][0] * 1000);
 	velikostPriseska = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(150, 85), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 5, 200, seznamLastnosti[izbranElement][1] * 1000);
 
-	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
 
-
+	apply->Bind(wxEVT_BUTTON, &NastavitevPriseska::OnApplyClicked, this);
+	close->Bind(wxEVT_BUTTON, &NastavitevPriseska::OnCloseClicked, this);
 	masaPriseskaBool->Bind(wxEVT_CHECKBOX, &NastavitevPriseska::OnRefresh, this);
 	velikostMasePriseska->Bind(wxEVT_SPINCTRLDOUBLE, &NastavitevPriseska::OnRefresh, this);
-	apply->Bind(wxEVT_BUTTON, &NastavitevPriseska::OnApplyClicked, this);
 
 	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevPriseska::OnPaint));
 }
@@ -2745,7 +2830,14 @@ void NastavitevPriseska::OnApplyClicked(wxCommandEvent& evt) {
 	else seznamResitevReset[izbranElement][4] = -1;
 	seznamResitev = seznamResitevReset;
 
+	shranjeno = false;
+
 	Refresh();
+}
+
+void NastavitevPriseska::OnCloseClicked(wxCommandEvent& evt) {
+
+	Destroy();
 }
 
 

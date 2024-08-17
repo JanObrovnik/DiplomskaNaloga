@@ -8,6 +8,8 @@ public:
 private:
 	void OnPaint(wxPaintEvent& evt);
 
+	void OnClose(wxCloseEvent& evt);
+
 	void OnSizeChanged(wxSizeEvent& evt);
 
 	void RefreshEvent(wxMouseEvent& evt);
@@ -36,6 +38,7 @@ private:
 	void OnPaint(wxPaintEvent& evt);
 
 	void OnApplyClicked(wxCommandEvent& evt);
+	void OnCloseClicked(wxCommandEvent& evt);
 
 	void OnRefresh(wxCommandEvent& evt);
 };
@@ -48,6 +51,7 @@ private:
 	void OnPaint(wxPaintEvent& evt);
 
 	void OnApplyClicked(wxCommandEvent& evt);
+	void OnCloseClicked(wxCommandEvent& evt);
 	void OnDodajClicked(wxCommandEvent& evt);
 	void OnIzbrisiClicked(wxCommandEvent& evt);
 
@@ -62,6 +66,7 @@ private:
 	void OnPaint(wxPaintEvent& evt);
 
 	void OnApplyClicked(wxCommandEvent& evt);
+	void OnCloseClicked(wxCommandEvent& evt);
 };
 
 class NastavitevTlacnePosode : public wxFrame {
@@ -72,6 +77,7 @@ private:
 	void OnPaint(wxPaintEvent& evt);
 
 	void OnApplyClicked(wxCommandEvent& evt);
+	void OnCloseClicked(wxCommandEvent& evt);
 };
 
 class NastavitevPrijemalke : public wxFrame {
@@ -82,6 +88,7 @@ private:
 	void OnPaint(wxPaintEvent& evt);
 
 	void OnApplyClicked(wxCommandEvent& evt);
+	void OnCloseClicked(wxCommandEvent& evt);
 
 	void OnRefresh(wxCommandEvent& evt);
 };
@@ -94,6 +101,7 @@ private:
 	void OnPaint(wxPaintEvent& evt);
 
 	void OnApplyClicked(wxCommandEvent& evt);
+	void OnCloseClicked(wxCommandEvent& evt);
 
 	void OnRefresh(wxCommandEvent& evt);
 };
