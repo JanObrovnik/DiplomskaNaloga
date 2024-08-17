@@ -32,6 +32,8 @@
 #define KONST_MOC 0
 #define KONST_VRTLJAJI 1
 
+#define NI_REGULATORJA_TLAKA -1
+
 
 
 
@@ -462,8 +464,16 @@ std::vector<std::vector<double>> IzracunPovezav(PogojiOkolja pogojiOkolja, std::
 				double rho2 = m2 / V2;
 
 				double mtok = 0;
-				if (p1 > p2) mtok = -C * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
-				else if (p1 < p2) mtok = C * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
+
+				if (seznamPovezav[i][5] == NI_REGULATORJA_TLAKA) {
+					if (p1 > p2) mtok = -C * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
+					else if (p1 < p2) mtok = C * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
+				}
+				else { ////////////////////////// Mozne spremembe kar se tice tlacne razlike
+					if (p1 > p2 && p2 < seznamPovezav[i][5]) mtok = -C * A * sqrt(2 * rho1 * p1 * (gama / (gama - 1)) * (pow(p2 / p1, 2 / gama) - pow(p2 / p1, (gama + 1) / gama)));
+					else if (p1 < p2 && p1 < seznamPovezav[i][5]) mtok = C * A * sqrt(2 * rho2 * p2 * (gama / (gama - 1)) * (pow(p1 / p2, 2 / gama) - pow(p1 / p2, (gama + 1) / gama)));
+				}
+
 
 				if (seznamElementov[seznamPovezav[i][0]][2] == TLACNAPOSODA) masniTok[seznamPovezav[i][0]].push_back(0);
 				else if (seznamElementov[seznamPovezav[i][0]][2] == PRIJEMALO) masniTok[seznamPovezav[i][0]].push_back(seznamResitev[seznamPovezav[i][0]][7]);
@@ -675,8 +685,8 @@ std::vector<std::vector<double>> seznamResitevReset;
 std::vector<std::vector<double>> seznamResitev;
 // seznamResitev = seznamResitevReset
 
-std::vector<std::vector<int>> seznamPovezav;
-// [element1, prikljucen1, element2, prikljucek2, kabl/cev/odzracitev (0/1/2), regulator_tlaka(Pa)]
+std::vector<std::vector<int>> seznamPovezav; /////////////////// premer cevi se nikjer ne uposteva
+// [element1, prikljucen1, element2, prikljucek2, kabl/cev/odzracitev (0/1/2), regulator_tlaka(Pa), premer_cevi/odzracevanja(mm)]
 std::vector<std::vector<double>> seznamStikal;
 // [element1, velicina1, logicna_funkcija, vrednost1, element2, velicina2, vrednost2]
 
@@ -696,7 +706,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	wxButton* izbVse = new wxButton(panel, wxID_ANY, "Izbrisi vse", wxPoint(5, 250), wxSize(190, -1));
 	
 	wxButton* risanjePovezav = new wxButton(panel, wxID_ANY, "Risanje povezav", wxPoint(5,280), wxSize(190,-1));
-	spinPovezava = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(5, 310), wxSize(90, 60), wxSP_ARROW_KEYS | wxSP_WRAP, -1, -1, -1);
+	spinPovezava = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(5, 310), wxSize(90, 53), wxSP_ARROW_KEYS | wxSP_WRAP, -1, -1, -1);
 	wxButton* nastavitevPovezav = new wxButton(panel, wxID_ANY, "Nastavitve", wxPoint(105, 310), wxSize(90, -1));
 	wxButton* brisanjePovezav = new wxButton(panel, wxID_ANY, "Brisi povezavo", wxPoint(105, 340), wxSize(90, -1));
 	
@@ -768,21 +778,21 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamResitev = seznamResitevReset;
 
 
-	seznamPovezav.push_back({ 0,0,1,0,0,-1 });
-	seznamPovezav.push_back({ 0,1,2,0,0,-1 });
-	seznamPovezav.push_back({ 0,2,5,0,0,-1 });
-	seznamPovezav.push_back({ 0,3,3,0,0,-1 });
-	seznamPovezav.push_back({ 0,4,4,0,0,-1 });
+	seznamPovezav.push_back({ 0,0,1,0,0,-1,-1 });
+	seznamPovezav.push_back({ 0,1,2,0,0,-1,-1 });
+	seznamPovezav.push_back({ 0,2,5,0,0,-1,-1 });
+	seznamPovezav.push_back({ 0,3,3,0,0,-1,-1 });
+	seznamPovezav.push_back({ 0,4,4,0,0,-1,-1 });
 
-	seznamPovezav.push_back({ 1,1,2,1,1,-1 });
-	seznamPovezav.push_back({ 2,2,3,1,1,0 });
-	seznamPovezav.push_back({ 5,1,2,2,1,450000 });
-	seznamPovezav.push_back({ 1,2,4,1,1,-1 });
+	seznamPovezav.push_back({ 1,1,2,1,1,-1,12 });
+	seznamPovezav.push_back({ 2,2,3,1,1,600000,12 });
+	seznamPovezav.push_back({ 5,1,2,2,1,450000,12 });
+	seznamPovezav.push_back({ 1,2,4,1,1,-1,12 });
 
-	seznamPovezav.push_back({ 2,3,-1,-1,2,-1 });
-	seznamPovezav.push_back({ 3,3,-1,-1,2,-1 });
-	seznamPovezav.push_back({ 4,3,-1,-1,2,-1 });
-	seznamPovezav.push_back({ 5,3,-1,-1,2,-1 });
+	seznamPovezav.push_back({ 2,3,-1,-1,2,-1,100 });
+	seznamPovezav.push_back({ 3,3,-1,-1,2,-1,100 });
+	seznamPovezav.push_back({ 4,3,-1,-1,2,-1,100 });
+	seznamPovezav.push_back({ 5,3,-1,-1,2,-1,100 });
 
 
 	/*seznamStikal.push_back({2,2,-1,595000,1,0,1,0});
@@ -1193,13 +1203,13 @@ void OknoSim::OnSpinPovezavaChanged(wxCommandEvent& evt) {
 
 void OknoSim::OnNastavitevPovezavClicked(wxCommandEvent& evt) {
 
-	if (seznamPovezav[izbranaPovezava - 1][4] == 1) {
+	if (izbranaPovezava > 0 && seznamPovezav[izbranaPovezava - 1][4] == 1) {
 
 		NastavitevPovezav* povNast = new NastavitevPovezav();
 		povNast->Show();
 	}
 
-	else wxLogStatus("Kabel nima nastavitev");
+	else wxLogStatus("Izberite pnevmaticno cev");
 }
 
 void OknoSim::OnShraniClicked(wxCommandEvent& evt) {
@@ -2030,27 +2040,27 @@ wxSpinCtrl* spinPremerPovezav;
 wxCheckBox* checkRegulatorPovetav;
 wxSpinCtrlDouble* spinRegulatorPovezav;
 
-NastavitevPovezav::NastavitevPovezav() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve Mikro Procesorja"), wxPoint(0, 0), wxSize(280, 360)) {
+NastavitevPovezav::NastavitevPovezav() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitev cevi"), wxPoint(0, 0), wxSize(280, 240)) {
 
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
-	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(5, 290), wxDefaultSize);
+	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(5, 170), wxDefaultSize);
 
-	spinPremerPovezav = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(160,5), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 5, 36, 12); /////////////////// Nikamor se ne zapise
+	spinPremerPovezav = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(150,5), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 5, 36, 12);
 
-	checkRegulatorPovetav = new wxCheckBox(panel, wxID_ANY, "Regulator tlaka", wxPoint(5, 60), wxDefaultSize);
+	checkRegulatorPovetav = new wxCheckBox(panel, wxID_ANY, "Regulator tlaka:", wxPoint(5, 53), wxDefaultSize);
 	if (seznamPovezav[izbranaPovezava - 1][5] >= 0) checkRegulatorPovetav->SetValue(true);
-	spinRegulatorPovezav = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(160, 60), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, 0, .1);
+	spinRegulatorPovezav = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(112, 50), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, 0, .1);
 	if (!(checkRegulatorPovetav->IsChecked())) spinRegulatorPovezav->Disable();
 	else { 
 		spinRegulatorPovezav->Enable(); 
 		spinRegulatorPovezav->SetValue(static_cast<double>(seznamPovezav[izbranaPovezava - 1][5]) / 100000);
 	}
 
-
+	
 	apply->Bind(wxEVT_BUTTON, &NastavitevPovezav::OnApplyClicked, this);
 	checkRegulatorPovetav->Bind(wxEVT_CHECKBOX, &NastavitevPovezav::OnRefresh, this);
-
+	///////////////////// Dodat 'Bind' za 'wxEVT_CLOSE_WINDOW'
 	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevPovezav::OnPaint));
 }
 
@@ -2058,7 +2068,11 @@ NastavitevPovezav::NastavitevPovezav() : wxFrame(nullptr, wxID_ANY, wxString::Fo
 void NastavitevPovezav::OnApplyClicked(wxCommandEvent& evt) {
 
 	if (checkRegulatorPovetav->IsChecked()) seznamPovezav[izbranaPovezava - 1][5] = spinRegulatorPovezav->GetValue() * 100000;
-	else seznamPovezav[izbranaPovezava - 1][5] = -1;
+	else seznamPovezav[izbranaPovezava - 1][5] = NI_REGULATORJA_TLAKA;
+
+	seznamPovezav[izbranaPovezava - 1][6] = spinPremerPovezav->GetValue();
+
+	Destroy(); /////////////// Ali 'Close()' - Posebi gumb za to
 }
 
 void NastavitevPovezav::OnRefresh(wxCommandEvent& evt) {
@@ -2071,6 +2085,12 @@ void NastavitevPovezav::OnRefresh(wxCommandEvent& evt) {
 void NastavitevPovezav::OnPaint(wxPaintEvent& evt) {
 
 	wxPaintDC dc(this);
+	wxSize velikostOkna = this->GetSize();
+
+	dc.DrawText("Premer pnevmaticne cevi:", wxPoint(5, 8));
+	dc.DrawText("mm", wxPoint(200, 8));
+
+	dc.DrawText("bar", wxPoint(180, 53));
 }
 
 
