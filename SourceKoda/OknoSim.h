@@ -106,6 +106,19 @@ private:
 	void OnRefresh(wxCommandEvent& evt);
 };
 
+class NastavitevGrafa : public wxFrame {
+
+public:
+	NastavitevGrafa();
+private:
+	void OnPaint(wxPaintEvent& evt);
+
+	void OnApplyClicked(wxCommandEvent& evt);
+	void OnCloseClicked(wxCommandEvent& evt);
+
+	void OnRefresh(wxCommandEvent& evt);
+};
+
 
 struct PogojiOkolja {
 

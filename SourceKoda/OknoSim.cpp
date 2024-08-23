@@ -16,6 +16,7 @@
 #define TLACNAPOSODA 2
 #define PRIJEMALO 3
 #define PRISESEK 4
+#define GRAF 5
 
 #define MANJ -1
 #define ENAKO 0
@@ -28,6 +29,8 @@
 #define VRTLJAJI_LOG 3
 #define POZ_PRIJEMALO_LOG 7
 #define POZ_PRISESEK_LOG 6
+#define MASNI_TOK 1
+#define BAT_POZ 8
 
 #define KONST_MOC 0
 #define KONST_VRTLJAJI 1
@@ -678,12 +681,14 @@ std::vector<std::vector<double>> seznamLastnosti;
 // tlacna posoda [volumen, varnostni ventil]
 // prijemalo [/OUTDATED/, /OUTDATED/, D, d, l, %]
 // prisesek [D, l]
+// graf [debelina, visina, element, vrednost]
 std::vector<std::vector<double>> seznamResitevReset;
 // mikroprocesor [delovanje0 (0/1), delovanje1(0/1), delovanje2(0/1), delovanje3(0/1), delovanje4(0/1), delovanje5(0/1), delovanje6(0/1), delovanje7(0/1)]
 // tlacna crpalka [delovanje (0/1), masni_tok, moc, obrati]
 // tlacna posoda [delovanje (0/1), masa_zraka, tlak, volumen]
 // prijemalo [delovanje (0/1), masa_zraka1, tlak1, volumen1, masa_zraka2, tlak2, volumen2, prikljucen_ventila_4/2, x, v, a]
 // prisesek [delovanje (0/1), masa_zraka, tlak, volumen, utez, drzanje, pozicija]
+// graf []
 std::vector<std::vector<double>> seznamResitev;
 // seznamResitev = seznamResitevReset
 
@@ -691,6 +696,8 @@ std::vector<std::vector<int>> seznamPovezav; /////////////////// premer cevi se 
 // [element1, prikljucen1, element2, prikljucek2, kabl/cev/odzracitev (0/1/2), regulator_tlaka(Pa), premer_cevi/odzracevanja(mm)]
 std::vector<std::vector<double>> seznamStikal;
 // [element1, velicina1, logicna_funkcija, vrednost1, element2, velicina2, vrednost2]
+std::vector<std::vector<double>> seznamGrafTock;
+// [cas, vrednost_graf1, vrednost_graf2]
 
 wxChoice* choiceDod;
 wxGauge* casSimulacije;
@@ -726,6 +733,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	choices.Add("Tlacna Posoda");
 	choices.Add("Prijemalo");
 	choices.Add("Prisesek");
+	choices.Add("Graf");
 
 	choiceDod = new wxChoice(panel, wxID_ANY, wxPoint(5, 0), wxSize(190, -1), choices/*, wxCB_SORT*/);
 	choiceDod->SetSelection(0);
@@ -1060,9 +1068,13 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 			seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1, 40, -1, 1 });
 			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2,-1 });
 		}
+		else if (choiceDod->GetSelection() == GRAF) {
+			seznamLastnosti.push_back({ 200,100,-1,-1 });
+			seznamResitevReset.push_back({});
+		}
 		else {
 			seznamLastnosti.push_back({});
-			seznamResitevReset.push_back({ 0,0,0,0 });
+			seznamResitevReset.push_back({});
 		}
 
 		seznamResitevReset = IzracunVolumna(seznamElementov, seznamResitevReset, seznamLastnosti);
@@ -1121,6 +1133,10 @@ void OknoSim::OnMouseDoubleEvent(wxMouseEvent& evt) {
 		else if (seznamElementov[izbranElement][2] == PRISESEK) {
 			NastavitevPriseska* prisNast = new NastavitevPriseska();
 			prisNast->Show();
+		}
+		else if (seznamElementov[izbranElement][2] == GRAF) {
+			NastavitevGrafa* grafNast = new NastavitevGrafa();
+			grafNast->Show();
 		}
 	}
 
@@ -1778,11 +1794,9 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 		}
 	}
 	
+
 	
 	//- IZRIS ELEMENTOV
-	/*if (casSimulacije->GetValue() == 0) { seznamResitev[1][0] = 1; }*/
-	//if (casSimulacije->GetValue() == 3600) { seznamLastnosti[2][1] = 500000; seznamResitev[3][0] = 0; seznamResitev[5][0] = 0; } //////////////// podere program ce ni varnostnega ventila
-
 	if (simbool) for (int i = 0; i < 1; i++) seznamResitev = IzracunPovezav(pogojiOkolja, seznamElementov, seznamLastnosti, seznamResitev, seznamPovezav, seznamStikal, korak, casSimulacije->GetValue());
 
 	for (int i = 0; i < seznamElementov.size(); i++) {
@@ -2054,6 +2068,12 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 					dc.DrawText(wxString::Format("%g poz", seznamResitev[i][6]), wxPoint(xy[0] + 25, xy[1] + 55 + zamik));
 				}
 			}
+
+			break;
+
+		case GRAF: //- Graf
+
+			dc.DrawRectangle(wxPoint(xy[0], xy[1]), wxSize(seznamLastnosti[i][0], seznamLastnosti[i][1]));
 
 			break;
 
@@ -2894,4 +2914,146 @@ void NastavitevPriseska::OnPaint(wxPaintEvent& evt) {
 	dc.DrawText("Masa utezi [kg]: ", wxPoint(5, 28));
 	dc.DrawText("Premer priseska D [mm]: ", wxPoint(5, 58));
 	dc.DrawText("Velikost priseska l [mm]: ", wxPoint(5, 88));
+}
+
+
+
+wxSpinCtrl* spinSirinaGraf;
+wxSpinCtrl* spinVisinaGraf;
+wxSpinCtrl* spinElementGraf;
+wxChoice* choiceVelicinaGraf;
+
+NastavitevGrafa::NastavitevGrafa() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitev Grafa"), wxPoint(0, 0), wxSize(280, 240)) {
+
+	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
+
+	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(5, 170), wxDefaultSize);
+	wxButton* close = new wxButton(panel, wxID_ANY, "Close", wxPoint(90, 170), wxDefaultSize);
+
+	spinElementGraf = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(100, 5), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, seznamElementov.size(), 0);
+	if (seznamLastnosti[izbranElement][2] > -1) spinElementGraf->SetValue(seznamLastnosti[izbranElement][2] + 1);
+	
+	wxArrayString VelicineGraf;
+	VelicineGraf.Add(" ");
+	VelicineGraf.Add(" ");
+	VelicineGraf.Add(" ");
+	choiceVelicinaGraf = new wxChoice(panel, wxID_ANY, wxPoint(100, 35), wxSize(120, -1), VelicineGraf);
+	if (seznamLastnosti[izbranElement][2] == -1) choiceVelicinaGraf->Disable();
+	else {
+		choiceVelicinaGraf->Select(0);
+		if (!(seznamLastnosti[izbranElement][3] == -1)) {
+			if (seznamElementov[seznamLastnosti[izbranElement][2]][2] == ELEKTRICNACRPALKA) {
+				if (seznamLastnosti[izbranElement][3] == MASNI_TOK) choiceVelicinaGraf->SetString(0, " Masni tok");
+			}
+			else if (seznamElementov[seznamLastnosti[izbranElement][2]][2] == TLACNAPOSODA) {
+				if (seznamLastnosti[izbranElement][3] == TLAK0_LOG) choiceVelicinaGraf->SetString(0, " Tlak");
+			}
+			else if (seznamElementov[seznamLastnosti[izbranElement][2]][2] == PRIJEMALO) {
+				if (seznamLastnosti[izbranElement][3] == TLAK0_LOG) { choiceVelicinaGraf->SetString(0, " Tlak 0"); choiceVelicinaGraf->Select(0); }
+				else if (seznamLastnosti[izbranElement][3] == TLAK1_LOG) { choiceVelicinaGraf->SetString(1, " Tlak 1"); choiceVelicinaGraf->Select(1); }
+				else if (seznamLastnosti[izbranElement][3] == BAT_POZ) { choiceVelicinaGraf->SetString(2, " Pozicija bata"); choiceVelicinaGraf->Select(2); }
+			}
+			else if (seznamElementov[seznamLastnosti[izbranElement][2]][2] == PRISESEK) {
+				if (seznamLastnosti[izbranElement][3] == TLAK0_LOG) choiceVelicinaGraf->SetString(0, " Tlak");
+			}
+		}
+	}
+
+	spinSirinaGraf = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(100, 85), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 60, 400, seznamLastnosti[izbranElement][0]);
+	spinVisinaGraf = new wxSpinCtrl(panel, wxID_ANY, "", wxPoint(100, 115), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 60, 400, seznamLastnosti[izbranElement][1]);
+
+
+	apply->Bind(wxEVT_BUTTON, &NastavitevGrafa::OnApplyClicked, this);
+	close->Bind(wxEVT_BUTTON, &NastavitevGrafa::OnCloseClicked, this);
+	spinElementGraf->Bind(wxEVT_SPINCTRL, &NastavitevGrafa::OnRefresh, this);
+	///////////////////// Dodat 'Bind' za 'wxEVT_CLOSE_WINDOW'
+	panel->Connect(wxEVT_PAINT, wxPaintEventHandler(NastavitevGrafa::OnPaint));
+}
+
+
+void NastavitevGrafa::OnApplyClicked(wxCommandEvent& evt) {
+
+	seznamLastnosti[izbranElement][0] = spinSirinaGraf->GetValue();
+	seznamLastnosti[izbranElement][1] = spinVisinaGraf->GetValue();
+
+	if (spinElementGraf->GetValue() > 0) seznamLastnosti[izbranElement][2] = spinElementGraf->GetValue() - 1;
+
+	if (!(choiceVelicinaGraf->GetStringSelection() == " ")) {
+		if (choiceVelicinaGraf->GetStringSelection() == " Masni tok") seznamLastnosti[izbranElement][3] = MASNI_TOK;
+		else if (choiceVelicinaGraf->GetStringSelection() == " Tlak") seznamLastnosti[izbranElement][3] = TLAK0_LOG;
+		else if (choiceVelicinaGraf->GetStringSelection() == " Tlak 0") seznamLastnosti[izbranElement][3] = TLAK0_LOG;
+		else if (choiceVelicinaGraf->GetStringSelection() == " Tlak 1") seznamLastnosti[izbranElement][3] = TLAK1_LOG;
+		else if (choiceVelicinaGraf->GetStringSelection() == " Pozicija bata") seznamLastnosti[izbranElement][3] = BAT_POZ;
+	}
+
+	shranjeno = false;
+}
+
+void NastavitevGrafa::OnCloseClicked(wxCommandEvent& evt) {
+
+	Destroy();
+}
+
+void NastavitevGrafa::OnRefresh(wxCommandEvent& evt) {
+
+	if (spinElementGraf->GetValue() > 0) {
+		
+		choiceVelicinaGraf->Enable();
+
+		choiceVelicinaGraf->SetString(0, " ");
+		choiceVelicinaGraf->SetString(1, " ");
+		choiceVelicinaGraf->SetString(2, " ");
+
+		if (seznamElementov[spinElementGraf->GetValue() - 1][2] == ELEKTRICNACRPALKA) {
+			choiceVelicinaGraf->SetString(0, " Masni tok");
+		}
+		else if (seznamElementov[spinElementGraf->GetValue() - 1][2] == TLACNAPOSODA) {
+			choiceVelicinaGraf->SetString(0, " Tlak");
+		}
+		else if (seznamElementov[spinElementGraf->GetValue() - 1][2] == PRIJEMALO) {
+			choiceVelicinaGraf->SetString(0, " Tlak 0");
+			choiceVelicinaGraf->SetString(1, " Tlak 1");
+			choiceVelicinaGraf->SetString(2, " Pozicija bata");
+		}
+		else if (seznamElementov[spinElementGraf->GetValue() - 1][2] == PRISESEK) {
+			choiceVelicinaGraf->SetString(0, " Tlak");
+		}
+	}
+	else {
+
+		choiceVelicinaGraf->Disable();
+
+		choiceVelicinaGraf->SetString(0, " ");
+		choiceVelicinaGraf->SetString(1, " ");
+		choiceVelicinaGraf->SetString(2, " ");
+	}
+
+	Refresh();
+}
+
+
+void NastavitevGrafa::OnPaint(wxPaintEvent& evt) {
+
+	wxPaintDC dc(this);
+	wxSize velikostOkna = this->GetSize();
+
+	dc.DrawText("Element:", wxPoint(5, 8));
+
+	wxString el;
+	if (spinElementGraf->GetValue() > 0) {
+		if (seznamElementov[spinElementGraf->GetValue() - 1][2] == MIKROPROCESOR) el = "Mikroprocesor";
+		else if (seznamElementov[spinElementGraf->GetValue() - 1][2] == ELEKTRICNACRPALKA) el = "Crpalka";
+		else if (seznamElementov[spinElementGraf->GetValue() - 1][2] == TLACNAPOSODA) el = "Tlacna posoda";
+		else if (seznamElementov[spinElementGraf->GetValue() - 1][2] == PRIJEMALO) el = "Prijemalo";
+		else if (seznamElementov[spinElementGraf->GetValue() - 1][2] == PRISESEK) el = "Prisesek";
+		else if (seznamElementov[spinElementGraf->GetValue() - 1][2] == GRAF) el = "Graf";
+		else el = " /";
+	}
+	else el = " /";
+	dc.DrawText(el, wxPoint(140, 8));
+
+	dc.DrawText("Velicina:", wxPoint(5, 38));
+
+	dc.DrawText("Sirina:", wxPoint(5, 88));
+	dc.DrawText("Visina:", wxPoint(5, 118));
 }
