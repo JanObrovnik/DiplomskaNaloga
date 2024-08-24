@@ -293,7 +293,6 @@ std::vector<std::vector<double>> IzracunPovezav(PogojiOkolja pogojiOkolja, std::
 		}
 	}
 
-
 	//- IZRACUN MASNEGA TOKA CEZ CRPALKO
 	bool crpalkaBool = false;
 	for (int i = 0; i < seznamPovezav.size(); i++) { if (seznamPovezav[i][4] == 1 && (seznamElementov[seznamPovezav[i][0]][2] == ELEKTRICNACRPALKA || seznamElementov[seznamPovezav[i][2]][2] == ELEKTRICNACRPALKA)) { crpalkaBool = true; break; } }
@@ -605,15 +604,6 @@ std::vector<std::vector<double>> IzracunPovezav(PogojiOkolja pogojiOkolja, std::
 			}
 		}
 	}
-	/*std::cout << std::endl;
-	for (int i = 0; i < masniTok.size(); i++) {
-		std::cout << i << ": ";
-		for (int j = 0; j < masniTok[i].size(); j++) {
-			std::cout << masniTok[i][j] << ", ";
-		}
-		std::cout << std::endl;
-	}
-	std::cout << std::endl;*/
 
 	//- IZRACUN TLAKA:
 	for (int i = 0; i < masniTok.size(); i++) if (masniTok[i].size() > 0) {
@@ -658,6 +648,20 @@ std::vector<std::vector<double>> IzracunPovezav(PogojiOkolja pogojiOkolja, std::
 	}
 
 	return seznamResitev;
+}
+
+
+void ZapisMeritev(std::vector<std::vector<double>>* seznamGrafTock, std::vector<std::vector<int>>* seznamElementov, std::vector<std::vector<double>>* seznamLastnosti, std::vector<std::vector<double>>* seznamResitev, double korak) {
+
+	int velikost = seznamElementov->size();
+
+	seznamGrafTock->resize(velikost + 1);
+
+	for (int i = 0; i < seznamElementov->size(); i++) 
+		if ((*seznamElementov)[i][2] == GRAF && (*seznamLastnosti)[i][2] != -1 && (*seznamLastnosti)[i][3] != -1) 
+			(*seznamGrafTock)[i].push_back((*seznamResitev)[(*seznamLastnosti)[i][2]][(*seznamLastnosti)[i][3]]);
+
+	(*seznamGrafTock)[velikost].push_back(korak * (*seznamGrafTock)[velikost].size());
 }
 
 
@@ -767,6 +771,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamElementov.push_back({ 390,310,TLACNAPOSODA });
 	seznamElementov.push_back({ 620,200,PRIJEMALO });
 	seznamElementov.push_back({ 660,540,PRISESEK });
+	seznamElementov.push_back({ 550,30,GRAF });
 	//seznamElementov.push_back({ 680,250,PRIJEMALO });
 
 	seznamLastnosti.push_back({});
@@ -774,6 +779,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamLastnosti.push_back({ .1,500000 });
 	seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.4,80 });
 	seznamLastnosti.push_back({ 0.1,0.2 });
+	seznamLastnosti.push_back({ 240,100,2,2 });
 	//seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.4,40 });
 
 	seznamResitevReset.push_back({ 0,0,0,0,0,0,0,0 });
@@ -781,6 +787,7 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamResitevReset.push_back({ 1,-1,450000,-1 });
 	seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1,-1,pogojiOkolja.tlakOzracja,-1,0,0,0,0 });
 	seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1, 40, -1, 1 });
+	seznamResitevReset.push_back({});
 	//seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1,-1,pogojiOkolja.tlakOzracja,-1,0,0,0,0 });
 
 	seznamResitevReset = IzracunVolumna(seznamElementov, seznamResitevReset, seznamLastnosti);
@@ -970,6 +977,15 @@ void OknoSim::OnMouseDownEvent(wxMouseEvent& evt) {
 					}
 				}
 			}
+			else if (seznamElementov[i][2] == GRAF) {
+				if (mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + seznamLastnosti[i][0] && mousePos.y > seznamElementov[i][1] && mousePos.y < seznamElementov[i][1] + seznamLastnosti[i][1]) {
+					if (izbranElement == i) izbranElement = -1;
+					else {
+						izbranElement = i;
+						drzanjeElementa = true;
+					}
+				}
+			}
 			else {
 				if (mousePos.x > seznamElementov[i][0] && mousePos.x < seznamElementov[i][0] + 80 && mousePos.y > seznamElementov[i][1] && mousePos.y < seznamElementov[i][1] + 50) {
 					if (izbranElement == i) izbranElement = -1;
@@ -1036,6 +1052,7 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 		seznamLastnosti.erase(seznamLastnosti.begin() + izbranElement);
 		seznamResitevReset.erase(seznamResitevReset.begin() + izbranElement);
 		seznamResitev = seznamResitevReset;
+		seznamGrafTock.clear();
 
 		izbranElement = -1;
 
@@ -1171,6 +1188,7 @@ void OknoSim::OnButtonIzbClicked(wxCommandEvent& evt) {
 		seznamLastnosti.erase(seznamLastnosti.begin() + izbranElement);
 		seznamResitevReset.erase(seznamResitevReset.begin() + izbranElement);
 		seznamResitev = seznamResitevReset;
+		seznamGrafTock.clear();
 
 		izbranElement = -1;
 
@@ -1190,6 +1208,7 @@ void OknoSim::OnButtonIzbVseClicked(wxCommandEvent& evt) {
 	seznamLastnosti.clear();
 	seznamResitevReset.clear();
 	seznamResitev = seznamResitevReset;
+	seznamGrafTock.clear();
 
 	casSimulacije->SetValue(0);
 	izbranElement = -1;
@@ -1448,6 +1467,7 @@ void OknoSim::OnSimulirajClicked(wxCommandEvent& evt) {
 	if (casSimulacije->GetValue() >= casSimulacije->GetRange() || casSimulacije->GetValue() == 0) {
 		casSimulacije->SetValue(0);
 		seznamResitev = seznamResitevReset;
+		seznamGrafTock.clear();
 		Refresh();
 	}
 
@@ -1463,9 +1483,6 @@ void OknoSim::OnSimulirajClicked(wxCommandEvent& evt) {
 		wxYield();
 		i++;
 	}
-	if (i >= 1000) {
-		simbool = false;
-	}
 }
 
 void OknoSim::OnResetSimClicked(wxCommandEvent& evt) {
@@ -1473,6 +1490,7 @@ void OknoSim::OnResetSimClicked(wxCommandEvent& evt) {
 	simbool = false;
 	casSimulacije->SetValue(0);
 	seznamResitev = seznamResitevReset;
+	seznamGrafTock.clear();
 
 	Refresh();
 }
@@ -1516,6 +1534,8 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 		else if (seznamElementov[izbranElement][2] == TLACNAPOSODA) { oznacenElementPoint.x -= 10; oznacenElementPoint.y -= 10; oznacenElementSize.x = 140; oznacenElementSize.y = 60; }
 		else if (seznamElementov[izbranElement][2] == PRIJEMALO) { oznacenElementPoint.x -= 10; oznacenElementPoint.y -= 10; oznacenElementSize.x = 110; oznacenElementSize.y = 70; }
 		else if (seznamElementov[izbranElement][2] == PRISESEK) { oznacenElementPoint.x -= 10; oznacenElementPoint.y -= 30; oznacenElementSize.x = 100; oznacenElementSize.y = 40; }
+		else if (seznamElementov[izbranElement][2] == GRAF) { oznacenElementPoint.x -= 10; oznacenElementPoint.y -= 10; oznacenElementSize.x = seznamLastnosti[izbranElement][0] + 20; oznacenElementSize.y = seznamLastnosti[izbranElement][1] + 20; }
+		else { oznacenElementPoint.x -= 10; oznacenElementPoint.y -= 10; oznacenElementSize.x = 100; oznacenElementSize.y = 70; }
 
 		dc.SetPen(wxPen(wxColour(153, 153, 255), 1, wxPENSTYLE_LONG_DASH));
 		dc.DrawRectangle(oznacenElementPoint, oznacenElementSize);
@@ -1797,7 +1817,10 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 	
 	//- IZRIS ELEMENTOV
-	if (simbool) for (int i = 0; i < 1; i++) seznamResitev = IzracunPovezav(pogojiOkolja, seznamElementov, seznamLastnosti, seznamResitev, seznamPovezav, seznamStikal, korak, casSimulacije->GetValue());
+	if (simbool) for (int i = 0; i < 1; i++) {
+		seznamResitev = IzracunPovezav(pogojiOkolja, seznamElementov, seznamLastnosti, seznamResitev, seznamPovezav, seznamStikal, korak, casSimulacije->GetValue());
+		ZapisMeritev(&seznamGrafTock, &seznamElementov, &seznamLastnosti, &seznamResitev, korak);
+	}
 
 	for (int i = 0; i < seznamElementov.size(); i++) {
 		std::vector<int> xy = seznamElementov[i];
@@ -1992,6 +2015,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 		case PRISESEK: //- Prisesek
 
 			if (true) {
+
 				int zamik = 10;
 				if (seznamResitev[i][6] == -1) zamik = 0;
 
@@ -2073,7 +2097,42 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 		case GRAF: //- Graf
 
-			dc.DrawRectangle(wxPoint(xy[0], xy[1]), wxSize(seznamLastnosti[i][0], seznamLastnosti[i][1]));
+			dc.SetPen(wxPen(wxColour(204, 204, 204), 1, wxPENSTYLE_SOLID));
+			dc.DrawRectangle(wxPoint(xy[0], xy[1]), wxSize(seznamLastnosti[i][0] + 1, seznamLastnosti[i][1] + 1));
+			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+
+			if (!seznamGrafTock.empty() && seznamLastnosti[i][2] != -1 && seznamLastnosti[i][3] != -1) {
+			
+				double max = *std::max_element(seznamGrafTock[i].begin(), seznamGrafTock[i].end());
+				double min = *std::min_element(seznamGrafTock[i].begin(), seznamGrafTock[i].end());
+
+				int popacenje = 1;
+				int dolzinaKrivilje = seznamGrafTock[seznamGrafTock.size() - 1].size();
+				int omejitevGrafa = seznamLastnosti[i][0];
+
+				while (dolzinaKrivilje > omejitevGrafa) {
+					popacenje++;
+					dolzinaKrivilje -= omejitevGrafa;
+				}
+				
+
+				wxPointList* seznamTock = new wxPointList();
+
+				for (int j = 0; j < seznamGrafTock[i].size() / popacenje; j++) {
+
+					wxPoint* tocka;
+					tocka = new wxPoint(xy[0] + seznamGrafTock[seznamGrafTock.size() - 1][j * popacenje] / korak / popacenje, xy[1] + seznamLastnosti[i][1] - seznamLastnosti[i][1] * ((seznamGrafTock[i][j * popacenje] - min) / (max - min)));
+					seznamTock->Append(tocka);
+				}
+
+				dc.DrawLines(seznamTock);
+
+
+				dc.DrawText(wxString::Format("%g", round((max / 100000) * 100) / 100), wxPoint(xy[0] - 23, xy[1] - 7));
+				dc.DrawText(wxString::Format("%g", round((min / 100000) * 100) / 100), wxPoint(xy[0] - 23, xy[1] + seznamLastnosti[i][1] - 7));
+				dc.DrawText(wxString::Format("%g", seznamGrafTock[seznamGrafTock.size() - 1][0]), wxPoint(xy[0], xy[1] + seznamLastnosti[i][1] + 8));
+				dc.DrawText(wxString::Format("%g", seznamGrafTock[seznamGrafTock.size() - 1][seznamGrafTock[seznamGrafTock.size() - 1].size() - 1]), wxPoint(xy[0] + seznamLastnosti[i][0], xy[1] + seznamLastnosti[i][1] + 8));
+			}
 
 			break;
 
