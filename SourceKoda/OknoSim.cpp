@@ -125,14 +125,14 @@ std::vector<double> IzracunPrijemala(PogojiOkolja pogojiOkolja, std::vector<doub
 
 	double ti = korak;
 
-	double koef_tr_st = .8;
+	double koef_tr_st = .8; //////////////// preureditev - brez koeficienta direk sila
 	double koef_tr_din = .6;
 
 
 	double D = lasti[2];
 	double d = lasti[3];
 	double l = lasti[4];
-	double m = .8;
+	double m = .8; /////////////// izraèunat
 
 	double Ftr_s = m * g * koef_tr_st;
 	double Ftr_d = m * g * koef_tr_din;
@@ -211,7 +211,7 @@ std::vector<double> IzracunPrijemala(PogojiOkolja pogojiOkolja, std::vector<doub
 
 std::vector<double> IzracunPriseska(PogojiOkolja pogojiOkolja, std::vector<double> lasti, std::vector<double> resi, double korak) {
 	
-	double pi = 3.14159265358979;
+	double pi = M_PI;
 
 
 	double g = pogojiOkolja.gravitacijskiPospesek;
@@ -223,10 +223,11 @@ std::vector<double> IzracunPriseska(PogojiOkolja pogojiOkolja, std::vector<doubl
 	double p = resi[2];
 	double pok = pogojiOkolja.tlakOzracja;
 	double d = lasti[0];
+	double k = .8; // Koeficient priseska ///////////////////// dodat v lastnosti
 
 	double A = d * d * pi / 4;
 
-	double Fp = (pok - p) * A;
+	double Fp = (pok - p) * A * k;
 
 
 	if (Fp > Fg) resi[5] = 1;
@@ -241,7 +242,7 @@ std::vector<std::vector<double>> IzracunPovezav(PogojiOkolja pogojiOkolja, std::
 	std::vector<std::vector<double>> masniTok;
 	masniTok.resize(seznamElementov.size());
 
-	double pi = 3.14159265358979;
+	double pi = M_PI;
 
 	double ti = korak; // Casovni korak [s]
 
@@ -776,17 +777,17 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 
 	seznamLastnosti.push_back({});
 	seznamLastnosti.push_back({ .95,6,0.2,0.01,0.05,1 });
-	seznamLastnosti.push_back({ .1,500000 });
-	seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.4,80 });
+	seznamLastnosti.push_back({ .04,500000 });
+	seznamLastnosti.push_back({ 700000,700000,0.032,0.012,0.03,0 });
 	seznamLastnosti.push_back({ 0.1,0.2 });
 	seznamLastnosti.push_back({ 240,100,2,2 });
 	//seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.4,40 });
 
 	seznamResitevReset.push_back({ 0,0,0,0,0,0,0,0 });
-	seznamResitevReset.push_back({ 0,0,2000,30 });
+	seznamResitevReset.push_back({ 0,0,2000,20 });
 	seznamResitevReset.push_back({ 1,-1,450000,-1 });
 	seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1,-1,pogojiOkolja.tlakOzracja,-1,0,0,0,0 });
-	seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1, 40, -1, 1 });
+	seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1, 6, -1, -1 });
 	seznamResitevReset.push_back({});
 	//seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1,-1,pogojiOkolja.tlakOzracja,-1,0,0,0,0 });
 
@@ -823,12 +824,11 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 	seznamStikal.push_back({ 2,2,-1,500000,4,0,0,0 });*/
 
 	//seznamStikal.push_back({ -1,0,VECJE,0,1,DELOVANJE_LOG,1,0 });
-	seznamStikal.push_back({ 2,2,MANJ,400000,1,DELOVANJE_LOG,1,0 });
+	seznamStikal.push_back({ 2,2,MANJ,300000,1,DELOVANJE_LOG,1,0 });
 	seznamStikal.push_back({ 3,2,VECJE,300000,3,POZ_PRIJEMALO_LOG,1,0 });
 	seznamStikal.push_back({ 3,5,VECJE,300000,3,POZ_PRIJEMALO_LOG,0,0 });
-	seznamStikal.push_back({ -1,0,VECJE,0,4,POZ_PRISESEK_LOG,-1,0 });
 	seznamStikal.push_back({ 2,2,VECJE,450000,1,DELOVANJE_LOG,0,0 });
-	seznamStikal.push_back({ -1,0,VECJE,4,3,DELOVANJE_LOG,0,0 });
+	//seznamStikal.push_back({ -1,0,VECJE,4,3,DELOVANJE_LOG,0,0 });
 	
 
 	wxStatusBar* statusBar = CreateStatusBar();
@@ -846,6 +846,7 @@ void OknoSim::OnClose(wxCloseEvent& evt) {
 		}
 	}
 
+	seznamGrafTock.clear();
 	evt.Skip(); // Ali 'Destroy()'
 }
 
@@ -1082,7 +1083,7 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 		}
 		else if (choiceDod->GetSelection() == PRISESEK) {
 			seznamLastnosti.push_back({ 0.1,0.2 });
-			seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1, 40, -1, 1 });
+			seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1, 6, -1, 1 });
 			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2,-1 });
 		}
 		else if (choiceDod->GetSelection() == GRAF) {
@@ -1817,8 +1818,8 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 	
 	//- IZRIS ELEMENTOV
-	if (simbool) for (int i = 0; i < 1; i++) {
-		seznamResitev = IzracunPovezav(pogojiOkolja, seznamElementov, seznamLastnosti, seznamResitev, seznamPovezav, seznamStikal, korak, casSimulacije->GetValue());
+	if (simbool)  {
+		for (int i = 0; i < 1; i++) seznamResitev = IzracunPovezav(pogojiOkolja, seznamElementov, seznamLastnosti, seznamResitev, seznamPovezav, seznamStikal, korak, casSimulacije->GetValue());
 		ZapisMeritev(&seznamGrafTock, &seznamElementov, &seznamLastnosti, &seznamResitev, korak);
 	}
 
@@ -2097,9 +2098,11 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 		case GRAF: //- Graf
 
+			dc.DrawText("Graf", wxPoint(xy[0] + seznamLastnosti[i][0] / 2 - 12, xy[1] - 16));
 			dc.SetPen(wxPen(wxColour(204, 204, 204), 1, wxPENSTYLE_SOLID));
 			dc.DrawRectangle(wxPoint(xy[0], xy[1]), wxSize(seznamLastnosti[i][0] + 1, seznamLastnosti[i][1] + 1));
-			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+			dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
+
 
 			if (!seznamGrafTock.empty() && seznamLastnosti[i][2] != -1 && seznamLastnosti[i][3] != -1) {
 			
@@ -2133,6 +2136,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 				dc.DrawText(wxString::Format("%g", seznamGrafTock[seznamGrafTock.size() - 1][0]), wxPoint(xy[0], xy[1] + seznamLastnosti[i][1] + 8));
 				dc.DrawText(wxString::Format("%g", seznamGrafTock[seznamGrafTock.size() - 1][seznamGrafTock[seznamGrafTock.size() - 1].size() - 1]), wxPoint(xy[0] + seznamLastnosti[i][0], xy[1] + seznamLastnosti[i][1] + 8));
 			}
+			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
 			break;
 
@@ -2458,8 +2462,8 @@ void NastavitevMikroProcesorja::OnRefresh(wxCommandEvent& evt) {
 						}
 						else if (choiceVelicinaPisanje->GetString(choiceVelicinaPisanje->GetSelection()) == " vrtljaji [s-1]") {
 							choiceVrednostPisanje->SetString(0, " 10");
-							choiceVrednostPisanje->SetString(1, " 20");
-							choiceVrednostPisanje->SetString(2, " 30");
+							choiceVrednostPisanje->SetString(1, " 15");
+							choiceVrednostPisanje->SetString(2, " 20");
 						}
 					}
 				}
@@ -2553,7 +2557,7 @@ void NastavitevMikroProcesorja::OnPaint(wxPaintEvent& evt) {
 		for (int i = 0; i < seznamStikal.size(); i++) 
 			if (seznamStikal[i][7] == izbranElement)
 				dc.DrawText(wxString::Format("%g | %g | %g | %g | %g | %g | %g | %g", seznamStikal[i][0], seznamStikal[i][1], seznamStikal[i][2], seznamStikal[i][3], seznamStikal[i][4], seznamStikal[i][5], seznamStikal[i][6], seznamStikal[i][7]), wxPoint(380, 100 + 20 * i));
-		dc.DrawText(wxString::Format("choicePinBranje %d", choicePinBranje->GetSelection()), wxPoint(380, 40));
+		//dc.DrawText(wxString::Format("choicePinBranje %d", choicePinBranje->GetSelection()), wxPoint(380, 40));
 	}
 
 	wxPoint predogled(130, 80); /////////////////////// Spremenit visino
@@ -2730,7 +2734,7 @@ NastavitevTlacnePosode::NastavitevTlacnePosode() : wxFrame(nullptr, wxID_ANY, wx
 		tlakVarnVentBool->SetValue(0);
 	}
 
-	volumenTlacnePosode = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(180, 53), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0.1, 10, seznamLastnosti[izbranElement][0], 0.1);
+	volumenTlacnePosode = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(180, 53), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0.01, 10, seznamLastnosti[izbranElement][0], 0.01);
 	zacTlakTlacnePosode = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(180, 83), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 10, seznamResitevReset[izbranElement][2] / 100000, 0.1);
 
 
