@@ -709,7 +709,7 @@ wxGauge* casSimulacije;
 wxSpinCtrl* spinPovezava;
 
 bool simbool = false;
-double korak = .001; // Casovni korak simulacije [s]
+double korak = .0005; // Casovni korak simulacije [s]
 
 
 OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
@@ -768,11 +768,11 @@ OknoSim::OknoSim(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 
 
 	seznamElementov.push_back({ 220,20,MIKROPROCESOR });
-	seznamElementov.push_back({ 360,470,ELEKTRICNACRPALKA });
-	seznamElementov.push_back({ 390,310,TLACNAPOSODA });
-	seznamElementov.push_back({ 620,200,PRIJEMALO });
-	seznamElementov.push_back({ 660,540,PRISESEK });
-	seznamElementov.push_back({ 550,30,GRAF });
+	seznamElementov.push_back({ 360,420,ELEKTRICNACRPALKA });
+	seznamElementov.push_back({ 590,330,TLACNAPOSODA });
+	seznamElementov.push_back({ 870,230,PRIJEMALO });
+	seznamElementov.push_back({ 510,540,PRISESEK });
+	seznamElementov.push_back({ 830,30,GRAF });
 	//seznamElementov.push_back({ 680,250,PRIJEMALO });
 
 	seznamLastnosti.push_back({});
@@ -1675,11 +1675,11 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 						tocka1.y -= 10;
 					}
 					else if (seznamPovezav[i][1] == 1) {
-						tocka1.x -= 10;
+						tocka1.x -= 10 + 46;
 						tocka1.y += 20;
 					}
 					else if (seznamPovezav[i][1] == 2) {
-						tocka1.x += 130;
+						tocka1.x += 130 + 46;
 						tocka1.y += 20;
 					}
 
@@ -1689,11 +1689,11 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 					if (seznamPovezav[i][1] == 0) {
 						tocka1.x -= 10;
-						tocka1.y += 10;
+						tocka1.y += 0;
 					}
 					else if (seznamPovezav[i][1] == 1) {
-						tocka1.x -= 10;
-						tocka1.y += 40;
+						tocka1.x -= 10 + 46;
+						tocka1.y += 40 - 8;
 					}
 
 					break;
@@ -1701,12 +1701,12 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 				case PRISESEK:
 
 					if (seznamPovezav[i][1] == 0) {
-						tocka1.x += 50;
-						tocka1.y -= 35;
+						tocka1.x += 0;//50;
+						tocka1.y -= 15;// 35;
 					}
 					else if (seznamPovezav[i][1] == 1) {
 						tocka1.x += 40;
-						tocka1.y -= 25;
+						tocka1.y -= 25 + 46;
 					}
 
 					break;
@@ -1755,11 +1755,11 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 						tocka2.y -= 10;
 					}
 					else if (seznamPovezav[i][3] == 1) {
-						tocka2.x -= 10;
+						tocka2.x -= 10 + 46;
 						tocka2.y += 20;
 					}
 					else if (seznamPovezav[i][3] == 2) {
-						tocka2.x += 130;
+						tocka2.x += 130 + 46;
 						tocka2.y += 20;
 					}
 
@@ -1769,11 +1769,11 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 					if (seznamPovezav[i][3] == 0) {
 						tocka2.x -= 10;
-						tocka2.y += 10;
+						tocka2.y += 0;
 					}
 					else if (seznamPovezav[i][3] == 1) {
-						tocka2.x -= 10;
-						tocka2.y += 40;
+						tocka2.x -= 10 + 46;
+						tocka2.y += 40 - 8;
 					}
 
 					break;
@@ -1781,12 +1781,12 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 				case PRISESEK:
 
 					if (seznamPovezav[i][3] == 0) {
-						tocka2.x += 50;
-						tocka2.y -= 35;
+						tocka2.x += 0;//50;
+						tocka2.y -= 15;//35;
 					}
 					else if (seznamPovezav[i][3] == 1) {
 						tocka2.x += 40;
-						tocka2.y -= 25;
+						tocka2.y -= 25 + 46;
 					}
 
 					break;
@@ -1917,6 +1917,8 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 					dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 					dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
 				}
+
+
 			}
 
 			break;
@@ -1930,6 +1932,9 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 			dc.DrawLine(wxPoint(xy[0] - 10, xy[1] + 20), wxPoint(xy[0], xy[1] + 20));
 			dc.DrawLine(wxPoint(xy[0] + 130, xy[1] + 20), wxPoint(xy[0] + 120, xy[1] + 20));
+
+			dc.DrawLine(wxPoint(xy[0] + 166, xy[1] + 20), wxPoint(xy[0] + 176, xy[1] + 20));
+			dc.DrawLine(wxPoint(xy[0] - 46, xy[1] + 20), wxPoint(xy[0] - 56, xy[1] + 20));
 
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
@@ -1959,12 +1964,33 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 				dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
 				dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
 
-				dc.DrawRectangle(wxPoint(xy[0] - 15, xy[1] + 15), wxSize(10, 10));
-				dc.DrawRectangle(wxPoint(xy[0] + 125, xy[1] + 15), wxSize(10, 10));
+				dc.DrawRectangle(wxPoint(xy[0] - 15 - 46, xy[1] + 15), wxSize(10, 10));
+				dc.DrawRectangle(wxPoint(xy[0] + 125 + 46, xy[1] + 15), wxSize(10, 10));
 
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 				dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
 			}
+			
+			// Risanje ventilov
+			for (int j = 0; j < 2; j++) {
+				dc.DrawRectangle(wxPoint(xy[0] + 130 - j * 176, xy[1] - 28 + 36 * seznamResitev[i][0]), wxSize(36 + 1, 36 + 1));
+				dc.DrawLine(wxPoint(xy[0] + 130 - j * 176, xy[1] - 28 + (36 / 3 * 1) + 36 * seznamResitev[i][0]), wxPoint(xy[0] + 166 - j * 176, xy[1] - 28 + (36 / 3 * 1) + 36 * seznamResitev[i][0]));
+				dc.DrawLine(wxPoint(xy[0] + 166 - j * 176, xy[1] - 28 + (36 / 3 * 1) + 36 * seznamResitev[i][0]), wxPoint(xy[0] + 166 - 5 - j * 176, xy[1] - 28 + (36 / 3 * 1) + 5 + 36 * seznamResitev[i][0]));
+				dc.DrawLine(wxPoint(xy[0] + 166 - j * 176, xy[1] - 28 + (36 / 3 * 1) + 36 * seznamResitev[i][0]), wxPoint(xy[0] + 166 - 5 - j * 176, xy[1] - 28 + (36 / 3 * 1) - 5 + 36 * seznamResitev[i][0]));
+				dc.DrawLine(wxPoint(xy[0] + 130 - j * 176, xy[1] - 28 + (36 / 3 * 2) + 36 * seznamResitev[i][0]), wxPoint(xy[0] + 140 - j * 176, xy[1] - 28 + (36 / 3 * 2) + 36 * seznamResitev[i][0]));
+				dc.DrawLine(wxPoint(xy[0] + 140 - j * 176, xy[1] - 28 + (36 / 3 * 2) - 5 + 36 * seznamResitev[i][0]), wxPoint(xy[0] + 140 - j * 176, xy[1] - 28 + (36 / 3 * 2) + 5 + 36 * seznamResitev[i][0]));
+				dc.DrawRectangle(wxPoint(xy[0] + 130 - j * 176, xy[1] + 8 + 36 * seznamResitev[i][0]), wxSize(36 + 1, 36 + 1));
+				dc.DrawLine(wxPoint(xy[0] + 130 - j * 176, xy[1] + 8 + (36 / 3 * 2) + 36 * seznamResitev[i][0]), wxPoint(xy[0] + 166 - j * 176, xy[1] + 8 + (36 / 3 * 1) + 36 * seznamResitev[i][0]));
+				dc.DrawLine(wxPoint(xy[0] + 130 - j * 176, xy[1] + 8 + (36 / 3 * 2) + 36 * seznamResitev[i][0]), wxPoint(xy[0] + 130 + 5 - j * 176, xy[1] + 8 + (36 / 3 * 2) + 5 + 36 * seznamResitev[i][0]));
+				dc.DrawLine(wxPoint(xy[0] + 130 - j * 176, xy[1] + 8 + (36 / 3 * 2) + 36 * seznamResitev[i][0]), wxPoint(xy[0] + 130 + 5 - j * 176, xy[1] + 8 + (36 / 3 * 2) - 5 + 36 * seznamResitev[i][0]));
+				dc.DrawLine(wxPoint(xy[0] + 130 - j * 176, xy[1] + 8 + (36 / 3 * 1) + 36 * seznamResitev[i][0]), wxPoint(xy[0] + 140 - j * 176, xy[1] + 8 + (36 / 3 * 1) + 36 * seznamResitev[i][0]));
+				dc.DrawLine(wxPoint(xy[0] + 140 - j * 176, xy[1] + 8 + (36 / 3 * 1) - 5 + 36 * seznamResitev[i][0]), wxPoint(xy[0] + 140 - j * 176, xy[1] + 8 + (36 / 3 * 1) + 5 + 36 * seznamResitev[i][0]));
+			}
+
+			
+			//dc.DrawRectangle(wxPoint(xy[0] - 46, xy[1] - 30 + 36 * seznamResitev[i][0]), wxSize(36 + 1, 36 + 1));
+			//dc.DrawRectangle(wxPoint(xy[0] - 46, xy[1] + 6 + 36 * seznamResitev[i][0]), wxSize(36 + 1, 36 + 1));
+
 
 			break;
 
@@ -1976,11 +2002,14 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 			dc.DrawRectangle(wxPoint(xy[0] + 40, xy[1] + zamik), wxSize(50, 10));
 			dc.DrawRectangle(wxPoint(xy[0] + 40, xy[1] + 40 - zamik), wxSize(50, 10));
 
-			dc.DrawLine(wxPoint(xy[0] - 0, xy[1] + 10), wxPoint(xy[0] - 10, xy[1] + 10));
+			dc.DrawLine(wxPoint(xy[0] - 0, xy[1]), wxPoint(xy[0] - 10, xy[1]));
 
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
 
 			dc.DrawLine(wxPoint(xy[0] - 0, xy[1] + 40), wxPoint(xy[0] - 10, xy[1] + 40));
+			dc.DrawLine(wxPoint(xy[0] - 0, xy[1] + 24), wxPoint(xy[0] - 10, xy[1] + 24));
+
+			dc.DrawLine(wxPoint(xy[0] - 46, xy[1] + 32), wxPoint(xy[0] - 56, xy[1] + 32));
 
 			dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
@@ -1992,12 +2021,12 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 				dc.SetPen(wxPen(wxColour(51, 51, 153), 1, wxPENSTYLE_SOLID));
 				dc.SetBrush(wxBrush(wxColour(153, 153, 255), wxBRUSHSTYLE_SOLID));
 
-				dc.DrawRectangle(wxPoint(xy[0] - 15, xy[1] + 5), wxSize(10, 10));
+				dc.DrawRectangle(wxPoint(xy[0] - 15, xy[1] - 5), wxSize(10, 10));
 
 				dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
 				dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
 
-				dc.DrawRectangle(wxPoint(xy[0] - 15, xy[1] + 35), wxSize(10, 10));
+				dc.DrawRectangle(wxPoint(xy[0] - 15 - 46, xy[1] + 35), wxSize(10, 10));
 
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 				dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
@@ -2010,6 +2039,27 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 			dc.DrawCircle(wxPoint(xy[0] + 10, xy[1] + 10), 5);
 
 			dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
+
+			// Risanje ventilov
+			dc.DrawRectangle(wxPoint(xy[0] - 46, xy[1] - 22 + 36 * seznamResitev[i][7]), wxSize(36 + 1, 36 + 1));
+			dc.DrawLine(wxPoint(xy[0] - 46, xy[1] - 22 + (36 / 4 * 2) + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 10, xy[1] - 22 + (36 / 4 * 1) + 36 * seznamResitev[i][7]));
+			dc.DrawLine(wxPoint(xy[0] - 10, xy[1] - 22 + (36 / 4 * 1) + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 10 - 5, xy[1] - 22 + (36 / 4 * 1) + 5 + 36 * seznamResitev[i][7]));
+			dc.DrawLine(wxPoint(xy[0] - 10, xy[1] - 22 + (36 / 4 * 1) + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 10 - 5, xy[1] - 22 + (36 / 4 * 1) - 5 + 36 * seznamResitev[i][7]));
+			dc.DrawLine(wxPoint(xy[0] - 46, xy[1] - 22 + (36 / 4 * 3) + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 10, xy[1] - 22 + (36 / 4 * 3) + 36 * seznamResitev[i][7]));
+			dc.DrawLine(wxPoint(xy[0] - 46, xy[1] - 22 + (36 / 4 * 3) + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 46 + 5, xy[1] - 22 + (36 / 4 * 3) + 5 + 36 * seznamResitev[i][7]));
+			dc.DrawLine(wxPoint(xy[0] - 46, xy[1] - 22 + (36 / 4 * 3) + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 46 + 5, xy[1] - 22 + (36 / 4 * 3) - 5 + 36 * seznamResitev[i][7]));
+			dc.DrawLine(wxPoint(xy[0] - 46, xy[1] - 22 + (36 / 4 * 1) + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 36, xy[1] - 22 + (36 / 4 * 1) + 36 * seznamResitev[i][7]));
+			dc.DrawLine(wxPoint(xy[0] - 36, xy[1] - 22 + (36 / 4 * 1) - 5 + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 36, xy[1] - 22 + (36 / 4 * 1) + 5 + 36 * seznamResitev[i][7]));
+			dc.DrawRectangle(wxPoint(xy[0] - 46, xy[1] + 14 + 36 * seznamResitev[i][7]), wxSize(36 + 1, 36 + 1));
+			dc.DrawLine(wxPoint(xy[0] - 46, xy[1] + 14 + (36 / 4 * 2) + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 10, xy[1] + 14 + (36 / 4 * 3) + 36 * seznamResitev[i][7]));
+			dc.DrawLine(wxPoint(xy[0] - 10, xy[1] + 14 + (36 / 4 * 3) + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 10 - 5, xy[1] + 14 + (36 / 4 * 3) + 5 + 36 * seznamResitev[i][7]));
+			dc.DrawLine(wxPoint(xy[0] - 10, xy[1] + 14 + (36 / 4 * 3) + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 10 - 5, xy[1] + 14 + (36 / 4 * 3) - 5 + 36 * seznamResitev[i][7]));
+			dc.DrawLine(wxPoint(xy[0] - 46, xy[1] + 14 + (36 / 4 * 1) + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 10, xy[1] + 14 + (36 / 4 * 1) + 36 * seznamResitev[i][7]));
+			dc.DrawLine(wxPoint(xy[0] - 46, xy[1] + 14 + (36 / 4 * 1) + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 46 + 5, xy[1] + 14 + (36 / 4 * 1) + 5 + 36 * seznamResitev[i][7]));
+			dc.DrawLine(wxPoint(xy[0] - 46, xy[1] + 14 + (36 / 4 * 1) + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 46 + 5, xy[1] + 14 + (36 / 4 * 1) - 5 + 36 * seznamResitev[i][7]));
+			dc.DrawLine(wxPoint(xy[0] - 46, xy[1] + 14 + (36 / 4 * 3) + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 36, xy[1] + 14 + (36 / 4 * 3) + 36 * seznamResitev[i][7]));
+			dc.DrawLine(wxPoint(xy[0] - 36, xy[1] + 14 + (36 / 4 * 3) - 5 + 36 * seznamResitev[i][7]), wxPoint(xy[0] - 36, xy[1] + 14 + (36 / 4 * 3) + 5 + 36 * seznamResitev[i][7]));
+
 
 			break;
 
@@ -2033,26 +2083,29 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 				dc.DrawPolygon(tocke);
 
-				dc.DrawLine(wxPoint(xy[0] + 50, xy[1] - 35), wxPoint(xy[0] + 50, xy[1] - 15 + zamik));
+				dc.DrawLine(wxPoint(xy[0], xy[1]), wxPoint(xy[0], xy[1] - 15 + zamik));
+
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
 
 				dc.DrawLine(wxPoint(xy[0] + 40, xy[1] - 25), wxPoint(xy[0] + 40, xy[1] - 15 + zamik));
 
+				dc.DrawLine(wxPoint(xy[0] + 40, xy[1] - 25 - 46), wxPoint(xy[0] + 40, xy[1] - 15 - 46 + zamik));
+
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 
-				dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0] + 80, xy[1] - 32));
-				dc.DrawText(wxString::Format("p = %g bar", seznamResitev[i][2] / 100000), wxPoint(xy[0] + 80, xy[1] - 16));
+				dc.DrawText(wxString::Format("Element %d", i + 1), wxPoint(xy[0] + 92, xy[1] - 24));
+				dc.DrawText(wxString::Format("p = %g bar", seznamResitev[i][2] / 100000), wxPoint(xy[0] + 92, xy[1] - 8));
 
 				if (drzanjePovezav > 0) { // Risanje povezav
 					dc.SetPen(wxPen(wxColour(51, 51, 153), 1, wxPENSTYLE_SOLID));
 					dc.SetBrush(wxBrush(wxColour(153, 153, 255), wxBRUSHSTYLE_SOLID));
 
-					dc.DrawRectangle(wxPoint(xy[0] + 45, xy[1] - 40), wxSize(10, 10));
+					dc.DrawRectangle(wxPoint(xy[0] - 5, xy[1] - 20), wxSize(10, 10));
 
 					dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
 					dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
 
-					dc.DrawRectangle(wxPoint(xy[0] + 35, xy[1] - 30), wxSize(10, 10));
+					dc.DrawRectangle(wxPoint(xy[0] + 35, xy[1] - 30 - 46), wxSize(10, 10));
 
 					dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 					dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
@@ -2092,6 +2145,20 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 					dc.DrawText(wxString::Format("%g dela", seznamResitev[i][5]), wxPoint(xy[0] + 25, xy[1] + 40 + zamik));
 					dc.DrawText(wxString::Format("%g poz", seznamResitev[i][6]), wxPoint(xy[0] + 25, xy[1] + 55 + zamik));
 				}
+
+				dc.DrawRectangle(wxPoint(xy[0] - 8 + 36 * seznamResitev[i][0], xy[1] - 61), wxSize(36 + 1, 36 + 1));
+				dc.DrawLine(wxPoint(xy[0] - 8 + (36 / 3 * 1) + 36 * seznamResitev[i][0], xy[1] - 61), wxPoint(xy[0] - 8 + (36 / 3 * 1) + 36 * seznamResitev[i][0], xy[1] - 25));
+				dc.DrawLine(wxPoint(xy[0] - 8 + (36 / 3 * 1) + 36 * seznamResitev[i][0], xy[1] - 61), wxPoint(xy[0] - 8 - 5 + (36 / 3 * 1) + 36 * seznamResitev[i][0], xy[1] - 61 + 5));
+				dc.DrawLine(wxPoint(xy[0] - 8 + (36 / 3 * 1) + 36 * seznamResitev[i][0], xy[1] - 61), wxPoint(xy[0] - 8 + 5 + (36 / 3 * 1) + 36 * seznamResitev[i][0], xy[1] - 61 + 5));
+				dc.DrawLine(wxPoint(xy[0] - 8 + (36 / 3 * 2) + 36 * seznamResitev[i][0], xy[1] - 25 - 10), wxPoint(xy[0] - 8 + (36 / 3 * 2) + 36 * seznamResitev[i][0], xy[1] - 25));
+				dc.DrawLine(wxPoint(xy[0] - 8 + (36 / 3 * 2) - 5 + 36 * seznamResitev[i][0], xy[1] - 25 - 10), wxPoint(xy[0] - 8 + (36 / 3 * 2) + 5 + 36 * seznamResitev[i][0], xy[1] - 25 - 10));
+				dc.DrawRectangle(wxPoint(xy[0] + 24 + 36 * seznamResitev[i][0], xy[1] - 61), wxSize(36 + 1, 36 + 1));
+				dc.DrawLine(wxPoint(xy[0] + 24 + (36 / 3 * 1) + 36 * seznamResitev[i][0], xy[1] - 61), wxPoint(xy[0] + 24 + (36 / 3 * 2) + 36 * seznamResitev[i][0], xy[1] - 25));
+				dc.DrawLine(wxPoint(xy[0] + 24 + (36 / 3 * 2) + 36 * seznamResitev[i][0], xy[1] - 25), wxPoint(xy[0] + 24 - 5 + (36 / 3 * 2) + 36 * seznamResitev[i][0], xy[1] - 25 - 5));
+				dc.DrawLine(wxPoint(xy[0] + 24 + (36 / 3 * 2) + 36 * seznamResitev[i][0], xy[1] - 25), wxPoint(xy[0] + 24 + 5 + (36 / 3 * 2) + 36 * seznamResitev[i][0], xy[1] - 25 - 5));
+				dc.DrawLine(wxPoint(xy[0] + 24 + (36 / 3 * 1) + 36 * seznamResitev[i][0], xy[1] - 25 - 10), wxPoint(xy[0] + 24 + (36 / 3 * 1) + 36 * seznamResitev[i][0], xy[1] - 25));
+				dc.DrawLine(wxPoint(xy[0] + 24 + (36 / 3 * 1) - 5 + 36 * seznamResitev[i][0], xy[1] - 25 - 10), wxPoint(xy[0] + 24 + (36 / 3 * 1) + 5 + 36 * seznamResitev[i][0], xy[1] - 25 - 10));
+
 			}
 
 			break;
@@ -2130,9 +2197,18 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 				dc.DrawLines(seznamTock);
 
+				double pretvornik = 1; ////////////////// popravit
+				if (seznamLastnosti[i][3] == 8) {
+					max = max / seznamLastnosti[seznamLastnosti[i][2]][4] * 100;
+					min = min / seznamLastnosti[seznamLastnosti[i][2]][4] * 100;
+				}
+				else {
+					max /= 100000;
+					min /= 100000;
+				}
 
-				dc.DrawText(wxString::Format("%g", round((max / 100000) * 100) / 100), wxPoint(xy[0] - 23, xy[1] - 7));
-				dc.DrawText(wxString::Format("%g", round((min / 100000) * 100) / 100), wxPoint(xy[0] - 23, xy[1] + seznamLastnosti[i][1] - 7));
+				dc.DrawText(wxString::Format("%g", round(max * 100) / 100), wxPoint(xy[0] - 23, xy[1] - 7));
+				dc.DrawText(wxString::Format("%g", round(min * 100) / 100), wxPoint(xy[0] - 23, xy[1] + seznamLastnosti[i][1] - 7));
 				dc.DrawText(wxString::Format("%g", seznamGrafTock[seznamGrafTock.size() - 1][0]), wxPoint(xy[0], xy[1] + seznamLastnosti[i][1] + 8));
 				dc.DrawText(wxString::Format("%g", seznamGrafTock[seznamGrafTock.size() - 1][seznamGrafTock[seznamGrafTock.size() - 1].size() - 1]), wxPoint(xy[0] + seznamLastnosti[i][0], xy[1] + seznamLastnosti[i][1] + 8));
 			}
@@ -2804,7 +2880,7 @@ wxSpinCtrl* premerBatnicePrijemalke;
 wxSpinCtrl* dolzinaHodaPrijemalke;
 wxSpinCtrl* zacPozPrijemalke;
 
-NastavitevPrijemalke::NastavitevPrijemalke() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve prijemalke"), wxPoint(0, 0), wxSize(360, 300)) {
+NastavitevPrijemalke::NastavitevPrijemalke() : wxFrame(nullptr, wxID_ANY, wxString::Format("Nastavitve prijemala"), wxPoint(0, 0), wxSize(360, 300)) {
 
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
 
@@ -2892,7 +2968,7 @@ NastavitevPriseska::NastavitevPriseska() : wxFrame(nullptr, wxID_ANY, wxString::
 	wxButton* apply = new wxButton(panel, wxID_ANY, "Apply", wxPoint(10, 230), wxDefaultSize);
 	wxButton* close = new wxButton(panel, wxID_ANY, "Close", wxPoint(90, 230), wxDefaultSize);
 
-	masaPriseskaBool = new wxCheckBox(panel, wxID_ANY, "Tlacni varnostni ventil", wxPoint(5, 5), wxDefaultSize);
+	masaPriseskaBool = new wxCheckBox(panel, wxID_ANY, "Dodaj utež", wxPoint(5, 5), wxDefaultSize);
 	if (seznamResitevReset[izbranElement][4] >= 0) masaPriseskaBool->SetValue(true);
 	velikostMasePriseska = new wxSpinCtrlDouble(panel, wxID_ANY, "", wxPoint(150, 25), wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP, 0, 100, seznamResitevReset[izbranElement][4], .1);
 	if (!masaPriseskaBool->IsChecked()) velikostMasePriseska->Disable();

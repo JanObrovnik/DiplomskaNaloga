@@ -12,7 +12,7 @@ bool App::OnInit() {
 	OknoSim* oknoZac = new OknoSim("Pnevmaticni simulator");
 	//MainFrame* oknoZac = new MainFrame("Pnevmaticni simulator");
 
-	oknoZac->SetClientSize(900, 600); // velikost aplikacije 180, 180
+	oknoZac->SetClientSize(1200, 600); // velikost aplikacije 180, 180
 	oknoZac->Center(); // centriramo na sredi ekrana
 
 	oknoZac->Show(true); // prikažemo frame
