@@ -1069,7 +1069,7 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 		}
 		else if (choiceDod->GetSelection() == ELEKTRICNACRPALKA) {
 			seznamLastnosti.push_back({ .95,6,0.2,0.01,0.05,1 });
-			seznamResitevReset.push_back({ 1,0,2000,0 });
+			seznamResitevReset.push_back({ 0,0,2000,20 });
 		}
 		else if (choiceDod->GetSelection() == TLACNAPOSODA) {
 			seznamLastnosti.push_back({ 2,700000 });
@@ -1077,7 +1077,7 @@ void OknoSim::OnMouseUpEvent(wxMouseEvent& evt) {
 			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2,-1 });
 		}
 		else if (choiceDod->GetSelection() == PRIJEMALO) {
-			seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.4,0 });
+			seznamLastnosti.push_back({ 700000,700000,0.1,0.025,0.1,0 });
 			seznamResitevReset.push_back({ 1,-1,pogojiOkolja.tlakOzracja,-1,-1,pogojiOkolja.tlakOzracja,-1,0,0,0,0 });
 			seznamPovezav.push_back({ static_cast<int>(seznamElementov.size()) - 1,3,-1,-1,2,-1 });
 		}
@@ -1443,7 +1443,7 @@ void OknoSim::OnNaloziClicked(wxCommandEvent& evt) {
 					int pon;
 
 					nalozi >> pon >> ch;
-					for (int j = 0; j < pon; j++) { int a; nalozi >> a; seznamStikal[i].push_back(a); }
+					for (int j = 0; j < pon; j++) { double a; nalozi >> a; seznamStikal[i].push_back(a); }
 				}
 			}
 
@@ -1552,14 +1552,16 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 		predogled.x = predogled.x / 10 * 10;
 		predogled.y = predogled.y / 10 * 10;
 	}
-	else if (choiceDod->GetSelection() == 0) { predogled.x = sirinaOrodja / 2 - 50; }
-	else if (choiceDod->GetSelection() == 1) { predogled.x = sirinaOrodja / 2 - 20; predogled.y += 34; }
-	else if (choiceDod->GetSelection() == 2) { predogled.x = sirinaOrodja / 2 - 60; }
-	else if (choiceDod->GetSelection() == 3) { predogled.x = sirinaOrodja / 2 - 45; }
-	else if (choiceDod->GetSelection() == 4) { predogled.x = sirinaOrodja / 2 - 40; predogled.y += 20; }
+	else if (choiceDod->GetSelection() == MIKROPROCESOR) { predogled.x = sirinaOrodja / 2 - 50; }
+	else if (choiceDod->GetSelection() == ELEKTRICNACRPALKA) { predogled.x = sirinaOrodja / 2 - 20; predogled.y += 34; }
+	else if (choiceDod->GetSelection() == TLACNAPOSODA) { predogled.x = sirinaOrodja / 2 - 60; }
+	else if (choiceDod->GetSelection() == PRIJEMALO) { predogled.x = sirinaOrodja / 2 - 45; }
+	else if (choiceDod->GetSelection() == PRISESEK) { predogled.x = sirinaOrodja / 2 - 40; predogled.y += 20; }
+	else if (choiceDod->GetSelection() == GRAF) { predogled.x = sirinaOrodja / 2 - 80; predogled.y += 20; }
+	else { predogled.x = sirinaOrodja / 2 - 40; predogled.y += 20; }
 
 
-	if (choiceDod->GetSelection() == 0) {
+	if (choiceDod->GetSelection() == MIKROPROCESOR) {
 		dc.DrawRectangle(predogled, wxSize(100, 140));
 		dc.DrawText("0", wxPoint(predogled.x + 88, predogled.y + 5));
 		dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 10), wxPoint(predogled.x + 110, predogled.y + 10));
@@ -1578,7 +1580,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 		dc.DrawText("7", wxPoint(predogled.x + 88, predogled.y + 110));
 		dc.DrawLine(wxPoint(predogled.x + 100, predogled.y + 115), wxPoint(predogled.x + 110, predogled.y + 115));
 	}
-	else if (choiceDod->GetSelection() == 1) {
+	else if (choiceDod->GetSelection() == ELEKTRICNACRPALKA) {
 		wxPoint* t1 = new wxPoint(predogled.x, predogled.y);
 		wxPoint* t2 = new wxPoint(predogled.x + 40, predogled.y);
 		wxPoint* t3 = new wxPoint(predogled.x + 20, predogled.y - 34);
@@ -1595,7 +1597,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 		dc.DrawLine(wxPoint(predogled.x + 20, predogled.y + 10), wxPoint(predogled.x + 20, predogled.y));
 		dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 	}
-	else if (choiceDod->GetSelection() == 2) {
+	else if (choiceDod->GetSelection() == TLACNAPOSODA) {
 		dc.DrawRoundedRectangle(wxPoint(predogled.x, predogled.y), wxSize(120, 40), 20);
 		dc.DrawLine(wxPoint(predogled.x + 30, predogled.y - 10), wxPoint(predogled.x + 30, predogled.y));
 
@@ -1604,7 +1606,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 		dc.DrawLine(wxPoint(predogled.x + 120, predogled.y + 20), wxPoint(predogled.x + 130, predogled.y + 20));
 		dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 	}
-	else if (choiceDod->GetSelection() == 3) {
+	else if (choiceDod->GetSelection() == PRIJEMALO) {
 		dc.DrawRectangle(wxPoint(predogled.x, predogled.y), wxSize(65, 50));
 		dc.DrawRectangle(wxPoint(predogled.x + 40, predogled.y), wxSize(50, 10));
 		dc.DrawRectangle(wxPoint(predogled.x + 40, predogled.y + 40), wxSize(50, 10));
@@ -1614,7 +1616,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 		dc.DrawLine(wxPoint(predogled.x - 10, predogled.y + 40), wxPoint(predogled.x, predogled.y + 40));
 		dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 	}
-	else if (choiceDod->GetSelection() == 4) {
+	else if (choiceDod->GetSelection() == PRISESEK) {
 		wxPoint* t1 = new wxPoint(predogled.x, predogled.y);
 		wxPoint* t2 = new wxPoint(predogled.x + 80, predogled.y);
 		wxPoint* t3 = new wxPoint(predogled.x + 65, predogled.y - 15);
@@ -1632,6 +1634,16 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 		dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
 		dc.DrawLine(wxPoint(predogled.x + 40, predogled.y - 15), wxPoint(predogled.x + 40, predogled.y - 25));
 		dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+	}
+	else if (choiceDod->GetSelection() == GRAF) {
+		dc.DrawText("Graf", wxPoint(predogled.x + 70, predogled.y - 16));
+		dc.SetPen(wxPen(wxColour(204, 204, 204), 1, wxPENSTYLE_SOLID));
+		dc.DrawRectangle(wxPoint(predogled.x, predogled.y), wxSize(160, 80));
+		dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
+	}
+	else {
+		dc.DrawRectangle(wxPoint(predogled.x, predogled.y), wxSize(80, 50));
+		dc.DrawText("Neznan \nelement", wxPoint(predogled.x + 18, predogled.y + 10));
 	}
 
 	
@@ -2026,7 +2038,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 				dc.SetPen(wxPen(wxColour(51, 153, 51), 1, wxPENSTYLE_SOLID));
 				dc.SetBrush(wxBrush(wxColour(153, 255, 153), wxBRUSHSTYLE_SOLID));
 
-				dc.DrawRectangle(wxPoint(xy[0] - 15 - 46, xy[1] + 35), wxSize(10, 10));
+				dc.DrawRectangle(wxPoint(xy[0] - 15 - 46, xy[1] + 27), wxSize(10, 10));
 
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 1, wxPENSTYLE_SOLID));
 				dc.SetBrush(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
@@ -2083,7 +2095,7 @@ void OknoSim::OnPaint(wxPaintEvent& evt) {
 
 				dc.DrawPolygon(tocke);
 
-				dc.DrawLine(wxPoint(xy[0], xy[1]), wxPoint(xy[0], xy[1] - 15 + zamik));
+				dc.DrawLine(wxPoint(xy[0], xy[1] + zamik), wxPoint(xy[0], xy[1] - 15));
 
 				dc.SetPen(wxPen(wxColour(0, 0, 0), 2, wxPENSTYLE_SOLID));
 
